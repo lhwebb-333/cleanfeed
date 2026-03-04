@@ -115,6 +115,14 @@ export default function App() {
           categoryCounts={categoryCounts}
           horizontal
         />
+        <div style={{ padding: `0 ${theme.spacing.lg}px` }}>
+          <MuteFilter
+            mutedKeywords={mutedKeywords}
+            onAdd={addMutedKeyword}
+            onRemove={removeMutedKeyword}
+            onClear={clearMutedKeywords}
+          />
+        </div>
       </div>
 
       <div
