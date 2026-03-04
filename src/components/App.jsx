@@ -4,6 +4,7 @@ import { SourceFilter } from "./SourceFilter";
 import { CategoryNav } from "./CategoryNav";
 import { FeedList } from "./FeedList";
 import { About } from "./About";
+import { MuteFilter } from "./MuteFilter";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
@@ -27,6 +28,10 @@ export default function App() {
     enableAllCats,
     disableAllCats,
     categoryCounts,
+    mutedKeywords,
+    addMutedKeyword,
+    removeMutedKeyword,
+    clearMutedKeywords,
     refresh,
   } = useFeed();
 
@@ -125,6 +130,12 @@ export default function App() {
             enableAll={enableAllCats}
             disableAll={disableAllCats}
             categoryCounts={categoryCounts}
+          />
+          <MuteFilter
+            mutedKeywords={mutedKeywords}
+            onAdd={addMutedKeyword}
+            onRemove={removeMutedKeyword}
+            onClear={clearMutedKeywords}
           />
         </div>
 

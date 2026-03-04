@@ -15,6 +15,36 @@ export function useFeed() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [enabledSources, setEnabledSources] = useState(new Set(ALL_SRC_KEYS));
   const [enabledCategories, setEnabledCategories] = useState(new Set(ALL_CAT_KEYS));
+  const [mutedKeywords, setMutedKeywords] = useState(() => {
+    try {
+      const saved = localStorage.getItem("cleanfeed-muted");
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+
+  const addMutedKeyword = useCallback((word) => {
+    const trimmed = word.trim().toLowerCase();
+    if (!trimmed) return;
+    setMutedKeywords((prev) => {
+      if (prev.includes(trimmed)) return prev;
+      const next = [...prev, trimmed];
+      try { localStorage.setItem("cleanfeed-muted", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, []);
+
+  const removeMutedKeyword = useCallback((word) => {
+    setMutedKeywords((prev) => {
+      const next = prev.filter((w) => w !== word);
+      try { localStorage.setItem("cleanfeed-muted", JSON.stringify(next)); } catch {}
+      return next;
+    });
+  }, []);
+
+  const clearMutedKeywords = useCallback(() => {
+    setMutedKeywords([]);
+    try { localStorage.removeItem("cleanfeed-muted"); } catch {}
+  }, []);
 
   const toggleSource = useCallback((name) => {
     setEnabledSources((prev) => {
@@ -70,12 +100,18 @@ export function useFeed() {
     return () => clearInterval(interval);
   }, [fetchFeed]);
 
-  // Client-side filtering: sources + categories
+  // Client-side filtering: sources + categories + muted keywords
   const articles = useMemo(() => {
-    return allArticles.filter(
-      (a) => enabledSources.has(a.source) && enabledCategories.has(a.category)
-    );
-  }, [allArticles, enabledSources, enabledCategories]);
+    return allArticles.filter((a) => {
+      if (!enabledSources.has(a.source)) return false;
+      if (!enabledCategories.has(a.category)) return false;
+      if (mutedKeywords.length > 0) {
+        const text = `${a.title} ${a.description}`.toLowerCase();
+        if (mutedKeywords.some((kw) => text.includes(kw))) return false;
+      }
+      return true;
+    });
+  }, [allArticles, enabledSources, enabledCategories, mutedKeywords]);
 
   const categoryCounts = useMemo(() => {
     const counts = {};
@@ -111,6 +147,10 @@ export function useFeed() {
     enableAllCats,
     disableAllCats,
     categoryCounts,
+    mutedKeywords,
+    addMutedKeyword,
+    removeMutedKeyword,
+    clearMutedKeywords,
     refresh: () => fetchFeed(true),
   };
 }
