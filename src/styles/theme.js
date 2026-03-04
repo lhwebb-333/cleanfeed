@@ -1,4 +1,18 @@
-export const theme = {
+const shared = {
+  fonts: {
+    mono: "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace",
+    serif: "'Newsreader', Georgia, 'Times New Roman', serif",
+  },
+  fontImport:
+    "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap",
+  radii: { sm: 3, md: 6, lg: 10 },
+  spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 48 },
+  maxWidth: 720,
+  transitions: { fast: "0.15s ease", normal: "0.25s ease" },
+};
+
+const dark = {
+  ...shared,
   colors: {
     bg: "#0d0d0d",
     surface: "#141414",
@@ -11,29 +25,28 @@ export const theme = {
     textFaint: "#444",
     textGhost: "#333",
     error: "#ff4444",
-  },
-  fonts: {
-    mono: "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace",
-    serif: "'Newsreader', Georgia, 'Times New Roman', serif",
-  },
-  fontImport:
-    "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap",
-  radii: {
-    sm: 3,
-    md: 6,
-    lg: 10,
-  },
-  spacing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
-    xxl: 48,
-  },
-  maxWidth: 720,
-  transitions: {
-    fast: "0.15s ease",
-    normal: "0.25s ease",
+    toggleBg: "#222",
   },
 };
+
+const light = {
+  ...shared,
+  colors: {
+    bg: "#fafafa",
+    surface: "#ffffff",
+    surfaceHover: "#f0f0f0",
+    border: "#e0e0e0",
+    borderSubtle: "#eee",
+    text: "#333",
+    textStrong: "#111",
+    textMuted: "#777",
+    textFaint: "#aaa",
+    textGhost: "#ccc",
+    error: "#d32f2f",
+    toggleBg: "#e4e4e4",
+  },
+};
+
+export const themes = { dark, light };
+// Default export for backwards compat during migration
+export const theme = dark;

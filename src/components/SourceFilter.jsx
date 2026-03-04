@@ -1,5 +1,5 @@
 import { SOURCES } from "../utils/sources";
-import { theme } from "../styles/theme";
+import { useTheme } from "../hooks/useTheme";
 
 export function SourceFilter({
   enabledSources,
@@ -8,6 +8,7 @@ export function SourceFilter({
   disableAllSources,
   sourceCounts,
 }) {
+  const { theme } = useTheme();
   const allOn = enabledSources.size === SOURCES.length;
 
   return (

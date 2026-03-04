@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { theme } from "../styles/theme";
+import { useTheme } from "../hooks/useTheme";
 import { timeAgo } from "../utils/time";
 import { SOURCE_COLOR_MAP } from "../utils/sources";
 
 export function ArticleCard({ article }) {
+  const { theme } = useTheme();
   const [hovered, setHovered] = useState(false);
   const color = SOURCE_COLOR_MAP[article.source] || article.color || "#888";
 

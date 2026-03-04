@@ -1,7 +1,9 @@
-import { theme } from "../styles/theme";
+import { useTheme } from "../hooks/useTheme";
 import { ArticleCard } from "./ArticleCard";
 
 export function FeedList({ articles, loading, error, onRetry }) {
+  const { theme } = useTheme();
+
   if (loading) {
     return (
       <div style={{ textAlign: "center", padding: "80px 0" }}>

@@ -1,5 +1,5 @@
 import { CATEGORIES } from "../utils/sources";
-import { theme } from "../styles/theme";
+import { useTheme } from "../hooks/useTheme";
 
 export function CategoryNav({
   enabledCategories,
@@ -9,8 +9,8 @@ export function CategoryNav({
   categoryCounts,
   horizontal,
 }) {
+  const { theme } = useTheme();
   const allOn = enabledCategories.size === CATEGORIES.length;
-  const noneOn = enabledCategories.size === 0;
 
   if (horizontal) {
     return (
@@ -38,13 +38,13 @@ export function CategoryNav({
                 fontSize: 11,
                 padding: "5px 12px",
                 border: on
-                  ? "1px solid rgba(255,255,255,0.15)"
+                  ? "1px solid rgba(255,140,0,0.3)"
                   : `1px solid ${theme.colors.border}`,
                 borderRadius: theme.radii.sm,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
                 transition: theme.transitions.fast,
-                background: on ? "rgba(255,255,255,0.08)" : "transparent",
+                background: on ? "rgba(255,140,0,0.1)" : "transparent",
                 color: on ? theme.colors.textStrong : theme.colors.textFaint,
                 opacity: on ? 1 : 0.5,
               }}
@@ -129,7 +129,6 @@ export function CategoryNav({
               opacity: on ? 1 : 0.45,
             }}
           >
-            {/* Toggle dot */}
             <span
               style={{
                 width: 8,

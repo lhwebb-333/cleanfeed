@@ -4,9 +4,10 @@ import { CategoryNav } from "./CategoryNav";
 import { FeedList } from "./FeedList";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
-import { theme } from "../styles/theme";
+import { useTheme } from "../hooks/useTheme";
 
 export default function App() {
+  const { theme, mode, toggle: toggleTheme } = useTheme();
   const {
     articles,
     loading,
@@ -36,6 +37,7 @@ export default function App() {
         color: theme.colors.text,
         fontFamily: theme.fonts.serif,
         position: "relative",
+        transition: "background 0.3s ease, color 0.3s ease",
       }}
     >
       {pulling && (
@@ -57,12 +59,12 @@ export default function App() {
               width: 28,
               height: 28,
               borderRadius: "50%",
-              border: `2px solid ${triggered ? "#fff" : theme.colors.textFaint}`,
+              border: `2px solid ${triggered ? theme.colors.textStrong : theme.colors.textFaint}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: 14,
-              color: triggered ? "#fff" : theme.colors.textFaint,
+              color: triggered ? theme.colors.textStrong : theme.colors.textFaint,
               background: theme.colors.surface,
               transform: `rotate(${pullDistance * 3}deg)`,
             }}
@@ -76,6 +78,8 @@ export default function App() {
         lastUpdated={lastUpdated}
         refreshing={refreshing}
         onRefresh={refresh}
+        mode={mode}
+        onToggleTheme={toggleTheme}
       />
 
       <SourceFilter
@@ -192,10 +196,10 @@ export default function App() {
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: ${theme.colors.bg}; }
+        body { background: ${theme.colors.bg}; transition: background 0.3s ease; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: ${theme.colors.textGhost}; border-radius: 2px; }
         a { text-decoration: none; color: inherit; }
         .category-sidebar {
           position: sticky;
