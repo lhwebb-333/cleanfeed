@@ -126,8 +126,8 @@ export default function App() {
           padding: `0 ${theme.spacing.lg}px`,
         }}
       >
-        {/* Sidebar filter — desktop */}
-        <div className="category-sidebar">
+        {/* Sidebar filter — desktop, fixed width */}
+        <div className="category-sidebar" style={{ width: 180, flexShrink: 0 }}>
           <CategoryNav
             enabledCategories={enabledCategories}
             toggleCategory={toggleCategory}

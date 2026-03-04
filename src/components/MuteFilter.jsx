@@ -78,7 +78,7 @@ export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear }) {
         <div
           style={{
             display: "flex",
-            flexWrap: "wrap",
+            flexDirection: "column",
             gap: 4,
             padding: "0 12px",
           }}
@@ -97,9 +97,10 @@ export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear }) {
                 borderRadius: theme.radii.sm,
                 color: theme.colors.error,
                 cursor: "pointer",
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
                 gap: 4,
+                alignSelf: "flex-start",
               }}
             >
               {kw}
