@@ -1,7 +1,7 @@
 import { useTheme } from "../hooks/useTheme";
 import { timeAgo } from "../utils/time";
 
-export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme }) {
+export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme, onAbout }) {
   const { theme } = useTheme();
 
   return (
@@ -46,6 +46,25 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         </div>
 
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {/* About */}
+          <button
+            onClick={onAbout}
+            style={{
+              background: "none",
+              border: `1px solid ${theme.colors.border}`,
+              color: theme.colors.textMuted,
+              fontSize: 12,
+              cursor: "pointer",
+              padding: "6px 10px",
+              borderRadius: theme.radii.md,
+              fontFamily: theme.fonts.mono,
+              letterSpacing: "0.04em",
+              transition: theme.transitions.fast,
+            }}
+          >
+            ?
+          </button>
+
           {/* Theme toggle */}
           <button
             onClick={onToggleTheme}

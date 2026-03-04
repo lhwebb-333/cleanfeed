@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { Header } from "./Header";
 import { SourceFilter } from "./SourceFilter";
 import { CategoryNav } from "./CategoryNav";
 import { FeedList } from "./FeedList";
+import { About } from "./About";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
 
 export default function App() {
   const { theme, mode, toggle: toggleTheme } = useTheme();
+  const [aboutOpen, setAboutOpen] = useState(false);
   const {
     articles,
     loading,
@@ -74,12 +77,15 @@ export default function App() {
         </div>
       )}
 
+      <About open={aboutOpen} onClose={() => setAboutOpen(false)} />
+
       <Header
         lastUpdated={lastUpdated}
         refreshing={refreshing}
         onRefresh={refresh}
         mode={mode}
         onToggleTheme={toggleTheme}
+        onAbout={() => setAboutOpen(true)}
       />
 
       <SourceFilter
