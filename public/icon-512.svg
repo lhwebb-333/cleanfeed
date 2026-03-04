@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#0d0d0d"/>
+  <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle"
+        font-family="monospace" font-weight="700" font-size="128"
+        fill="#e8e8e8" letter-spacing="0.1em">CF</text>
+  <rect x="76.8" y="368.64" width="358.4" height="1" fill="#FF8000" opacity="0.6"/>
+</svg>

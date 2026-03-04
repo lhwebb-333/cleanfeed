@@ -1,0 +1,28 @@
+{
+  "name": "cleanfeed",
+  "version": "1.0.0",
+  "description": "News only. No opinions. No rage. No algorithms.",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "vite",
+    "dev:server": "node --watch server/rss-proxy.js",
+    "build": "vite build",
+    "start": "NODE_ENV=production node server/rss-proxy.js",
+    "lint": "eslint src/",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "rss-parser": "^3.13.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "concurrently": "^8.2.0",
+    "vite": "^5.0.0",
+    "eslint": "^8.50.0"
+  }
+}
