@@ -1,7 +1,7 @@
 import { useTheme } from "../hooks/useTheme";
 import { timeAgo } from "../utils/time";
 
-export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme, onAbout }) {
+export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme, onAbout, searchQuery, onSearchChange }) {
   const { theme } = useTheme();
 
   return (
@@ -129,20 +129,58 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         </div>
       </div>
 
-      {lastUpdated && (
-        <p
+      {/* Search + timestamp row */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          marginTop: 12,
+        }}
+      >
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="Search headlines..."
           style={{
+            flex: 1,
             fontFamily: theme.fonts.mono,
-            fontSize: 10,
-            color: theme.colors.textFaint,
-            marginTop: 12,
-            letterSpacing: "0.05em",
-            textTransform: "uppercase",
+            fontSize: 11,
+            padding: "7px 12px",
+            background: theme.colors.surface,
+            border: `1px solid ${theme.colors.border}`,
+            borderRadius: theme.radii.sm,
+            color: theme.colors.text,
+            outline: "none",
+            transition: theme.transitions.fast,
+            maxWidth: 300,
           }}
-        >
-          Updated {timeAgo(lastUpdated.toISOString())}
-        </p>
-      )}
+        />
+
+        {lastUpdated && (
+          <button
+            onClick={onRefresh}
+            disabled={refreshing}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: refreshing ? "default" : "pointer",
+              fontFamily: theme.fonts.mono,
+              fontSize: 10,
+              color: theme.colors.textFaint,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              opacity: refreshing ? 0.5 : 1,
+              transition: theme.transitions.fast,
+              whiteSpace: "nowrap",
+            }}
+            title="Click to refresh"
+          >
+            Updated {timeAgo(lastUpdated.toISOString())} ↻
+          </button>
+        )}
+      </div>
     </header>
   );
 }

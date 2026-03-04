@@ -7,14 +7,29 @@ const POLL_INTERVAL = 5 * 60 * 1000;
 const ALL_CAT_KEYS = CATEGORIES.map((c) => c.key);
 const ALL_SRC_KEYS = SOURCES.map((s) => s.name);
 
+function loadSet(key, fallback) {
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved) return new Set(JSON.parse(saved));
+  } catch {}
+  return new Set(fallback);
+}
+
+function saveSet(key, set) {
+  try { localStorage.setItem(key, JSON.stringify([...set])); } catch {}
+}
+
 export function useFeed() {
   const [allArticles, setAllArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [enabledSources, setEnabledSources] = useState(new Set(ALL_SRC_KEYS));
-  const [enabledCategories, setEnabledCategories] = useState(new Set(ALL_CAT_KEYS));
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Persisted filters
+  const [enabledSources, setEnabledSources] = useState(() => loadSet("cleanfeed-sources", ALL_SRC_KEYS));
+  const [enabledCategories, setEnabledCategories] = useState(() => loadSet("cleanfeed-categories", ALL_CAT_KEYS));
   const [mutedKeywords, setMutedKeywords] = useState(() => {
     try {
       const saved = localStorage.getItem("cleanfeed-muted");
@@ -51,24 +66,42 @@ export function useFeed() {
       const next = new Set(prev);
       if (next.has(name)) next.delete(name);
       else next.add(name);
+      saveSet("cleanfeed-sources", next);
       return next;
     });
   }, []);
 
-  const enableAllSources = useCallback(() => setEnabledSources(new Set(ALL_SRC_KEYS)), []);
-  const disableAllSources = useCallback(() => setEnabledSources(new Set()), []);
+  const enableAllSources = useCallback(() => {
+    const all = new Set(ALL_SRC_KEYS);
+    setEnabledSources(all);
+    saveSet("cleanfeed-sources", all);
+  }, []);
+
+  const disableAllSources = useCallback(() => {
+    setEnabledSources(new Set());
+    saveSet("cleanfeed-sources", new Set());
+  }, []);
 
   const toggleCategory = useCallback((key) => {
     setEnabledCategories((prev) => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
       else next.add(key);
+      saveSet("cleanfeed-categories", next);
       return next;
     });
   }, []);
 
-  const enableAllCats = useCallback(() => setEnabledCategories(new Set(ALL_CAT_KEYS)), []);
-  const disableAllCats = useCallback(() => setEnabledCategories(new Set()), []);
+  const enableAllCats = useCallback(() => {
+    const all = new Set(ALL_CAT_KEYS);
+    setEnabledCategories(all);
+    saveSet("cleanfeed-categories", all);
+  }, []);
+
+  const disableAllCats = useCallback(() => {
+    setEnabledCategories(new Set());
+    saveSet("cleanfeed-categories", new Set());
+  }, []);
 
   const fetchFeed = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -100,8 +133,9 @@ export function useFeed() {
     return () => clearInterval(interval);
   }, [fetchFeed]);
 
-  // Client-side filtering: sources + categories + muted keywords
+  // Client-side filtering: sources + categories + muted keywords + search
   const articles = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
     return allArticles.filter((a) => {
       if (!enabledSources.has(a.source)) return false;
       if (!enabledCategories.has(a.category)) return false;
@@ -109,9 +143,13 @@ export function useFeed() {
         const text = `${a.title} ${a.description}`.toLowerCase();
         if (mutedKeywords.some((kw) => text.includes(kw))) return false;
       }
+      if (query) {
+        const text = `${a.title} ${a.description}`.toLowerCase();
+        if (!text.includes(query)) return false;
+      }
       return true;
     });
-  }, [allArticles, enabledSources, enabledCategories, mutedKeywords]);
+  }, [allArticles, enabledSources, enabledCategories, mutedKeywords, searchQuery]);
 
   const categoryCounts = useMemo(() => {
     const counts = {};
@@ -137,6 +175,8 @@ export function useFeed() {
     refreshing,
     error,
     lastUpdated,
+    searchQuery,
+    setSearchQuery,
     enabledSources,
     toggleSource,
     enableAllSources,

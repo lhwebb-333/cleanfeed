@@ -32,6 +32,8 @@ export default function App() {
     addMutedKeyword,
     removeMutedKeyword,
     clearMutedKeywords,
+    searchQuery,
+    setSearchQuery,
     refresh,
   } = useFeed();
 
@@ -91,6 +93,8 @@ export default function App() {
         mode={mode}
         onToggleTheme={toggleTheme}
         onAbout={() => setAboutOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       <SourceFilter
