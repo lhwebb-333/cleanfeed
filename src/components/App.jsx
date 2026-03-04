@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { Header } from "./Header";
 import { SourceFilter } from "./SourceFilter";
 import { CategoryNav } from "./CategoryNav";
@@ -242,6 +243,7 @@ export default function App() {
           .category-mobile-bar { display: block; }
         }
       `}</style>
+      <Analytics />
     </div>
   );
 }
