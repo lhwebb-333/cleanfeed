@@ -65,7 +65,7 @@ export function ArticleCard({ article }) {
           style={{
             fontFamily: theme.fonts.mono,
             fontSize: 10,
-            color: theme.colors.textFaint,
+            color: theme.colors.textMuted,
             letterSpacing: "0.03em",
           }}
         >
