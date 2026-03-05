@@ -41,7 +41,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
               fontStyle: "italic",
             }}
           >
-            News only. No opinions. No rage. No algorithms.
+            No algorithms. No rage. Just news.
           </p>
         </div>
 
