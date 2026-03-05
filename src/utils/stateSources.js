@@ -48,85 +48,44 @@ function apStateProxy(stateName) {
 
 // Curated local sources by state (top states + notable outlets)
 // Each source: { name, rss, bias: "center"|"center-left"|"center-right" }
+// Center / least-biased only. All sources verified against MBFC, AllSides, or NewsGuard.
+// States without curated sources still get AP state proxy coverage.
 const CURATED_SOURCES = {
-  CA: [
-    { name: "CalMatters", rss: "https://calmatters.org/feed/", bias: "center" },
-    { name: "KQED", rss: "https://www.kqed.org/news/feed", bias: "center-left" },
-  ],
+  CA: [{ name: "CalMatters", rss: "https://calmatters.org/feed/", bias: "center" }],
   TX: [
     { name: "Texas Tribune", rss: "https://www.texastribune.org/feeds/articles.rss", bias: "center" },
     { name: "Houston Public Media", rss: "https://www.houstonpublicmedia.org/feed/", bias: "center" },
   ],
-  FL: [
-    { name: "Tampa Bay Times", rss: "https://www.tampabay.com/arcio/rss/", bias: "center-left" },
-    { name: "WUSF", rss: "https://www.wusf.usf.edu/rss.xml", bias: "center" },
-  ],
-  NY: [
-    { name: "Gothamist", rss: "https://gothamist.com/feed", bias: "center-left" },
-    { name: "City & State NY", rss: "https://www.cityandstateny.com/rss.xml", bias: "center" },
-  ],
+  FL: [{ name: "WUSF", rss: "https://www.wusf.usf.edu/rss.xml", bias: "center" }],
+  NY: [{ name: "City & State NY", rss: "https://www.cityandstateny.com/rss.xml", bias: "center" }],
   PA: [
     { name: "WHYY", rss: "https://whyy.org/feed/", bias: "center" },
-    { name: "Spotlight PA", rss: "https://www.spotlightpa.org/news/feed/", bias: "center" },
+    { name: "Spotlight PA", rss: "https://www.spotlightpa.org/feeds/full.xml", bias: "center" },
   ],
-  IL: [
-    { name: "WBEZ Chicago", rss: "https://feeds.simplecast.com/Nn6fjnB0", bias: "center" },
-    { name: "Capitol News Illinois", rss: "https://capitolnewsillinois.com/feed", bias: "center" },
-  ],
-  OH: [
-    { name: "Ohio Capital Journal", rss: "https://ohiocapitaljournal.com/feed/", bias: "center-left" },
-    { name: "WOSU", rss: "https://news.wosu.org/rss.xml", bias: "center" },
-  ],
-  GA: [
-    { name: "GPB News", rss: "https://www.gpb.org/news/feed", bias: "center" },
-  ],
+  IL: [{ name: "Capitol News Illinois", rss: "https://capitolnewsillinois.com/feed", bias: "center" }],
+  OH: [{ name: "WOSU", rss: "https://news.wosu.org/rss.xml", bias: "center" }],
+  GA: [{ name: "GPB News", rss: "https://www.gpb.org/news/feed", bias: "center" }],
   NC: [
     { name: "WUNC", rss: "https://www.wunc.org/rss.xml", bias: "center" },
-    { name: "NC Newsline", rss: "https://ncnewsline.com/feed/", bias: "center-left" },
+    { name: "Carolina Public Press", rss: "https://carolinapublicpress.org/feed/", bias: "center" },
   ],
-  MI: [
-    { name: "Bridge Michigan", rss: "https://www.bridgemi.com/feed", bias: "center" },
-    { name: "Michigan Radio", rss: "https://www.michiganradio.org/rss.xml", bias: "center" },
-  ],
-  VA: [
-    { name: "Virginia Mercury", rss: "https://virginiamercury.com/feed/", bias: "center" },
-    { name: "WVTF", rss: "https://www.wvtf.org/rss.xml", bias: "center" },
-  ],
-  WA: [
-    { name: "Crosscut", rss: "https://crosscut.com/feeds/rss", bias: "center-left" },
-    { name: "KUOW", rss: "https://www.kuow.org/rss.xml", bias: "center" },
-  ],
+  MI: [{ name: "Bridge Michigan", rss: "https://bridgemi.com/feed/rss/", bias: "center" }],
+  VA: [{ name: "WVTF", rss: "https://www.wvtf.org/rss.xml", bias: "center" }],
+  WA: [{ name: "KUOW", rss: "https://www.kuow.org/rss.xml", bias: "center" }],
   CO: [
     { name: "Colorado Sun", rss: "https://coloradosun.com/feed/", bias: "center" },
     { name: "CPR News", rss: "https://www.cpr.org/feed/", bias: "center" },
   ],
-  MN: [
-    { name: "MinnPost", rss: "https://www.minnpost.com/feed/", bias: "center-left" },
-    { name: "MPR News", rss: "https://www.mprnews.org/rss/index", bias: "center" },
-  ],
-  MA: [
-    { name: "WBUR", rss: "https://www.wbur.org/rss/news", bias: "center-left" },
-    { name: "GBH News", rss: "https://www.wgbh.org/news/feed", bias: "center" },
-  ],
-  OR: [
-    { name: "OPB", rss: "https://www.opb.org/rss/", bias: "center" },
-  ],
-  NJ: [
-    { name: "NJ Spotlight News", rss: "https://www.njspotlightnews.org/feed/", bias: "center" },
-    { name: "WNYC NJ", rss: "https://www.wnyc.org/feeds/region/new-jersey", bias: "center-left" },
-  ],
-  AZ: [
-    { name: "Arizona Mirror", rss: "https://azmirror.com/feed/", bias: "center-left" },
-    { name: "KJZZ", rss: "https://kjzz.org/rss.xml", bias: "center" },
-  ],
+  MN: [{ name: "MPR News", rss: "https://www.mprnews.org/rss/index", bias: "center" }],
+  MA: [{ name: "GBH News", rss: "https://www.wgbh.org/news/feed", bias: "center" }],
+  OR: [{ name: "OPB", rss: "https://www.opb.org/rss/", bias: "center" }],
+  NJ: [{ name: "NJ Spotlight News", rss: "https://www.njspotlightnews.org/feed/", bias: "center" }],
+  AZ: [{ name: "KJZZ", rss: "https://kjzz.org/rss.xml", bias: "center" }],
   WI: [
     { name: "Wisconsin Watch", rss: "https://wisconsinwatch.org/feed/", bias: "center" },
     { name: "WPR", rss: "https://www.wpr.org/rss.xml", bias: "center" },
   ],
-  TN: [
-    { name: "WPLN Nashville", rss: "https://wpln.org/feed/", bias: "center" },
-    { name: "Tennessee Lookout", rss: "https://tennesseelookout.com/feed/", bias: "center-left" },
-  ],
+  TN: [{ name: "WPLN Nashville", rss: "https://wpln.org/feed/", bias: "center" }],
 };
 
 // Build the full source config for a state
