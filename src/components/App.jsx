@@ -6,6 +6,7 @@ import { CategoryNav } from "./CategoryNav";
 import { FeedList } from "./FeedList";
 import { About } from "./About";
 import { MuteFilter } from "./MuteFilter";
+import { StateSelector } from "./StateSelector";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
@@ -33,6 +34,9 @@ export default function App() {
     addMutedKeyword,
     removeMutedKeyword,
     clearMutedKeywords,
+    selectedState,
+    selectState,
+    clearState,
     searchQuery,
     setSearchQuery,
     refresh,
@@ -104,6 +108,7 @@ export default function App() {
         enableAllSources={enableAllSources}
         disableAllSources={disableAllSources}
         sourceCounts={sourceCounts}
+        selectedState={selectedState}
       />
 
       {/* Mobile category filter — horizontal scroll */}
@@ -122,6 +127,11 @@ export default function App() {
             onAdd={addMutedKeyword}
             onRemove={removeMutedKeyword}
             onClear={clearMutedKeywords}
+          />
+          <StateSelector
+            selectedState={selectedState}
+            onSelect={selectState}
+            onClear={clearState}
           />
         </div>
       </div>
@@ -149,6 +159,11 @@ export default function App() {
             onAdd={addMutedKeyword}
             onRemove={removeMutedKeyword}
             onClear={clearMutedKeywords}
+          />
+          <StateSelector
+            selectedState={selectedState}
+            onSelect={selectState}
+            onClear={clearState}
           />
         </div>
 
@@ -207,7 +222,7 @@ export default function App() {
             marginBottom: 4,
           }}
         >
-          Sources: Reuters · AP News · BBC · NPR
+          Sources: Reuters · AP News · BBC · NPR{selectedState ? ` · Local ${selectedState}` : ""}
         </p>
         <p
           style={{

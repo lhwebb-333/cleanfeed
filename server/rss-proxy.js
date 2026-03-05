@@ -311,6 +311,117 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+// === Local feed support ===
+
+const LOCAL_COLOR = "#9b59b6";
+
+const CURATED_LOCAL = {
+  CA: [{ name: "CalMatters", rss: "https://calmatters.org/feed/" }, { name: "KQED", rss: "https://www.kqed.org/news/feed" }],
+  TX: [{ name: "Texas Tribune", rss: "https://www.texastribune.org/feeds/articles.rss" }, { name: "Houston Public Media", rss: "https://www.houstonpublicmedia.org/feed/" }],
+  FL: [{ name: "Tampa Bay Times", rss: "https://www.tampabay.com/arcio/rss/" }, { name: "WUSF", rss: "https://www.wusf.usf.edu/rss.xml" }],
+  NY: [{ name: "Gothamist", rss: "https://gothamist.com/feed" }],
+  PA: [{ name: "WHYY", rss: "https://whyy.org/feed/" }, { name: "Spotlight PA", rss: "https://www.spotlightpa.org/news/feed/" }],
+  IL: [{ name: "Capitol News IL", rss: "https://capitolnewsillinois.com/feed" }],
+  OH: [{ name: "Ohio Capital Journal", rss: "https://ohiocapitaljournal.com/feed/" }],
+  GA: [{ name: "GPB News", rss: "https://www.gpb.org/news/feed" }],
+  NC: [{ name: "WUNC", rss: "https://www.wunc.org/rss.xml" }],
+  MI: [{ name: "Bridge Michigan", rss: "https://www.bridgemi.com/feed" }],
+  VA: [{ name: "Virginia Mercury", rss: "https://virginiamercury.com/feed/" }],
+  WA: [{ name: "Crosscut", rss: "https://crosscut.com/feeds/rss" }],
+  CO: [{ name: "Colorado Sun", rss: "https://coloradosun.com/feed/" }],
+  MN: [{ name: "MinnPost", rss: "https://www.minnpost.com/feed/" }],
+  MA: [{ name: "WBUR", rss: "https://www.wbur.org/rss/news" }],
+  OR: [{ name: "OPB", rss: "https://www.opb.org/rss/" }],
+  NJ: [{ name: "NJ Spotlight", rss: "https://www.njspotlightnews.org/feed/" }],
+  AZ: [{ name: "KJZZ", rss: "https://kjzz.org/rss.xml" }],
+  WI: [{ name: "Wisconsin Watch", rss: "https://wisconsinwatch.org/feed/" }],
+  TN: [{ name: "WPLN Nashville", rss: "https://wpln.org/feed/" }],
+};
+
+const US_STATES_MAP = {
+  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California",
+  CO: "Colorado", CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia",
+  HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa",
+  KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland",
+  MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri",
+  MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
+  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio",
+  OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina",
+  SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont",
+  VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
+  DC: "District of Columbia",
+};
+
+async function fetchLocalFeed(stateCode) {
+  const stateName = US_STATES_MAP[stateCode];
+  if (!stateName) return [];
+
+  const cacheKey = `local-${stateCode}`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  const articles = [];
+
+  // AP state proxy
+  const apUrl = `https://news.google.com/rss/search?q=when:24h+"${encodeURIComponent(stateName)}"+site:apnews.com&ceid=US:en&hl=en-US&gl=US`;
+  try {
+    const feed = await parser.parseURL(apUrl);
+    for (const item of (feed.items || []).slice(0, 20)) {
+      if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+      articles.push({
+        id: item.guid || item.link,
+        title: item.title, description: desc, link: item.link,
+        pubDate: item.isoDate || item.pubDate,
+        source: `Local ${stateCode}`, color: LOCAL_COLOR,
+        category: classifyArticle(item.title, desc, "world"),
+        scope: "local",
+      });
+    }
+  } catch (err) {
+    console.warn(`[CleanFeed] AP state proxy failed for ${stateCode}:`, err.message);
+  }
+
+  // Curated sources
+  for (const src of (CURATED_LOCAL[stateCode] || [])) {
+    try {
+      const feed = await parser.parseURL(src.rss);
+      for (const item of (feed.items || []).slice(0, 15)) {
+        if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+        const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+        articles.push({
+          id: item.guid || item.link,
+          title: item.title, description: desc, link: item.link,
+          pubDate: item.isoDate || item.pubDate,
+          source: `Local ${stateCode}`, color: LOCAL_COLOR,
+          category: classifyArticle(item.title, desc, "world"),
+          scope: "local",
+        });
+      }
+    } catch (err) {
+      console.warn(`[CleanFeed] Local source ${src.name} failed:`, err.message);
+    }
+  }
+
+  const seen = new Set();
+  const deduped = articles.filter((a) => { if (seen.has(a.link)) return false; seen.add(a.link); return true; });
+  const sorted = deduped.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate)).slice(0, 50);
+  setCache(cacheKey, sorted);
+  return sorted;
+}
+
+app.get("/api/local-feed", async (req, res) => {
+  try {
+    const { state } = req.query;
+    if (!state) return res.status(400).json({ ok: false, error: "Missing state" });
+    const articles = await fetchLocalFeed(state.toUpperCase().slice(0, 2));
+    res.json({ ok: true, count: articles.length, state: state.toUpperCase(), articles });
+  } catch (err) {
+    console.error("[CleanFeed] Local feed error:", err);
+    res.status(500).json({ ok: false, error: "Failed to fetch local feeds" });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`[CleanFeed] Server running on port ${PORT}`);

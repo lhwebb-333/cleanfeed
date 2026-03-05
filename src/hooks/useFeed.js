@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { CATEGORIES, SOURCES } from "../utils/sources";
+import { LOCAL_COLOR } from "../utils/stateSources";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 const POLL_INTERVAL = 5 * 60 * 1000;
@@ -36,6 +37,13 @@ export function useFeed() {
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
+
+  // State-level local news
+  const [selectedState, setSelectedState] = useState(() => {
+    try { return localStorage.getItem("cleanfeed-state") || null; } catch { return null; }
+  });
+  const [localArticles, setLocalArticles] = useState([]);
+  const localFetchRef = useRef(null);
 
   const addMutedKeyword = useCallback((word) => {
     const trimmed = word.trim().toLowerCase();
@@ -103,6 +111,61 @@ export function useFeed() {
     saveSet("cleanfeed-categories", new Set());
   }, []);
 
+  const selectState = useCallback((code) => {
+    setSelectedState(code);
+    try { localStorage.setItem("cleanfeed-state", code); } catch {}
+    // Auto-enable the local source
+    setEnabledSources((prev) => {
+      const next = new Set(prev);
+      const localName = `Local ${code}`;
+      next.add(localName);
+      saveSet("cleanfeed-sources", next);
+      return next;
+    });
+  }, []);
+
+  const clearState = useCallback(() => {
+    const prevState = selectedState;
+    setSelectedState(null);
+    setLocalArticles([]);
+    try { localStorage.removeItem("cleanfeed-state"); } catch {}
+    // Remove local source from enabled
+    if (prevState) {
+      setEnabledSources((prev) => {
+        const next = new Set(prev);
+        next.delete(`Local ${prevState}`);
+        saveSet("cleanfeed-sources", next);
+        return next;
+      });
+    }
+  }, [selectedState]);
+
+  const fetchLocalFeed = useCallback(async (stateCode) => {
+    if (!stateCode) return;
+    try {
+      const url = `${API_BASE}/api/local-feed?state=${stateCode}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.ok) {
+        setLocalArticles(data.articles);
+      }
+    } catch (err) {
+      console.warn("[CleanFeed] Local feed error:", err);
+    }
+  }, []);
+
+  // Fetch local feed when state changes or on refresh
+  useEffect(() => {
+    if (selectedState) {
+      fetchLocalFeed(selectedState);
+      localFetchRef.current = selectedState;
+    } else {
+      setLocalArticles([]);
+      localFetchRef.current = null;
+    }
+  }, [selectedState, fetchLocalFeed]);
+
   const fetchFeed = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
@@ -124,7 +187,11 @@ export function useFeed() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+    // Also refresh local feed if a state is selected
+    if (localFetchRef.current) {
+      fetchLocalFeed(localFetchRef.current);
+    }
+  }, [fetchLocalFeed]);
 
   useEffect(() => {
     setLoading(true);
@@ -133,10 +200,19 @@ export function useFeed() {
     return () => clearInterval(interval);
   }, [fetchFeed]);
 
+  // Merge national + local articles
+  const combinedArticles = useMemo(() => {
+    if (localArticles.length === 0) return allArticles;
+    const merged = [...allArticles, ...localArticles];
+    // Sort by date, newest first
+    merged.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+    return merged;
+  }, [allArticles, localArticles]);
+
   // Client-side filtering: sources + categories + muted keywords + search
   const articles = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
-    return allArticles.filter((a) => {
+    return combinedArticles.filter((a) => {
       if (!enabledSources.has(a.source)) return false;
       if (!enabledCategories.has(a.category)) return false;
       if (mutedKeywords.length > 0) {
@@ -149,25 +225,25 @@ export function useFeed() {
       }
       return true;
     });
-  }, [allArticles, enabledSources, enabledCategories, mutedKeywords, searchQuery]);
+  }, [combinedArticles, enabledSources, enabledCategories, mutedKeywords, searchQuery]);
 
   const categoryCounts = useMemo(() => {
     const counts = {};
-    for (const a of allArticles) {
+    for (const a of combinedArticles) {
       if (enabledSources.has(a.source)) {
         counts[a.category] = (counts[a.category] || 0) + 1;
       }
     }
     return counts;
-  }, [allArticles, enabledSources]);
+  }, [combinedArticles, enabledSources]);
 
   const sourceCounts = useMemo(() => {
     const counts = {};
-    for (const a of allArticles) {
+    for (const a of combinedArticles) {
       counts[a.source] = (counts[a.source] || 0) + 1;
     }
     return counts;
-  }, [allArticles]);
+  }, [combinedArticles]);
 
   return {
     articles,
@@ -191,6 +267,9 @@ export function useFeed() {
     addMutedKeyword,
     removeMutedKeyword,
     clearMutedKeywords,
+    selectedState,
+    selectState,
+    clearState,
     refresh: () => fetchFeed(true),
   };
 }

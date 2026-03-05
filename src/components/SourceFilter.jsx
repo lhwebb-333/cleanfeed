@@ -1,4 +1,4 @@
-import { SOURCES } from "../utils/sources";
+import { SOURCES, getSourceColor } from "../utils/sources";
 import { useTheme } from "../hooks/useTheme";
 
 export function SourceFilter({
@@ -7,9 +7,14 @@ export function SourceFilter({
   enableAllSources,
   disableAllSources,
   sourceCounts,
+  selectedState,
 }) {
   const { theme } = useTheme();
-  const allOn = enabledSources.size === SOURCES.length;
+  const localName = selectedState ? `Local ${selectedState}` : null;
+  const allSources = localName
+    ? [...SOURCES, { key: "local", name: localName, color: getSourceColor(localName) }]
+    : SOURCES;
+  const allOn = enabledSources.size >= allSources.length;
 
   return (
     <div
@@ -39,7 +44,7 @@ export function SourceFilter({
       >
         {allOn ? "NONE" : "ALL"}
       </button>
-      {SOURCES.map((s) => {
+      {allSources.map((s) => {
         const on = enabledSources.has(s.name);
         const count = sourceCounts[s.name] || 0;
         return (
