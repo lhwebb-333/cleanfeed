@@ -243,7 +243,7 @@ export default function App() {
         >
           Clean Feed believes clarity should be free.{" "}
           <a
-            href="https://buymeacoffee.com/cleanfeed"
+            href="https://buymeacoffee.com/lhwebb"
             target="_blank"
             rel="noopener noreferrer"
             style={{

@@ -248,7 +248,7 @@ export function About({ open, onClose }) {
             a small contribution helps cover hosting and development costs.
           </p>
           <a
-            href="https://buymeacoffee.com/cleanfeed"
+            href="https://buymeacoffee.com/lhwebb"
             target="_blank"
             rel="noopener noreferrer"
             style={{
