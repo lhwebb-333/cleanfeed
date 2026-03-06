@@ -184,6 +184,91 @@ export function About({ open, onClose }) {
           </p>
         </div>
 
+        <div style={{ marginBottom: 24 }}>
+          <p
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: theme.colors.textFaint,
+              textTransform: "uppercase",
+              marginBottom: 8,
+            }}
+          >
+            Our Mission
+          </p>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: theme.colors.textMuted,
+            }}
+          >
+            News should inform, not inflame. Clean Feed exists to give people a
+            calm, unbiased window into what's happening — free from algorithms,
+            outrage, and manipulation. We believe access to straight news is a
+            public good.
+          </p>
+        </div>
+
+        <div
+          style={{
+            padding: "16px",
+            background: theme.colors.bg,
+            border: `1px solid ${theme.colors.border}`,
+            borderRadius: theme.radii.md,
+            marginBottom: 20,
+          }}
+        >
+          <p
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: theme.colors.textFaint,
+              textTransform: "uppercase",
+              marginBottom: 6,
+            }}
+          >
+            Support Clean Feed
+          </p>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: theme.colors.textMuted,
+              marginBottom: 12,
+            }}
+          >
+            Clean Feed is free and always will be. If you find it useful,
+            a small contribution helps cover hosting and development costs.
+          </p>
+          <a
+            href="https://buymeacoffee.com/cleanfeed"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-block",
+              fontFamily: theme.fonts.mono,
+              fontSize: 10,
+              fontWeight: 600,
+              letterSpacing: "0.06em",
+              padding: "8px 16px",
+              background: theme.colors.textStrong,
+              color: theme.colors.bg,
+              borderRadius: theme.radii.sm,
+              textDecoration: "none",
+              transition: theme.transitions.fast,
+            }}
+          >
+            Buy us a coffee
+          </a>
+        </div>
+
         <p
           style={{
             fontFamily: theme.fonts.mono,

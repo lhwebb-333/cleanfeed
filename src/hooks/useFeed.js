@@ -81,9 +81,10 @@ export function useFeed() {
 
   const enableAllSources = useCallback(() => {
     const all = new Set(ALL_SRC_KEYS);
+    if (selectedState) all.add(`Local ${selectedState}`);
     setEnabledSources(all);
     saveSet("cleanfeed-sources", all);
-  }, []);
+  }, [selectedState]);
 
   const disableAllSources = useCallback(() => {
     setEnabledSources(new Set());

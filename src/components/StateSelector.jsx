@@ -20,10 +20,10 @@ export function StateSelector({ selectedState, onSelect, onClear }) {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
+          gap: 8,
           padding: "0 12px",
-          marginBottom: 10,
+          marginBottom: selectedState ? 8 : 0,
         }}
       >
         <p
@@ -34,11 +34,35 @@ export function StateSelector({ selectedState, onSelect, onClear }) {
             color: theme.colors.textFaint,
             letterSpacing: "0.12em",
             textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
           }}
         >
           Local News
         </p>
-        {selectedState && (
+
+        {!selectedState ? (
+          <form onSubmit={handleSubmit} style={{ flex: 1, minWidth: 0 }}>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="e.g. OH, Texas..."
+              style={{
+                width: "100%",
+                fontFamily: theme.fonts.mono,
+                fontSize: 11,
+                padding: "5px 8px",
+                background: theme.colors.surface,
+                border: `1px solid ${theme.colors.border}`,
+                borderRadius: theme.radii.sm,
+                color: theme.colors.text,
+                outline: "none",
+                transition: theme.transitions.fast,
+              }}
+            />
+          </form>
+        ) : (
           <button
             onClick={onClear}
             style={{
@@ -50,6 +74,9 @@ export function StateSelector({ selectedState, onSelect, onClear }) {
               cursor: "pointer",
               letterSpacing: "0.05em",
               opacity: 0.7,
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+              marginLeft: "auto",
             }}
           >
             CLEAR
@@ -57,28 +84,7 @@ export function StateSelector({ selectedState, onSelect, onClear }) {
         )}
       </div>
 
-      {!selectedState ? (
-        <form onSubmit={handleSubmit} style={{ padding: "0 12px" }}>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="e.g. OH, Texas..."
-            style={{
-              width: "100%",
-              fontFamily: theme.fonts.mono,
-              fontSize: 11,
-              padding: "7px 10px",
-              background: theme.colors.surface,
-              border: `1px solid ${theme.colors.border}`,
-              borderRadius: theme.radii.sm,
-              color: theme.colors.text,
-              outline: "none",
-              transition: theme.transitions.fast,
-            }}
-          />
-        </form>
-      ) : (
+      {selectedState && (
         <div style={{ padding: "0 12px" }}>
           <button
             onClick={onClear}

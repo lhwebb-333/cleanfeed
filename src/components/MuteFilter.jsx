@@ -13,13 +13,14 @@ export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear }) {
 
   return (
     <div style={{ paddingTop: theme.spacing.md }}>
-      <div
+      <form
+        onSubmit={handleSubmit}
         style={{
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
+          gap: 8,
           padding: "0 12px",
-          marginBottom: 10,
+          marginBottom: mutedKeywords.length > 0 ? 8 : 0,
         }}
       >
         <p
@@ -30,12 +31,34 @@ export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear }) {
             color: theme.colors.textFaint,
             letterSpacing: "0.12em",
             textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
           }}
         >
           Mute Words
         </p>
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="e.g. trump, war..."
+          style={{
+            flex: 1,
+            minWidth: 0,
+            fontFamily: theme.fonts.mono,
+            fontSize: 11,
+            padding: "5px 8px",
+            background: theme.colors.surface,
+            border: `1px solid ${theme.colors.border}`,
+            borderRadius: theme.radii.sm,
+            color: theme.colors.text,
+            outline: "none",
+            transition: theme.transitions.fast,
+          }}
+        />
         {mutedKeywords.length > 0 && (
           <button
+            type="button"
             onClick={onClear}
             style={{
               fontFamily: theme.fonts.mono,
@@ -46,39 +69,20 @@ export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear }) {
               cursor: "pointer",
               letterSpacing: "0.05em",
               opacity: 0.7,
+              whiteSpace: "nowrap",
+              flexShrink: 0,
             }}
           >
             CLEAR
           </button>
         )}
-      </div>
-
-      <form onSubmit={handleSubmit} style={{ padding: "0 12px", marginBottom: 8 }}>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="e.g. trump, war..."
-          style={{
-            width: "100%",
-            fontFamily: theme.fonts.mono,
-            fontSize: 11,
-            padding: "7px 10px",
-            background: theme.colors.surface,
-            border: `1px solid ${theme.colors.border}`,
-            borderRadius: theme.radii.sm,
-            color: theme.colors.text,
-            outline: "none",
-            transition: theme.transitions.fast,
-          }}
-        />
       </form>
 
       {mutedKeywords.length > 0 && (
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
+            flexWrap: "wrap",
             gap: 4,
             padding: "0 12px",
           }}
@@ -100,7 +104,6 @@ export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear }) {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 4,
-                alignSelf: "flex-start",
               }}
             >
               {kw}

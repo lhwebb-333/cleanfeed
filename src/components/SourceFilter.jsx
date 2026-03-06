@@ -25,8 +25,13 @@ export function SourceFilter({
         padding: `${theme.spacing.md}px ${theme.spacing.lg}px`,
         maxWidth: 960,
         margin: "0 auto",
-        flexWrap: "wrap",
+        overflowX: "auto",
+        flexWrap: "nowrap",
+        WebkitOverflowScrolling: "touch",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
       }}
+      className="source-filter-row"
     >
       <button
         onClick={allOn ? disableAllSources : enableAllSources}

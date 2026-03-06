@@ -252,6 +252,7 @@ export default function App() {
           align-self: flex-start;
           flex-shrink: 0;
         }
+        .source-filter-row::-webkit-scrollbar { display: none; }
         .category-mobile-bar { display: none; }
         @media (max-width: 700px) {
           .category-sidebar { display: none; }
