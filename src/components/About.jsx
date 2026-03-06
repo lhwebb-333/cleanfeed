@@ -184,6 +184,36 @@ export function About({ open, onClose }) {
           </p>
         </div>
 
+        <div style={{ marginBottom: 20 }}>
+          <p
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: theme.colors.textFaint,
+              textTransform: "uppercase",
+              marginBottom: 8,
+            }}
+          >
+            Local News
+          </p>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: theme.colors.textMuted,
+            }}
+          >
+            Local coverage is sourced from public RSS feeds offered by local
+            newsrooms in each state. Our ethos is unbiased news, always — so if
+            we can't find a neutral, fact-based local source for a state, we
+            won't offer one. Coverage will grow as we vet new feeds, but we
+            won't compromise the standard to fill the gap.
+          </p>
+        </div>
+
         <div style={{ marginBottom: 24 }}>
           <p
             style={{
