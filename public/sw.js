@@ -1,52 +1,39 @@
-const CACHE_NAME = "cleanfeed-v1";
-const STATIC_ASSETS = ["/", "/manifest.json"];
+// Clean Feed Service Worker — network-first for HTML, cache-first for hashed assets
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
-  self.skipWaiting();
-});
+self.addEventListener("install", () => self.skipWaiting());
 
 self.addEventListener("activate", (event) => {
+  // Nuke all old caches on activate
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-      )
-    )
+      Promise.all(keys.map((k) => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
+  if (request.method !== "GET") return;
 
-  // Network-first for API calls
-  if (request.url.includes("/api/")) {
+  const url = new URL(request.url);
+  if (url.origin !== location.origin) return;
+
+  // Hashed assets — cache-first (filenames change on each build)
+  if (url.pathname.startsWith("/assets/")) {
     event.respondWith(
-      fetch(request)
-        .then((res) => {
+      caches.match(request).then((cached) =>
+        cached || fetch(request).then((res) => {
           const clone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          caches.open("assets-v1").then((c) => c.put(request, clone));
           return res;
         })
-        .catch(() => caches.match(request))
+      )
     );
     return;
   }
 
-  // Cache-first for static assets
+  // HTML + everything else — ALWAYS network-first
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((res) => {
-        if (res.status === 200) {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-        }
-        return res;
-      });
-    })
+    fetch(request).catch(() => caches.match(request))
   );
 });
