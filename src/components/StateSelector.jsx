@@ -16,97 +16,89 @@ export function StateSelector({ selectedState, onSelect, onClear }) {
   };
 
   return (
-    <div style={{ paddingTop: theme.spacing.md }}>
-      <div
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: `${theme.spacing.md}px ${theme.spacing.lg}px 0`,
+        maxWidth: 960,
+        margin: "0 auto",
+        overflowX: "auto",
+        flexWrap: "nowrap",
+        WebkitOverflowScrolling: "touch",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+      }}
+      className="state-filter-row"
+    >
+      <p
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "0 12px",
-          marginBottom: selectedState ? 8 : 0,
+          fontFamily: theme.fonts.mono,
+          fontSize: 9,
+          fontWeight: 700,
+          color: LOCAL_COLOR,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          whiteSpace: "nowrap",
+          flexShrink: 0,
         }}
       >
-        <p
-          style={{
-            fontFamily: theme.fonts.mono,
-            fontSize: 9,
-            fontWeight: 700,
-            color: theme.colors.textFaint,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            whiteSpace: "nowrap",
-            flexShrink: 0,
-          }}
+        Local
+      </p>
+
+      {!selectedState ? (
+        <form
+          onSubmit={handleSubmit}
+          style={{ flexShrink: 0 }}
         >
-          Local News
-        </p>
-
-        {!selectedState ? (
-          <form onSubmit={handleSubmit} style={{ flex: 1, minWidth: 0 }}>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="e.g. OH, Texas..."
-              style={{
-                width: "100%",
-                fontFamily: theme.fonts.mono,
-                fontSize: 11,
-                padding: "5px 8px",
-                background: theme.colors.surface,
-                border: `1px solid ${theme.colors.border}`,
-                borderRadius: theme.radii.sm,
-                color: theme.colors.text,
-                outline: "none",
-                transition: theme.transitions.fast,
-              }}
-            />
-          </form>
-        ) : (
-          <button
-            onClick={onClear}
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="+ state"
             style={{
+              width: 80,
               fontFamily: theme.fonts.mono,
-              fontSize: 9,
-              color: theme.colors.textFaint,
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              letterSpacing: "0.05em",
-              opacity: 0.7,
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-              marginLeft: "auto",
+              fontSize: 11,
+              padding: "5px 8px",
+              background: theme.colors.surface,
+              border: `1px solid ${LOCAL_COLOR}30`,
+              borderRadius: theme.radii.sm,
+              color: theme.colors.text,
+              outline: "none",
+              transition: theme.transitions.fast,
             }}
-          >
-            CLEAR
-          </button>
-        )}
-      </div>
-
-      {selectedState && (
-        <div style={{ padding: "0 12px" }}>
+          />
+        </form>
+      ) : (
+        <>
           <button
             onClick={onClear}
             title="Click to remove"
             style={{
               fontFamily: theme.fonts.mono,
-              fontSize: 10,
-              padding: "3px 8px",
-              background: LOCAL_COLOR + "18",
-              border: `1px solid ${LOCAL_COLOR}30`,
+              fontSize: 11,
+              fontWeight: 600,
+              padding: "5px 14px",
+              background: LOCAL_COLOR + "15",
+              border: `1px solid ${LOCAL_COLOR}50`,
               borderRadius: theme.radii.sm,
               color: LOCAL_COLOR,
               cursor: "pointer",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
               display: "inline-flex",
               alignItems: "center",
               gap: 4,
+              letterSpacing: "0.04em",
+              transition: theme.transitions.fast,
             }}
           >
             {US_STATES[selectedState]} ({selectedState})
             <span style={{ opacity: 0.6 }}>×</span>
           </button>
-        </div>
+        </>
       )}
     </div>
   );

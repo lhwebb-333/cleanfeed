@@ -12,39 +12,48 @@ export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear }) {
   };
 
   return (
-    <div style={{ paddingTop: theme.spacing.md }}>
-      <form
-        onSubmit={handleSubmit}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: `${theme.spacing.md}px ${theme.spacing.lg}px 0`,
+        maxWidth: 960,
+        margin: "0 auto",
+        overflowX: "auto",
+        flexWrap: "nowrap",
+        WebkitOverflowScrolling: "touch",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+      }}
+      className="mute-filter-row"
+    >
+      <p
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "0 12px",
-          marginBottom: mutedKeywords.length > 0 ? 8 : 0,
+          fontFamily: theme.fonts.mono,
+          fontSize: 9,
+          fontWeight: 700,
+          color: theme.colors.textFaint,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          whiteSpace: "nowrap",
+          flexShrink: 0,
         }}
       >
-        <p
-          style={{
-            fontFamily: theme.fonts.mono,
-            fontSize: 9,
-            fontWeight: 700,
-            color: theme.colors.textFaint,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            whiteSpace: "nowrap",
-            flexShrink: 0,
-          }}
-        >
-          Mute Words
-        </p>
+        Mute
+      </p>
+
+      <form
+        onSubmit={handleSubmit}
+        style={{ flexShrink: 0 }}
+      >
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="e.g. trump, war..."
+          placeholder="+ keyword"
           style={{
-            flex: 1,
-            minWidth: 0,
+            width: 90,
             fontFamily: theme.fonts.mono,
             fontSize: 11,
             padding: "5px 8px",
@@ -56,61 +65,55 @@ export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear }) {
             transition: theme.transitions.fast,
           }}
         />
-        {mutedKeywords.length > 0 && (
-          <button
-            type="button"
-            onClick={onClear}
-            style={{
-              fontFamily: theme.fonts.mono,
-              fontSize: 9,
-              color: theme.colors.textFaint,
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              letterSpacing: "0.05em",
-              opacity: 0.7,
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-            }}
-          >
-            CLEAR
-          </button>
-        )}
       </form>
 
-      {mutedKeywords.length > 0 && (
-        <div
+      {mutedKeywords.map((kw) => (
+        <button
+          key={kw}
+          onClick={() => onRemove(kw)}
+          title="Click to unmute"
           style={{
-            display: "flex",
-            flexWrap: "wrap",
+            fontFamily: theme.fonts.mono,
+            fontSize: 11,
+            fontWeight: 600,
+            padding: "5px 14px",
+            background: theme.colors.error + "15",
+            border: `1px solid ${theme.colors.error}50`,
+            borderRadius: theme.radii.sm,
+            color: theme.colors.error,
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+            display: "inline-flex",
+            alignItems: "center",
             gap: 4,
-            padding: "0 12px",
+            letterSpacing: "0.04em",
+            transition: theme.transitions.fast,
           }}
         >
-          {mutedKeywords.map((kw) => (
-            <button
-              key={kw}
-              onClick={() => onRemove(kw)}
-              title="Click to unmute"
-              style={{
-                fontFamily: theme.fonts.mono,
-                fontSize: 10,
-                padding: "3px 8px",
-                background: theme.colors.error + "18",
-                border: `1px solid ${theme.colors.error}30`,
-                borderRadius: theme.radii.sm,
-                color: theme.colors.error,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-              }}
-            >
-              {kw}
-              <span style={{ opacity: 0.6 }}>×</span>
-            </button>
-          ))}
-        </div>
+          {kw} <span style={{ opacity: 0.6 }}>×</span>
+        </button>
+      ))}
+
+      {mutedKeywords.length > 0 && (
+        <button
+          onClick={onClear}
+          style={{
+            fontFamily: theme.fonts.mono,
+            fontSize: 9,
+            padding: "5px 10px",
+            border: `1px solid ${theme.colors.border}`,
+            borderRadius: theme.radii.sm,
+            cursor: "pointer",
+            letterSpacing: "0.06em",
+            background: "transparent",
+            color: theme.colors.textFaint,
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+          }}
+        >
+          CLEAR
+        </button>
       )}
     </div>
   );

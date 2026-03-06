@@ -121,19 +121,17 @@ export default function App() {
           categoryCounts={categoryCounts}
           horizontal
         />
-        <div style={{ padding: `0 ${theme.spacing.lg}px` }}>
-          <MuteFilter
-            mutedKeywords={mutedKeywords}
-            onAdd={addMutedKeyword}
-            onRemove={removeMutedKeyword}
-            onClear={clearMutedKeywords}
-          />
-          <StateSelector
-            selectedState={selectedState}
-            onSelect={selectState}
-            onClear={clearState}
-          />
-        </div>
+        <MuteFilter
+          mutedKeywords={mutedKeywords}
+          onAdd={addMutedKeyword}
+          onRemove={removeMutedKeyword}
+          onClear={clearMutedKeywords}
+        />
+        <StateSelector
+          selectedState={selectedState}
+          onSelect={selectState}
+          onClear={clearState}
+        />
       </div>
 
       <div
@@ -253,6 +251,8 @@ export default function App() {
           flex-shrink: 0;
         }
         .source-filter-row::-webkit-scrollbar { display: none; }
+        .mute-filter-row::-webkit-scrollbar { display: none; }
+        .state-filter-row::-webkit-scrollbar { display: none; }
         .category-mobile-bar { display: none; }
         @media (max-width: 700px) {
           .category-sidebar { display: none; }
