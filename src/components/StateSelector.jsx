@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { resolveState, US_STATES, LOCAL_COLOR } from "../utils/stateSources";
 
-export function StateSelector({ selectedState, onSelect, onClear }) {
+export function StateSelector({ selectedState, onSelect, onClear, sidebar }) {
   const { theme } = useTheme();
   const [input, setInput] = useState("");
 
@@ -19,16 +19,22 @@ export function StateSelector({ selectedState, onSelect, onClear }) {
     <div
       style={{
         display: "flex",
-        alignItems: "center",
+        alignItems: sidebar ? "flex-start" : "center",
         gap: 8,
-        padding: `${theme.spacing.md}px ${theme.spacing.lg}px 0`,
-        maxWidth: 960,
-        margin: "0 auto",
-        overflowX: "auto",
-        flexWrap: "nowrap",
-        WebkitOverflowScrolling: "touch",
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
+        padding: sidebar
+          ? `${theme.spacing.md}px 12px 0`
+          : `${theme.spacing.md}px ${theme.spacing.lg}px 0`,
+        ...(sidebar
+          ? { flexWrap: "wrap" }
+          : {
+              maxWidth: 960,
+              margin: "0 auto",
+              overflowX: "auto",
+              flexWrap: "nowrap",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }),
       }}
       className="state-filter-row"
     >

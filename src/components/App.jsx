@@ -144,7 +144,7 @@ export default function App() {
         }}
       >
         {/* Sidebar filter — desktop, fixed width */}
-        <div className="category-sidebar" style={{ width: 180, flexShrink: 0 }}>
+        <div className="category-sidebar" style={{ width: 180, flexShrink: 0, overflow: "hidden" }}>
           <CategoryNav
             enabledCategories={enabledCategories}
             toggleCategory={toggleCategory}
@@ -157,11 +157,13 @@ export default function App() {
             onAdd={addMutedKeyword}
             onRemove={removeMutedKeyword}
             onClear={clearMutedKeywords}
+            sidebar
           />
           <StateSelector
             selectedState={selectedState}
             onSelect={selectState}
             onClear={clearState}
+            sidebar
           />
         </div>
 

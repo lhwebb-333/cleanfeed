@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "../hooks/useTheme";
 
-export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear }) {
+export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear, sidebar }) {
   const { theme } = useTheme();
   const [input, setInput] = useState("");
 
@@ -15,16 +15,22 @@ export function MuteFilter({ mutedKeywords, onAdd, onRemove, onClear }) {
     <div
       style={{
         display: "flex",
-        alignItems: "center",
+        alignItems: sidebar ? "flex-start" : "center",
         gap: 8,
-        padding: `${theme.spacing.md}px ${theme.spacing.lg}px 0`,
-        maxWidth: 960,
-        margin: "0 auto",
-        overflowX: "auto",
-        flexWrap: "nowrap",
-        WebkitOverflowScrolling: "touch",
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
+        padding: sidebar
+          ? `${theme.spacing.md}px 12px 0`
+          : `${theme.spacing.md}px ${theme.spacing.lg}px 0`,
+        ...(sidebar
+          ? { flexWrap: "wrap" }
+          : {
+              maxWidth: 960,
+              margin: "0 auto",
+              overflowX: "auto",
+              flexWrap: "nowrap",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }),
       }}
       className="mute-filter-row"
     >
