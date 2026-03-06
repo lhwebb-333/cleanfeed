@@ -301,13 +301,47 @@ export function About({ open, onClose }) {
 
         <p
           style={{
+            fontFamily: theme.fonts.serif,
+            fontSize: 13,
+            lineHeight: 1.6,
+            color: theme.colors.textMuted,
+            marginBottom: 20,
+          }}
+        >
+          Know a good local source we're missing?{" "}
+          <a
+            href="mailto:cleanfeedapp@gmail.com?subject=Source suggestion for Clean Feed"
+            style={{
+              color: theme.colors.textStrong,
+              textDecoration: "underline",
+              textUnderlineOffset: 2,
+            }}
+          >
+            Let us know
+          </a>
+          .
+        </p>
+
+        <p
+          style={{
             fontFamily: theme.fonts.mono,
             fontSize: 10,
             color: theme.colors.textGhost,
             letterSpacing: "0.03em",
+            marginBottom: 4,
           }}
         >
           All content belongs to its respective publishers.
+        </p>
+        <p
+          style={{
+            fontFamily: theme.fonts.mono,
+            fontSize: 9,
+            color: theme.colors.textGhost,
+            letterSpacing: "0.03em",
+          }}
+        >
+          Sources last vetted March 2026
         </p>
       </div>
     </div>
