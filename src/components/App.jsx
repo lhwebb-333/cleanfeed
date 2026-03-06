@@ -228,9 +228,32 @@ export default function App() {
             fontSize: 10,
             color: theme.colors.textGhost,
             letterSpacing: "0.03em",
+            marginBottom: 14,
           }}
         >
           Auto-refreshes every 5 min · Opinion content filtered out
+        </p>
+        <p
+          style={{
+            fontFamily: theme.fonts.serif,
+            fontSize: 12,
+            color: theme.colors.textFaint,
+            lineHeight: 1.5,
+          }}
+        >
+          Clean Feed believes clarity should be free.{" "}
+          <a
+            href="https://buymeacoffee.com/cleanfeed"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: theme.colors.textMuted,
+              textDecoration: "underline",
+              textUnderlineOffset: 2,
+            }}
+          >
+            Support our work
+          </a>
         </p>
       </footer>
 
