@@ -170,7 +170,7 @@ export function useFeed() {
   const fetchFeed = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
-      const url = `${API_BASE}/api/feed?limit=200`;
+      const url = `${API_BASE}/api/feed?limit=500`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();

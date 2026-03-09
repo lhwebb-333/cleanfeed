@@ -361,7 +361,7 @@ app.get("/api/feed", async (req, res) => {
   try {
     const sourceFilter = req.query.source; // optional: "reuters", "ap", "bbc"
     const categoryFilter = req.query.category; // optional: "world", "financial", etc.
-    const limit = Math.min(parseInt(req.query.limit) || 100, 200);
+    const limit = Math.min(parseInt(req.query.limit) || 200, 500);
 
     const sourceKeys = sourceFilter
       ? [sourceFilter]
