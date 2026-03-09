@@ -132,7 +132,23 @@ const OPINION_FILTERS = [
   "newsletter", "quiz", "crossword", "horoscope", "cartoon", "satire",
 ];
 
-function classifyArticle(title = "", description = "", feedCategory = "world") {
+// URL path patterns that definitively indicate a category
+const URL_CATEGORY_PATTERNS = [
+  { pattern: /\/(sports|hub\/nfl|hub\/nba|hub\/mlb|hub\/nhl|hub\/soccer|hub\/tennis|hub\/golf|hub\/boxing|hub\/mma|hub\/college-football|hub\/college-basketball|sport)\b/i, category: "sports" },
+  { pattern: /\/(business|markets|finance|economy|money)\b/i, category: "financial" },
+  { pattern: /\/(technology|tech)\b/i, category: "tech" },
+  { pattern: /\/(science|environment)\b/i, category: "science" },
+  { pattern: /\/(health|medical)\b/i, category: "health" },
+];
+
+function classifyArticle(title = "", description = "", feedCategory = "world", link = "") {
+  // URL path is the strongest signal — if the article lives in a section, trust it
+  if (link) {
+    for (const { pattern, category } of URL_CATEGORY_PATTERNS) {
+      if (pattern.test(link)) return category;
+    }
+  }
+
   const text = `${title} ${description}`.toLowerCase();
   const scores = {};
   for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
@@ -232,7 +248,7 @@ export async function fetchLocalFeed(stateCode) {
         pubDate: item.isoDate || item.pubDate,
         source: `Local ${stateCode}`,
         color: LOCAL_COLOR,
-        category: classifyArticle(item.title, desc, "world"),
+        category: classifyArticle(item.title, desc, "world", item.link),
         scope: "local",
       });
     }
@@ -256,7 +272,7 @@ export async function fetchLocalFeed(stateCode) {
           pubDate: item.isoDate || item.pubDate,
           source: `Local ${stateCode}`,
           color: LOCAL_COLOR,
-          category: classifyArticle(item.title, desc, "world"),
+          category: classifyArticle(item.title, desc, "world", item.link),
           scope: "local",
         });
       }
@@ -299,7 +315,7 @@ export async function fetchSource(sourceKey) {
           pubDate: item.isoDate || item.pubDate,
           source: source.name,
           color: source.color,
-          category: classifyArticle(item.title, desc, category),
+          category: classifyArticle(item.title, desc, category, item.link),
         });
       }
     } catch (err) {
