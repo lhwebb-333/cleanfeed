@@ -1,4 +1,4 @@
-import { fetchSource, SOURCES } from "./_lib/shared.js";
+import { fetchSource, fetchTopicFeeds, SOURCES } from "./_lib/shared.js";
 
 export default async function handler(req, res) {
   try {
@@ -7,13 +7,15 @@ export default async function handler(req, res) {
 
     const sourceKeys = sourceFilter ? [sourceFilter] : Object.keys(SOURCES);
 
-    const results = await Promise.allSettled(
-      sourceKeys.map((key) => fetchSource(key))
-    );
+    const [sourceResults, topicArticles] = await Promise.all([
+      Promise.allSettled(sourceKeys.map((key) => fetchSource(key))),
+      sourceFilter ? Promise.resolve([]) : fetchTopicFeeds(),
+    ]);
 
-    let articles = results
-      .filter((r) => r.status === "fulfilled")
-      .flatMap((r) => r.value);
+    let articles = [
+      ...sourceResults.filter((r) => r.status === "fulfilled").flatMap((r) => r.value),
+      ...topicArticles,
+    ];
 
     if (categoryFilter && categoryFilter !== "all") {
       articles = articles.filter((a) => a.category === categoryFilter);

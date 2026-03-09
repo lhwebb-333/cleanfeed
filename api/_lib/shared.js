@@ -6,6 +6,7 @@ const parser = new Parser({
     "User-Agent": "CleanFeed/1.0 (RSS Reader)",
     Accept: "application/rss+xml, application/xml, text/xml",
   },
+  customFields: { item: ["source"] },
 });
 
 // In-memory cache (persists across warm invocations on Vercel)
@@ -329,5 +330,86 @@ export async function fetchSource(sourceKey) {
   });
 
   setCache(sourceKey, deduped);
+  return deduped;
+}
+
+// Google News topic feeds — curated by Google, filtered to our approved sources
+const TOPIC_FEEDS = [
+  { url: "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtVnVHZ0pWVXlnQVAB?ceid=US:en&hl=en-US&gl=US", category: "tech" },
+  { url: "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y1RjU0FtVnVHZ0pWVXlnQVAB?ceid=US:en&hl=en-US&gl=US", category: "science" },
+  { url: "https://news.google.com/rss/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNR3QwTlRFU0FtVnVLQUFQAQ?ceid=US:en&hl=en-US&gl=US", category: "health" },
+];
+
+const APPROVED_SOURCES = {
+  "apnews.com": { name: "AP News", color: "#4A90D9" },
+  "reuters.com": { name: "Reuters", color: "#FF8C00" },
+  "bbc.com": { name: "BBC", color: "#C1272D" },
+  "bbc.co.uk": { name: "BBC", color: "#C1272D" },
+  "npr.org": { name: "NPR", color: "#5BBD72" },
+};
+
+function matchApprovedSource(item) {
+  // Check <source url="..."> tag first
+  if (item.source && typeof item.source === "object" && item.source.url) {
+    for (const [domain, info] of Object.entries(APPROVED_SOURCES)) {
+      if (item.source.url.includes(domain)) return info;
+    }
+  }
+  if (item.source && typeof item.source === "string") {
+    const lower = item.source.toLowerCase();
+    if (lower.includes("ap news") || lower.includes("associated press")) return APPROVED_SOURCES["apnews.com"];
+    if (lower.includes("reuters")) return APPROVED_SOURCES["reuters.com"];
+    if (lower.includes("bbc")) return APPROVED_SOURCES["bbc.com"];
+    if (lower.includes("npr")) return APPROVED_SOURCES["npr.org"];
+  }
+  // Fallback: check title suffix (Google News format: "Title - Source Name")
+  const title = item.title || "";
+  if (title.endsWith("- AP News")) return APPROVED_SOURCES["apnews.com"];
+  if (title.endsWith("- Reuters")) return APPROVED_SOURCES["reuters.com"];
+  if (title.endsWith("- BBC")) return APPROVED_SOURCES["bbc.com"];
+  if (title.endsWith("- BBC News")) return APPROVED_SOURCES["bbc.com"];
+  if (title.endsWith("- NPR")) return APPROVED_SOURCES["npr.org"];
+  return null;
+}
+
+export async function fetchTopicFeeds() {
+  const cached = getCached("topic-feeds");
+  if (cached) return cached;
+
+  const articles = [];
+  for (const { url, category } of TOPIC_FEEDS) {
+    try {
+      const feed = await parser.parseURL(url);
+      for (const item of feed.items || []) {
+        const sourceInfo = matchApprovedSource(item);
+        if (!sourceInfo) continue;
+        if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+        // Strip " - Source Name" suffix from title
+        let title = item.title || "";
+        title = title.replace(/ - (AP News|Reuters|BBC|BBC News|NPR)$/, "");
+        const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+        articles.push({
+          id: item.guid || item.link,
+          title,
+          description: desc,
+          link: item.link,
+          pubDate: item.isoDate || item.pubDate,
+          source: sourceInfo.name,
+          color: sourceInfo.color,
+          category,
+        });
+      }
+    } catch (err) {
+      console.warn(`[CleanFeed] Topic feed failed:`, err.message);
+    }
+  }
+
+  const seen = new Set();
+  const deduped = articles.filter((a) => {
+    if (seen.has(a.link)) return false;
+    seen.add(a.link); return true;
+  });
+
+  setCache("topic-feeds", deduped);
   return deduped;
 }
