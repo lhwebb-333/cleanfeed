@@ -24,9 +24,7 @@ const SOURCES = {
     name: "Reuters",
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:reuters.com+stock+OR+market+OR+economy+OR+earnings+OR+fed+OR+trade&ceid=US:en&hl=en-US&gl=US", category: "financial" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:reuters.com+technology+OR+AI+OR+software+OR+cyber+OR+chip&ceid=US:en&hl=en-US&gl=US", category: "tech" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:reuters.com+sports+OR+nba+OR+nfl+OR+mlb+OR+nhl+OR+soccer+OR+tennis+OR+golf+OR+F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:24h+site:reuters.com+intitle:NFL+OR+intitle:NBA+OR+intitle:MLB+OR+intitle:NHL+OR+intitle:soccer+OR+intitle:tennis+OR+intitle:golf+OR+intitle:F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#FF8C00",
   },
@@ -34,12 +32,8 @@ const SOURCES = {
     name: "AP News",
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:24h+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:apnews.com+sports+OR+nba+OR+nfl+OR+mlb+OR+nhl+OR+soccer+OR+tennis+OR+golf+OR+NASCAR&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:apnews.com+game+OR+score+OR+win+OR+defeat+OR+playoff+OR+championship+OR+tournament&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:apnews.com+stock+OR+market+OR+economy+OR+earnings+OR+fed+OR+trade+OR+inflation&ceid=US:en&hl=en-US&gl=US", category: "financial" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:apnews.com+technology+OR+AI+OR+software+OR+cyber+OR+chip+OR+startup&ceid=US:en&hl=en-US&gl=US", category: "tech" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:apnews.com+science+OR+space+OR+nasa+OR+climate+OR+species+OR+research&ceid=US:en&hl=en-US&gl=US", category: "science" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:apnews.com+health+OR+disease+OR+vaccine+OR+hospital+OR+drug+OR+cancer&ceid=US:en&hl=en-US&gl=US", category: "health" },
+      { url: "https://news.google.com/rss/search?q=when:24h+site:apnews.com+intitle:NFL+OR+intitle:NBA+OR+intitle:MLB+OR+intitle:NHL+OR+intitle:NASCAR+OR+intitle:NCAA&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:24h+site:apnews.com+intitle:soccer+OR+intitle:tennis+OR+intitle:golf+OR+intitle:boxing+OR+intitle:F1+OR+intitle:PGA+OR+intitle:WNBA+OR+intitle:MLS+OR+intitle:UFC&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#4A90D9",
   },
@@ -136,24 +130,8 @@ const CATEGORY_KEYWORDS = {
   ],
 };
 
-// URL path patterns that definitively indicate a category
-const URL_CATEGORY_PATTERNS = [
-  { pattern: /\/(sports|hub\/nfl|hub\/nba|hub\/mlb|hub\/nhl|hub\/soccer|hub\/tennis|hub\/golf|hub\/boxing|hub\/mma|hub\/college-football|hub\/college-basketball|sport)\b/i, category: "sports" },
-  { pattern: /\/(business|markets|finance|economy|money)\b/i, category: "financial" },
-  { pattern: /\/(technology|tech)\b/i, category: "tech" },
-  { pattern: /\/(science|environment)\b/i, category: "science" },
-  { pattern: /\/(health|medical)\b/i, category: "health" },
-];
-
 // Score an article against each category — highest score wins
-function classifyArticle(title = "", description = "", feedCategory = "world", link = "") {
-  // URL path is the strongest signal — if the article lives in a section, trust it
-  if (link) {
-    for (const { pattern, category } of URL_CATEGORY_PATTERNS) {
-      if (pattern.test(link)) return category;
-    }
-  }
-
+function classifyArticle(title = "", description = "", feedCategory = "world") {
   const text = `${title} ${description}`.toLowerCase();
   const scores = {};
 
@@ -174,8 +152,9 @@ function classifyArticle(title = "", description = "", feedCategory = "world", l
     }
   }
 
-  // If no keywords matched at all, keep the feed-based category
-  if (bestScore === 0) return feedCategory;
+  // No keywords matched — default to "world" not feedCategory
+  // (prevents Google proxy noise from inheriting wrong category)
+  if (bestScore === 0) return "world";
 
   // If the feed category also has matches, require the override to win by 2+
   // to avoid borderline re-classifications
@@ -250,7 +229,7 @@ async function fetchSource(sourceKey) {
           pubDate: item.isoDate || item.pubDate,
           source: source.name,
           color: source.color,
-          category: classifyArticle(item.title, desc, category, item.link),
+          category: classifyArticle(item.title, desc, category),
         });
       }
     } catch (err) {
@@ -405,7 +384,7 @@ async function fetchLocalFeed(stateCode) {
         title: item.title, description: desc, link: item.link,
         pubDate: item.isoDate || item.pubDate,
         source: `Local ${stateCode}`, color: LOCAL_COLOR,
-        category: classifyArticle(item.title, desc, "world", item.link),
+        category: classifyArticle(item.title, desc, "world"),
         scope: "local",
       });
     }
@@ -425,7 +404,7 @@ async function fetchLocalFeed(stateCode) {
           title: item.title, description: desc, link: item.link,
           pubDate: item.isoDate || item.pubDate,
           source: `Local ${stateCode}`, color: LOCAL_COLOR,
-          category: classifyArticle(item.title, desc, "world", item.link),
+          category: classifyArticle(item.title, desc, "world"),
           scope: "local",
         });
       }
