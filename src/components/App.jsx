@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { Header } from "./Header";
 import { SourceFilter } from "./SourceFilter";
@@ -43,6 +43,14 @@ export default function App() {
   } = useFeed();
 
   const { pulling, pullDistance, triggered } = usePullToRefresh(refresh);
+  const feedRef = useRef(null);
+
+  // Scroll feed into view when search changes
+  useEffect(() => {
+    if (searchQuery && feedRef.current) {
+      feedRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [searchQuery]);
 
   return (
     <div
@@ -170,6 +178,7 @@ export default function App() {
         {/* Main feed */}
         <main style={{ flex: 1, minWidth: 0, paddingBottom: theme.spacing.xxl }}>
           <div
+            ref={feedRef}
             style={{
               display: "flex",
               alignItems: "center",
@@ -181,12 +190,32 @@ export default function App() {
               style={{
                 fontFamily: theme.fonts.mono,
                 fontSize: 10,
-                color: theme.colors.textFaint,
+                color: searchQuery ? theme.colors.textMuted : theme.colors.textFaint,
                 letterSpacing: "0.05em",
               }}
             >
-              {articles.length} articles
+              {searchQuery
+                ? `${articles.length} results for "${searchQuery}"`
+                : `${articles.length} articles`}
             </span>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                style={{
+                  fontFamily: theme.fonts.mono,
+                  fontSize: 9,
+                  padding: "3px 8px",
+                  background: "transparent",
+                  border: `1px solid ${theme.colors.border}`,
+                  borderRadius: theme.radii.sm,
+                  color: theme.colors.textFaint,
+                  cursor: "pointer",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                CLEAR
+              </button>
+            )}
           </div>
 
           <FeedList

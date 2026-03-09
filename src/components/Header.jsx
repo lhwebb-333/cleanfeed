@@ -138,25 +138,46 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
           marginTop: 12,
         }}
       >
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search headlines..."
-          style={{
-            flex: 1,
-            fontFamily: theme.fonts.mono,
-            fontSize: 11,
-            padding: "7px 12px",
-            background: theme.colors.surface,
-            border: `1px solid ${theme.colors.border}`,
-            borderRadius: theme.radii.sm,
-            color: theme.colors.text,
-            outline: "none",
-            transition: theme.transitions.fast,
-            maxWidth: 300,
-          }}
-        />
+        <div style={{ position: "relative", flex: 1, maxWidth: 300 }}>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search headlines..."
+            style={{
+              width: "100%",
+              fontFamily: theme.fonts.mono,
+              fontSize: 11,
+              padding: searchQuery ? "7px 28px 7px 12px" : "7px 12px",
+              background: searchQuery ? theme.colors.surface : theme.colors.surface,
+              border: `1px solid ${searchQuery ? theme.colors.textMuted : theme.colors.border}`,
+              borderRadius: theme.radii.sm,
+              color: theme.colors.text,
+              outline: "none",
+              transition: theme.transitions.fast,
+            }}
+          />
+          {searchQuery && (
+            <button
+              onClick={() => onSearchChange("")}
+              style={{
+                position: "absolute",
+                right: 6,
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                color: theme.colors.textMuted,
+                cursor: "pointer",
+                fontSize: 14,
+                lineHeight: 1,
+                padding: "2px 4px",
+              }}
+            >
+              x
+            </button>
+          )}
+        </div>
 
         {lastUpdated && (
           <button
