@@ -19,6 +19,7 @@ export const SOURCES = {
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+intitle:NFL+OR+intitle:NBA+OR+intitle:MLB+OR+intitle:NHL+OR+intitle:soccer+OR+intitle:tennis+OR+intitle:golf+OR+intitle:F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#FF8C00",
   },
@@ -28,6 +29,7 @@ export const SOURCES = {
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+intitle:NFL+OR+intitle:NBA+OR+intitle:MLB+OR+intitle:NHL+OR+intitle:NASCAR+OR+intitle:NCAA&ceid=US:en&hl=en-US&gl=US", category: "sports" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+intitle:soccer+OR+intitle:tennis+OR+intitle:golf+OR+intitle:boxing+OR+intitle:F1+OR+intitle:PGA+OR+intitle:WNBA+OR+intitle:MLS+OR+intitle:UFC&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#4A90D9",
   },
@@ -349,6 +351,7 @@ const TOPIC_FEEDS = [
   { url: "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y1RjU0FtVnVHZ0pWVXlnQVAB?ceid=US:en&hl=en-US&gl=US", category: "science" },
   { url: "https://news.google.com/rss/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNR3QwTlRFU0FtVnVLQUFQAQ?ceid=US:en&hl=en-US&gl=US", category: "health" },
   { url: "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtVnVHZ0pWVXlnQVAB?ceid=US:en&hl=en-US&gl=US", category: "financial" },
+  { url: "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1ZURJU0FtVnVHZ0pWVXlnQVAB?ceid=US:en&hl=en-US&gl=US", category: "sports" },
 ];
 
 const APPROVED_SOURCES = {
