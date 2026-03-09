@@ -24,17 +24,17 @@ const SOURCES = {
   reuters: {
     name: "Reuters",
     feeds: [
-      { url: "https://news.google.com/rss/search?q=when:24h+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:reuters.com+intitle:NFL+OR+intitle:NBA+OR+intitle:MLB+OR+intitle:NHL+OR+intitle:soccer+OR+intitle:tennis+OR+intitle:golf+OR+intitle:F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:3d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
+      { url: "https://news.google.com/rss/search?q=when:3d+site:reuters.com+intitle:NFL+OR+intitle:NBA+OR+intitle:MLB+OR+intitle:NHL+OR+intitle:soccer+OR+intitle:tennis+OR+intitle:golf+OR+intitle:F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#FF8C00",
   },
   ap: {
     name: "AP News",
     feeds: [
-      { url: "https://news.google.com/rss/search?q=when:24h+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:apnews.com+intitle:NFL+OR+intitle:NBA+OR+intitle:MLB+OR+intitle:NHL+OR+intitle:NASCAR+OR+intitle:NCAA&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:24h+site:apnews.com+intitle:soccer+OR+intitle:tennis+OR+intitle:golf+OR+intitle:boxing+OR+intitle:F1+OR+intitle:PGA+OR+intitle:WNBA+OR+intitle:MLS+OR+intitle:UFC&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:3d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
+      { url: "https://news.google.com/rss/search?q=when:3d+site:apnews.com+intitle:NFL+OR+intitle:NBA+OR+intitle:MLB+OR+intitle:NHL+OR+intitle:NASCAR+OR+intitle:NCAA&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:3d+site:apnews.com+intitle:soccer+OR+intitle:tennis+OR+intitle:golf+OR+intitle:boxing+OR+intitle:F1+OR+intitle:PGA+OR+intitle:WNBA+OR+intitle:MLS+OR+intitle:UFC&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#4A90D9",
   },
@@ -473,7 +473,7 @@ async function fetchLocalFeed(stateCode) {
   const articles = [];
 
   // AP state proxy
-  const apUrl = `https://news.google.com/rss/search?q=when:24h+"${encodeURIComponent(stateName)}"+site:apnews.com&ceid=US:en&hl=en-US&gl=US`;
+  const apUrl = `https://news.google.com/rss/search?q=when:3d+"${encodeURIComponent(stateName)}"+site:apnews.com&ceid=US:en&hl=en-US&gl=US`;
   try {
     const feed = await parser.parseURL(apUrl);
     for (const item of (feed.items || []).slice(0, 20)) {
