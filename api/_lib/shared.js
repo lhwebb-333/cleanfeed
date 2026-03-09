@@ -92,6 +92,16 @@ const CATEGORY_KEYWORDS = {
     "federal reserve", "ecb", "imf", "world bank", "trade deficit",
     "quarterly results", "fiscal", "monetary policy", "hedge fund",
     "private equity", "venture capital", "fintech", "mortgage rate",
+    "oil price", "crude oil", "gas price", "barrel", "opec",
+    "tariff", "trade war", "economy", "economic", "unemployment",
+    "jobs report", "payroll", "consumer spending", "retail sales",
+    "housing market", "real estate", "bankruptcy", "debt ceiling",
+    "treasury", "central bank", "rate hike", "rate cut",
+    "market cap", "investor", "investment", "portfolio",
+    "commodity", "gold price", "silver price", "copper",
+    "supply chain", "cpi ", "ppi ", "economic growth",
+    "bull market", "bear market", "rally", "selloff", "sell-off",
+    "dow ", "index fund", "etf ", "mutual fund",
   ],
   tech: [
     "ai ", " ai,", "artificial intelligence", "openai", "google", "apple",
@@ -163,7 +173,7 @@ function classifyArticle(title = "", description = "", feedCategory = "world") {
   // No keywords matched — default to "world" not feedCategory
   // (prevents Google proxy noise from inheriting wrong category)
   if (bestScore === 0) return "world";
-  if (scores[feedCategory] > 0 && bestScore - scores[feedCategory] < 2) return feedCategory;
+  if (scores[feedCategory] > 0 && bestScore - scores[feedCategory] < 1) return feedCategory;
   return bestCat;
 }
 
