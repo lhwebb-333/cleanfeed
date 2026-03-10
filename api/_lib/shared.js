@@ -18,8 +18,10 @@ export const SOURCES = {
     name: "Reuters",
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+NFL+OR+NBA+OR+MLB+OR+NHL+OR+soccer+OR+tennis+OR+golf+OR+F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+NBA+basketball&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+NFL+football&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+MLB+OR+NHL+OR+soccer+OR+tennis+OR+golf+OR+F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#FF8C00",
   },
@@ -27,8 +29,11 @@ export const SOURCES = {
     name: "AP News",
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NFL+OR+NBA+OR+MLB+OR+NHL+OR+NASCAR+OR+NCAA&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+soccer+OR+tennis+OR+golf+OR+boxing+OR+F1+OR+PGA+OR+WNBA+OR+MLS+OR+UFC&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NBA+basketball&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NFL+football&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+MLB+baseball&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NHL+hockey&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+soccer+OR+tennis+OR+golf+OR+boxing+OR+NASCAR+OR+NCAA+OR+UFC+OR+MLS&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#4A90D9",
   },
@@ -314,26 +319,33 @@ export async function fetchSource(sourceKey) {
   const source = SOURCES[sourceKey];
   if (!source) return [];
 
+  // Fetch all feeds in parallel for speed
+  const feedResults = await Promise.allSettled(
+    source.feeds.map(({ url, category }) =>
+      parser.parseURL(url).then((feed) => ({ feed, category, url }))
+    )
+  );
+
   const articles = [];
-  for (const { url, category } of source.feeds) {
-    try {
-      const feed = await parser.parseURL(url);
-      for (const item of feed.items || []) {
-        if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
-        const desc = (item.contentSnippet || item.content || "").slice(0, 250);
-        articles.push({
-          id: item.guid || item.link,
-          title: item.title,
-          description: desc,
-          link: item.link,
-          pubDate: item.isoDate || item.pubDate,
-          source: source.name,
-          color: source.color,
-          category: classifyArticle(item.title, desc, category),
-        });
-      }
-    } catch (err) {
-      console.warn(`[CleanFeed] Failed to fetch ${url}:`, err.message);
+  for (const result of feedResults) {
+    if (result.status !== "fulfilled") {
+      console.warn(`[CleanFeed] Failed to fetch feed:`, result.reason?.message);
+      continue;
+    }
+    const { feed, category } = result.value;
+    for (const item of feed.items || []) {
+      if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+      articles.push({
+        id: item.guid || item.link,
+        title: item.title,
+        description: desc,
+        link: item.link,
+        pubDate: item.isoDate || item.pubDate,
+        source: source.name,
+        color: source.color,
+        category: classifyArticle(item.title, desc, category),
+      });
     }
   }
 

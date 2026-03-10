@@ -17,6 +17,15 @@ export default async function handler(req, res) {
       ...topicArticles,
     ];
 
+    // Dedupe by normalized title (same story from different queries)
+    const seenTitles = new Set();
+    articles = articles.filter((a) => {
+      const key = (a.title || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 60);
+      if (seenTitles.has(key)) return false;
+      seenTitles.add(key);
+      return true;
+    });
+
     if (categoryFilter && categoryFilter !== "all") {
       articles = articles.filter((a) => a.category === categoryFilter);
     }
