@@ -3,7 +3,7 @@ import { fetchSource, fetchTopicFeeds, SOURCES } from "./_lib/shared.js";
 export default async function handler(req, res) {
   try {
     const { source: sourceFilter, category: categoryFilter } = req.query;
-    const limit = Math.min(parseInt(req.query.limit) || 200, 500);
+    const limit = Math.min(parseInt(req.query.limit) || 300, 1000);
 
     const sourceKeys = sourceFilter ? [sourceFilter] : Object.keys(SOURCES);
 

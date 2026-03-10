@@ -179,10 +179,10 @@ function classifyArticle(title = "", description = "", feedCategory = "world") {
   for (const [cat, score] of Object.entries(scores)) {
     if (score > bestScore) { bestScore = score; bestCat = cat; }
   }
-  // No keywords matched — default to "world" not feedCategory
-  // (prevents Google proxy noise from inheriting wrong category)
-  if (bestScore === 0) return "world";
-  if (scores[feedCategory] > 0 && bestScore - scores[feedCategory] < 1) return feedCategory;
+  // No keywords matched — trust the feed's own category tag
+  if (bestScore === 0) return feedCategory;
+  // If feed category has any matches and is close to the best, prefer it
+  if (scores[feedCategory] > 0 && bestScore - scores[feedCategory] < 2) return feedCategory;
   return bestCat;
 }
 
