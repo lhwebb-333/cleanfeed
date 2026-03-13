@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
       .slice(0, limit);
 
-    res.setHeader("Cache-Control", "s-maxage=120, stale-while-revalidate=300");
+    res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=120");
     res.json({ ok: true, count: articles.length, articles });
   } catch (err) {
     console.error("[CleanFeed] Feed error:", err);
