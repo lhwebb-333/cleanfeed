@@ -100,6 +100,31 @@ const CATEGORY_KEYWORDS = {
     "boxing", "ufc", "mma",
     // Meta
     "espn", "sports", "series win", "series loss",
+    // NBA teams
+    "celtics", "nets", "knicks", "76ers", "sixers", "raptors",
+    "bulls", "cavaliers", "cavs", "pistons", "pacers", "bucks",
+    "hawks", "hornets", "heat", "magic", "wizards",
+    "nuggets", "timberwolves", "thunder", "trail blazers", "blazers", "jazz",
+    "warriors", "clippers", "lakers", "suns", "kings",
+    "mavericks", "mavs", "rockets", "grizzlies", "pelicans", "spurs",
+    // NFL teams (distinctive names only)
+    "patriots", "chiefs", "eagles", "cowboys", "steelers", "packers",
+    "49ers", "seahawks", "ravens", "broncos", "dolphins", "chargers",
+    "bengals", "vikings", "saints", "buccaneers", "bucs", "falcons",
+    "raiders", "colts", "texans", "titans", "jaguars", "panthers",
+    "commanders", "cardinals", "rams", "bears", "lions", "giants",
+    // MLB teams (distinctive only)
+    "yankees", "red sox", "dodgers", "cubs", "astros", "braves",
+    "phillies", "padres", "mets", "orioles", "guardians", "mariners",
+    "blue jays", "twins", "brewers", "diamondbacks", "rockies", "royals",
+    "white sox", "reds", "pirates", "athletics", "rangers", "marlins", "rays",
+    // NHL teams (distinctive only)
+    "bruins", "maple leafs", "canadiens", "penguins", "blackhawks",
+    "red wings", "flyers", "oilers", "flames", "canucks", "avalanche",
+    "hurricanes", "lightning", "predators", "blue jackets", "sabres",
+    "islanders", "kraken", "wild",
+    // Common sports headline phrases
+    "straight game", "straight games",
     // REMOVED: "match" (ambiguous — "match expectations"), "points" (financial/political),
     // "game " ("game-changing"), "beats "/"beat the " ("beats estimates"),
     // "scored "/"scores " ("scores of people"), "league" standalone ("league of nations"),
@@ -197,7 +222,7 @@ const OPINION_FILTERS = [
   "newsletter", "quiz", "crossword", "horoscope", "cartoon", "satire",
 ];
 
-function classifyArticle(title = "", description = "", feedCategory = "world") {
+function classifyArticle(title = "", description = "", feedCategory = "world", trustFeed = true) {
   const text = `${title} ${description}`.toLowerCase();
   const scores = {};
   for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
@@ -212,10 +237,10 @@ function classifyArticle(title = "", description = "", feedCategory = "world") {
     if (score > bestScore) { bestScore = score; bestCat = cat; }
   }
 
-  // No keywords matched at all — default to "world" (safe catch-all).
-  // Don't trust specialized feed tags (sports, tech, etc.) without
-  // at least one confirming keyword.
-  if (bestScore === 0) return "world";
+  // No keywords matched at all:
+  // - Source feeds (trustFeed=true): trust the feed tag — we curated these feeds
+  // - Topic feeds (trustFeed=false): default to "world" — Google News is unreliable
+  if (bestScore === 0) return trustFeed ? feedCategory : "world";
 
   // Specialized feed category must score at least 1 on its own keywords
   // to keep its feed tag — otherwise the best keyword match wins.
@@ -467,7 +492,7 @@ export async function fetchTopicFeeds() {
           pubDate: item.isoDate || item.pubDate,
           source: sourceInfo.name,
           color: sourceInfo.color,
-          category: classifyArticle(title, desc, category),
+          category: classifyArticle(title, desc, category, false),
         });
       }
     } catch (err) {
