@@ -75,23 +75,36 @@ export const CATEGORIES = [
 
 const CATEGORY_KEYWORDS = {
   sports: [
+    // Sports & leagues
     "football", "soccer", "rugby", "cricket", "tennis", "golf", "f1",
-    "formula 1", "nba", "nfl", "nhl", "mlb", "premier league", "champions league",
-    "world cup", "olympics", "athlete", "coach", "referee", "tournament",
-    "match", "fixture", "playoff", "championship", "league", "transfer",
-    "goal scored", "batting", "pitch", "stadium", "medal",
-    "manager sacked", "grand prix", "boxing", "ufc", "mma",
-    "game recap", "final score", "beats ", "defeats ", "routs ",
-    "beat the ", "win over", "victory over", "loss to ",
-    "scored ", "scores ", "points", "rebounds", "assists",
+    "formula 1", "nba", "nfl", "nhl", "mlb", "mls", "premier league",
+    "champions league", "world cup", "olympics", "major league",
+    // Roles
+    "athlete", "coach", "referee", "quarterback", "pitcher", "rookie",
+    // Structure & events
+    "tournament", "fixture", "playoff", "championship", "postseason",
+    "preseason", "regular season", "trade deadline", "free agency",
+    "draft pick", "roster", "transfer window",
+    // Results & action (specific enough to avoid false positives)
+    "goal scored", "batting", "stadium", "medal", "manager sacked",
+    "grand prix", "game recap", "final score", "defeats ", "routs ",
+    "win over", "victory over", "loss to ", "assists",
     "touchdown", "home run", "three-pointer", "shutout",
-    "overtime", "halftime", "innings", "quarterback", "pitcher",
-    "free agency", "draft pick", "trade deadline", "roster",
+    "halftime", "innings", "rebounds",
+    // Streaks
     "win streak", "losing streak", "straight win", "straight loss",
+    // Named events
     "ncaa", "march madness", "super bowl", "world series",
-    "stanley cup", "all-star", "mvp", "rookie", "varsity",
-    "espn", "sports", "game ", "series win", "series loss",
-    "postseason", "preseason", "regular season",
+    "stanley cup", "all-star", "mvp", "varsity",
+    // Combat sports
+    "boxing", "ufc", "mma",
+    // Meta
+    "espn", "sports", "series win", "series loss",
+    // REMOVED: "match" (ambiguous — "match expectations"), "points" (financial/political),
+    // "game " ("game-changing"), "beats "/"beat the " ("beats estimates"),
+    // "scored "/"scores " ("scores of people"), "league" standalone ("league of nations"),
+    // "transfer" standalone ("money transfer"), "pitch" ("pitch deck"),
+    // "overtime" ("working overtime")
   ],
   financial: [
     "stock", "shares", "market rally", "market drop", "wall street", "ftse",
@@ -109,33 +122,42 @@ const CATEGORY_KEYWORDS = {
     "market cap", "investor", "investment", "portfolio",
     "commodity", "gold price", "silver price", "copper",
     "supply chain", "cpi ", "ppi ", "economic growth",
-    "bull market", "bear market", "rally", "selloff", "sell-off",
+    "bull market", "bear market", "selloff", "sell-off",
     "dow ", "index fund", "etf ", "mutual fund",
+    "stock market", "stock price",
+    // REMOVED: standalone "rally" (matches "political rally")
   ],
   tech: [
     "ai ", " ai,", "artificial intelligence", "openai", "google", "apple",
-    "microsoft", "amazon", "meta", "nvidia", "semiconductor", "chip",
+    "microsoft", "amazon", "meta", "nvidia", "semiconductor",
     "software", "startup", "cyber", "hack", "data breach", "app ",
-    "smartphone", "robot", "autonomous", "quantum", "blockchain",
-    "cloud computing", "machine learning", "silicon valley",
+    "smartphone", "robot", "autonomous", "blockchain",
+    "cloud computing", "cloud service", "machine learning", "silicon valley",
     "spacex", "tesla",
     "chatbot", "deepfake", "algorithm", "encryption", "5g ", "6g ",
     "self-driving", "chatgpt", "gemini", "copilot", "anthropic",
-    "open source", "saas", "cloud ", "streaming", "tiktok",
+    "open source", "saas", "streaming", "tiktok",
     "instagram", "social media", "tech giant", "silicon ",
     "microchip", "processor", "gpu ", "data center",
+    "quantum computing", "quantum computer",
+    "chip maker", "chip shortage", "chipmaker",
+    // REMOVED: "chip" standalone (golf "chip shot"), "cloud " standalone (weather),
+    // "quantum" standalone (physics — stays in science)
   ],
   health: [
     "cancer", "disease", "hospital", "vaccine", "virus", "pandemic",
     "nhs", "drug trial", "clinical trial", "mental health", "obesity",
     "diabetes", "surgery", "doctor", "patient", "diagnosis", "treatment",
     "outbreak", "public health", "life expectancy", "dementia", "alzheimer",
-    "fda ", "cdc ", "who ", "drug approval", "pharmaceutical",
+    "fda ", "cdc ", "drug approval", "pharmaceutical",
     "therapy", "prescription", "opioid", "fentanyl", "overdose",
     "medicare", "medicaid", "health care", "healthcare", "insurer",
     "biotech", "gene therapy", "stem cell", "organ transplant",
     "flu ", "infection", "antibiotic", "fertility", "maternal",
     "nutrition", "sleep ", "wellness", "epidemic", "mortality",
+    "world health organization",
+    // REMOVED: "who " (the pronoun "who" matches in virtually every article,
+    // inflating health score across all categories)
   ],
   science: [
     "nasa", "space", "planet", "asteroid", "climate", "fossil",
@@ -154,8 +176,10 @@ const CATEGORY_KEYWORDS = {
     "invasion", "sanctions", "nato", "united nations", "diplomat",
     "embassy", "refugee", "cease-fire", "ceasefire", "conflict",
     "president", "prime minister", "election", "parliament", "protest",
-    "coup", "regime", "tariff", "trade war", "navy", "army",
+    "coup", "regime", "navy", "army",
     "pentagon", "minister", "government",
+    // REMOVED: "tariff" and "trade war" (kept in financial only — they're economic concepts;
+    // world articles about tariffs still match via "president", "government", etc.)
   ],
 };
 
@@ -181,8 +205,8 @@ function classifyArticle(title = "", description = "", feedCategory = "world") {
   }
   // No keywords matched — trust the feed's own category tag
   if (bestScore === 0) return feedCategory;
-  // If feed category has any matches and is close to the best, prefer it
-  if (scores[feedCategory] > 0 && bestScore - scores[feedCategory] < 2) return feedCategory;
+  // Feed category only wins if it ties or beats the best keyword score
+  if ((scores[feedCategory] || 0) >= bestScore) return feedCategory;
   return bestCat;
 }
 
