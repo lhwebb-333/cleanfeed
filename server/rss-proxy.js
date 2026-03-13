@@ -79,20 +79,35 @@ const CATEGORIES = [
 // Feed URL gives a hint, but we override based on actual content
 const CATEGORY_KEYWORDS = {
   sports: [
+    // Sports & leagues
     "football", "soccer", "rugby", "cricket", "tennis", "golf", "f1",
-    "formula 1", "nba", "nfl", "nhl", "mlb", "premier league", "champions league",
-    "world cup", "olympics", "athlete", "coach", "referee", "tournament",
-    "match", "fixture", "playoff", "championship", "league", "transfer",
-    "goal scored", "batting", "pitch", "stadium", "medal",
-    "manager sacked", "grand prix", "boxing", "ufc", "mma",
-    "game recap", "final score", "beats ", "defeats ", "routs ",
-    "scored ", "touchdown", "home run", "three-pointer", "shutout",
-    "overtime", "halftime", "innings", "quarterback", "pitcher",
-    "free agency", "draft pick", "trade deadline", "roster",
+    "formula 1", "nba", "nfl", "nhl", "mlb", "mls", "premier league",
+    "champions league", "world cup", "olympics", "major league",
+    // Roles
+    "athlete", "coach", "referee", "quarterback", "pitcher", "rookie",
+    // Structure & events
+    "tournament", "fixture", "playoff", "championship", "postseason",
+    "preseason", "regular season", "trade deadline", "free agency",
+    "draft pick", "roster", "transfer window",
+    // Results & action (specific enough to avoid false positives)
+    "goal scored", "batting", "stadium", "medal", "manager sacked",
+    "grand prix", "game recap", "final score", "defeats ", "routs ",
+    "win over", "victory over", "loss to ", "assists",
+    "touchdown", "home run", "three-pointer", "shutout",
+    "halftime", "innings", "rebounds",
+    // Streaks
+    "win streak", "losing streak", "straight win", "straight loss",
+    // Named events
     "ncaa", "march madness", "super bowl", "world series",
-    "stanley cup", "all-star", "mvp", "rookie", "varsity",
-    "espn", "sports", "game ", "series win", "series loss",
-    "postseason", "preseason", "regular season",
+    "stanley cup", "all-star", "mvp", "varsity",
+    // Combat sports
+    "boxing", "ufc", "mma",
+    // Meta
+    "espn", "sports", "series win", "series loss",
+    // REMOVED: "match" (ambiguous), "points", "game " ("game-changing"),
+    // "beats "/"scored " ("beats estimates"/"scores of people"),
+    // "league" standalone, "transfer" standalone, "pitch" ("pitch deck"),
+    // "overtime" ("working overtime")
   ],
   financial: [
     "stock", "shares", "market rally", "market drop", "wall street", "ftse",
@@ -157,6 +172,14 @@ const CATEGORY_KEYWORDS = {
     "president", "prime minister", "election", "parliament", "protest",
     "coup", "regime", "tariff", "trade war", "navy", "army",
     "pentagon", "minister", "government",
+    // Catch general hard-news events that aren't sports/tech/etc
+    "crash", "fire ", "fires ", "shooting", "attack", "killed",
+    "dead ", "death ", "deaths", "arrest", "police", "court",
+    "judge", "trial", "prison", "sentence", "murder", "victim",
+    "synagogue", "mosque", "church", "temple",
+    "evacuate", "explosion", "hostage", "kidnap", "terror",
+    "suspect", "investigation", "lawsuit", "indict",
+    "influencer", "celebrity", "dinner", "lgbtq", "muslim",
   ],
 };
 
@@ -182,16 +205,21 @@ function classifyArticle(title = "", description = "", feedCategory = "world") {
     }
   }
 
-  // No keywords matched — default to "world" not feedCategory
-  // (prevents Google proxy noise from inheriting wrong category)
+  // No keywords matched at all — default to "world" (safe catch-all).
+  // Don't trust specialized feed tags (sports, tech, etc.) without
+  // at least one confirming keyword.
   if (bestScore === 0) return "world";
 
-  // If the feed category also has matches, require the override to win by 2+
-  // to avoid borderline re-classifications
-  if (scores[feedCategory] > 0 && bestScore - scores[feedCategory] < 1) {
-    return feedCategory;
+  // Specialized feed category must score at least 1 on its own keywords
+  // to keep its feed tag — otherwise the best keyword match wins.
+  // This prevents "plane crash in Iraq" from staying as "sports"
+  // just because it came from a sports RSS feed.
+  if (feedCategory !== "world" && (scores[feedCategory] || 0) === 0) {
+    return bestCat;
   }
 
+  // Feed category wins if it ties or beats the best keyword score
+  if ((scores[feedCategory] || 0) >= bestScore) return feedCategory;
   return bestCat;
 }
 
@@ -340,7 +368,7 @@ async function fetchTopicFeeds() {
           pubDate: item.isoDate || item.pubDate,
           source: sourceInfo.name,
           color: sourceInfo.color,
-          category,
+          category: classifyArticle(title, desc, category),
         });
       }
     } catch (err) {

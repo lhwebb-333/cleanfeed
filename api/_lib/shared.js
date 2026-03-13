@@ -178,6 +178,14 @@ const CATEGORY_KEYWORDS = {
     "president", "prime minister", "election", "parliament", "protest",
     "coup", "regime", "navy", "army",
     "pentagon", "minister", "government",
+    // Catch general hard-news events that aren't sports/tech/etc
+    "crash", "fire ", "fires ", "shooting", "attack", "killed",
+    "dead ", "death ", "deaths", "arrest", "police", "court",
+    "judge", "trial", "prison", "sentence", "murder", "victim",
+    "synagogue", "mosque", "church", "temple",
+    "evacuate", "explosion", "hostage", "kidnap", "terror",
+    "suspect", "investigation", "lawsuit", "indict",
+    "influencer", "celebrity", "dinner", "lgbtq", "muslim",
     // REMOVED: "tariff" and "trade war" (kept in financial only — they're economic concepts;
     // world articles about tariffs still match via "president", "government", etc.)
   ],
@@ -203,9 +211,21 @@ function classifyArticle(title = "", description = "", feedCategory = "world") {
   for (const [cat, score] of Object.entries(scores)) {
     if (score > bestScore) { bestScore = score; bestCat = cat; }
   }
-  // No keywords matched — trust the feed's own category tag
-  if (bestScore === 0) return feedCategory;
-  // Feed category only wins if it ties or beats the best keyword score
+
+  // No keywords matched at all — default to "world" (safe catch-all).
+  // Don't trust specialized feed tags (sports, tech, etc.) without
+  // at least one confirming keyword.
+  if (bestScore === 0) return "world";
+
+  // Specialized feed category must score at least 1 on its own keywords
+  // to keep its feed tag — otherwise the best keyword match wins.
+  // This prevents "plane crash in Iraq" from staying as "sports"
+  // just because it came from a sports RSS feed.
+  if (feedCategory !== "world" && (scores[feedCategory] || 0) === 0) {
+    return bestCat;
+  }
+
+  // Feed category wins if it ties or beats the best keyword score
   if ((scores[feedCategory] || 0) >= bestScore) return feedCategory;
   return bestCat;
 }
@@ -447,7 +467,7 @@ export async function fetchTopicFeeds() {
           pubDate: item.isoDate || item.pubDate,
           source: sourceInfo.name,
           color: sourceInfo.color,
-          category,
+          category: classifyArticle(title, desc, category),
         });
       }
     } catch (err) {
