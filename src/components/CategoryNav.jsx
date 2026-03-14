@@ -17,27 +17,12 @@ export function CategoryNav({
   const [expandedCat, setExpandedCat] = useState(null);
 
   const handleCatClick = (key) => {
-    const hasSubs = !!CATEGORY_SUBSOURCES[key];
-    const isOn = enabledCategories.has(key);
+    toggleCategory(key);
+  };
 
-    if (hasSubs) {
-      if (!isOn) {
-        // Turn on + expand
-        toggleCategory(key);
-        setExpandedCat(key);
-      } else if (expandedCat === key) {
-        // Already expanded — collapse + turn off
-        setExpandedCat(null);
-        toggleCategory(key);
-      } else {
-        // On but not expanded — expand
-        setExpandedCat(key);
-      }
-    } else {
-      // No sub-sources — plain toggle
-      toggleCategory(key);
-      if (expandedCat) setExpandedCat(null);
-    }
+  const handleExpandClick = (e, key) => {
+    e.stopPropagation();
+    setExpandedCat(expandedCat === key ? null : key);
   };
 
   const renderSubPills = (catKey) => {
@@ -125,24 +110,29 @@ export function CategoryNav({
                 }}
               >
                 {cat.label}
-                {hasSubs && (
-                  <span
-                    style={{
-                      marginLeft: 4,
-                      fontSize: 8,
-                      opacity: 0.5,
-                      display: "inline-block",
-                      transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
-                      transition: theme.transitions.fast,
-                    }}
-                  >
-                    ▸
-                  </span>
-                )}
                 {count > 0 && (
                   <span style={{ marginLeft: 4, opacity: 0.5 }}>{count}</span>
                 )}
               </button>
+              {hasSubs && (
+                <button
+                  onClick={(e) => handleExpandClick(e, cat.key)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: "4px 6px",
+                    fontSize: 9,
+                    opacity: isExpanded ? 0.8 : 0.4,
+                    display: "inline-block",
+                    transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
+                    transition: theme.transitions.fast,
+                    color: on ? theme.colors.textStrong : theme.colors.textFaint,
+                  }}
+                >
+                  ▸
+                </button>
+              )}
               {renderSubPills(cat.key)}
             </div>
           );
@@ -240,19 +230,6 @@ export function CategoryNav({
                 }}
               />
               <span style={{ flex: 1 }}>{cat.label}</span>
-              {hasSubs && (
-                <span
-                  style={{
-                    fontSize: 9,
-                    opacity: 0.4,
-                    display: "inline-block",
-                    transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
-                    transition: theme.transitions.fast,
-                  }}
-                >
-                  ▸
-                </span>
-              )}
               {count > 0 && (
                 <span
                   style={{
@@ -263,6 +240,22 @@ export function CategoryNav({
                   }}
                 >
                   {count}
+                </span>
+              )}
+              {hasSubs && (
+                <span
+                  onClick={(e) => handleExpandClick(e, cat.key)}
+                  style={{
+                    fontSize: 9,
+                    opacity: isExpanded ? 0.8 : 0.4,
+                    display: "inline-block",
+                    transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
+                    transition: theme.transitions.fast,
+                    cursor: "pointer",
+                    padding: "2px 4px",
+                  }}
+                >
+                  ▸
                 </span>
               )}
             </button>

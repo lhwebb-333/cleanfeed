@@ -36,12 +36,12 @@ export default async function handler(req, res) {
     articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
     // When showing all categories, use tiered weighting:
-    // Primary (world, sports, financial) get ~20% each = 60% total
-    // Secondary (tech, science, health) get ~13% each = 40% total
-    // Overflow fills remaining slots by recency.
+    // Primary (world, sports, financial) get more slots
+    // Secondary (tech, science, health) get fewer but guaranteed slots
+    // Fixed caps prevent any category from dominating regardless of limit
     if (!categoryFilter || categoryFilter === "all") {
-      const primaryCap = Math.ceil(limit * 0.2);   // ~60 each at limit=300
-      const secondaryCap = Math.ceil(limit * 0.13); // ~39 each at limit=300
+      const primaryCap = 75;
+      const secondaryCap = 50;
       const caps = {
         world: primaryCap, sports: primaryCap, financial: primaryCap,
         tech: secondaryCap, science: secondaryCap, health: secondaryCap,

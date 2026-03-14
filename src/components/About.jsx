@@ -165,6 +165,94 @@ export function About({ open, onClose }) {
               </div>
             </div>
           ))}
+
+          <p
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: theme.colors.textFaint,
+              textTransform: "uppercase",
+              marginTop: 20,
+              marginBottom: 12,
+            }}
+          >
+            Specialty Sources
+          </p>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 12,
+              lineHeight: 1.5,
+              color: theme.colors.textMuted,
+              marginBottom: 12,
+            }}
+          >
+            Topic-specific outlets selected for factual, research-driven reporting.
+          </p>
+          {[
+            { name: "Ars Technica", color: "#FF7043", desc: "In-depth technology reporting", cat: "Tech" },
+            { name: "MIT Tech Review", color: "#EC407A", desc: "Research-focused tech journalism", cat: "Tech" },
+            { name: "Nature", color: "#E53935", desc: "Premier scientific journal", cat: "Science" },
+            { name: "Phys.org", color: "#4FC3F7", desc: "University & lab press releases", cat: "Science" },
+            { name: "KFF Health News", color: "#AB47BC", desc: "Nonpartisan health policy", cat: "Health" },
+            { name: "STAT News", color: "#00ACC1", desc: "Pharma & biotech reporting", cat: "Health" },
+          ].map((s) => (
+            <div
+              key={s.name}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "8px 0",
+                borderBottom: `1px solid ${theme.colors.border}`,
+              }}
+            >
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: s.color,
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1 }}>
+                <span
+                  style={{
+                    fontFamily: theme.fonts.serif,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: theme.colors.textStrong,
+                  }}
+                >
+                  {s.name}
+                </span>
+                <span
+                  style={{
+                    fontFamily: theme.fonts.mono,
+                    fontSize: 10,
+                    color: theme.colors.textFaint,
+                    marginLeft: 8,
+                  }}
+                >
+                  {s.desc}
+                </span>
+              </div>
+              <span
+                style={{
+                  fontFamily: theme.fonts.mono,
+                  fontSize: 9,
+                  color: s.color,
+                  opacity: 0.7,
+                  flexShrink: 0,
+                }}
+              >
+                {s.cat}
+              </span>
+            </div>
+          ))}
         </div>
 
         <div style={{ marginBottom: 20 }}>
