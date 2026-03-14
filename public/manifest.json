@@ -1,7 +1,7 @@
 {
   "name": "Clean Feed",
   "short_name": "CleanFeed",
-  "description": "News only. No opinions. No rage. No algorithms.",
+  "description": "Chronological news from Reuters, AP, BBC, and NPR. No algorithms, no opinions, no tracking.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0d0d0d",
