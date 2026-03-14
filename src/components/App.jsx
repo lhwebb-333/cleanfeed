@@ -270,6 +270,7 @@ export default function App() {
             fontSize: 12,
             color: theme.colors.textFaint,
             lineHeight: 1.5,
+            marginBottom: 12,
           }}
         >
           Clean Feed believes clarity should be free.{" "}
@@ -286,6 +287,47 @@ export default function App() {
             Support our work
           </a>
         </p>
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <button
+            onClick={() => {
+              const text = "I switched to Clean Feed — chronological news from Reuters, AP, BBC & NPR. No algorithms, no rage. https://thecleanfeed.app";
+              if (navigator.share) {
+                navigator.share({ title: "Clean Feed", text, url: "https://thecleanfeed.app" }).catch(() => {});
+              } else {
+                navigator.clipboard.writeText(text).then(() => {
+                  const el = document.getElementById("share-toast");
+                  if (el) { el.style.opacity = 1; setTimeout(() => { el.style.opacity = 0; }, 1500); }
+                });
+              }
+            }}
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              letterSpacing: "0.06em",
+              padding: "5px 12px",
+              background: "transparent",
+              border: `1px solid ${theme.colors.border}`,
+              borderRadius: theme.radii.sm,
+              color: theme.colors.textMuted,
+              cursor: "pointer",
+              transition: theme.transitions.fast,
+            }}
+          >
+            SHARE CLEAN FEED
+          </button>
+          <span
+            id="share-toast"
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              color: theme.colors.textFaint,
+              opacity: 0,
+              transition: "opacity 0.3s ease",
+            }}
+          >
+            Copied!
+          </span>
+        </div>
       </footer>
 
       <style>{`
