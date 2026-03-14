@@ -508,7 +508,7 @@ export async function fetchSupplementalFeeds() {
         pubDate: item.isoDate || item.pubDate,
         source: name,
         color,
-        category: classifyArticle(item.title, desc, category),
+        category, // Lock to feed category — no keyword reclassification
       });
     }
   }
