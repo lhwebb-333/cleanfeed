@@ -101,23 +101,19 @@ export function About({ open, onClose }) {
             Sources
           </p>
           {[
-            { name: "Reuters", url: "https://www.reuters.com", color: "#FF8C00", desc: "International wire service" },
-            { name: "Associated Press", url: "https://apnews.com", color: "#4A90D9", desc: "Independent news agency" },
-            { name: "BBC News", url: "https://www.bbc.com/news", color: "#C1272D", desc: "British Broadcasting Corporation" },
-            { name: "NPR", url: "https://www.npr.org", color: "#5BBD72", desc: "National Public Radio" },
+            { name: "Reuters", url: "https://www.reuters.com/info/disclaimer", color: "#FF8C00", desc: "International wire service", ethics: "Trust Principles" },
+            { name: "Associated Press", url: "https://www.ap.org/about/news-values-and-principles", color: "#4A90D9", desc: "Independent news agency", ethics: "News Values" },
+            { name: "BBC News", url: "https://www.bbc.com/editorialguidelines", color: "#C1272D", desc: "British Broadcasting Corporation", ethics: "Editorial Guidelines" },
+            { name: "NPR", url: "https://www.npr.org/ethics", color: "#5BBD72", desc: "National Public Radio", ethics: "Ethics Handbook" },
           ].map((s) => (
-            <a
+            <div
               key={s.name}
-              href={s.url}
-              target="_blank"
-              rel="noopener noreferrer"
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
                 padding: "10px 0",
                 borderBottom: `1px solid ${theme.colors.border}`,
-                textDecoration: "none",
               }}
             >
               <span
@@ -150,8 +146,24 @@ export function About({ open, onClose }) {
                 >
                   {s.desc}
                 </span>
+                <span style={{ marginLeft: 6 }}>
+                  <a
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      fontFamily: theme.fonts.mono,
+                      fontSize: 9,
+                      color: theme.colors.textMuted,
+                      textDecoration: "underline",
+                      textUnderlineOffset: 2,
+                    }}
+                  >
+                    {s.ethics}
+                  </a>
+                </span>
               </div>
-            </a>
+            </div>
           ))}
         </div>
 
