@@ -248,8 +248,9 @@ export function useFeed() {
 
   const categoryCounts = useMemo(() => {
     const counts = {};
+    const subSourceSet = new Set(ALL_SUBSOURCE_NAMES);
     for (const a of combinedArticles) {
-      if (enabledSources.has(a.source)) {
+      if (enabledSources.has(a.source) || subSourceSet.has(a.source)) {
         counts[a.category] = (counts[a.category] || 0) + 1;
       }
     }
