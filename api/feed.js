@@ -40,12 +40,12 @@ export default async function handler(req, res) {
     // Secondary (tech, science, health) get fewer but guaranteed slots
     // Fixed caps prevent any category from dominating regardless of limit
     if (!categoryFilter || categoryFilter === "all") {
-      const primaryCap = 150;
       const secondaryCap = 100;
       const caps = {
-        world: primaryCap, sports: primaryCap, financial: primaryCap,
+        world: 200, sports: 200, financial: 150,
         tech: secondaryCap, science: secondaryCap, health: secondaryCap,
       };
+      // Build per-category buckets (already sorted by date)
       const buckets = {};
       for (const a of articles) {
         const cat = a.category || "world";
@@ -55,8 +55,24 @@ export default async function handler(req, res) {
           buckets[cat].push(a);
         }
       }
-      articles = Object.values(buckets).flat()
-        .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+      // Round-robin interleave: 1 from each category per round
+      const catOrder = ["world", "sports", "financial", "tech", "science", "health"];
+      const indices = {};
+      catOrder.forEach((c) => { indices[c] = 0; });
+      const interleaved = [];
+      let placed = true;
+      while (placed) {
+        placed = false;
+        for (const cat of catOrder) {
+          const bucket = buckets[cat];
+          if (bucket && indices[cat] < bucket.length) {
+            interleaved.push(bucket[indices[cat]]);
+            indices[cat]++;
+            placed = true;
+          }
+        }
+      }
+      articles = interleaved;
     }
 
     articles = articles.slice(0, limit);

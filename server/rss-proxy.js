@@ -508,10 +508,9 @@ app.get("/api/feed", async (req, res) => {
     // Primary (world, sports, financial) get more slots
     // Secondary (tech, science, health) get fewer but guaranteed slots
     if (!categoryFilter || categoryFilter === "all") {
-      const primaryCap = 150;
       const secondaryCap = 100;
       const caps = {
-        world: primaryCap, sports: primaryCap, financial: primaryCap,
+        world: 200, sports: 200, financial: 150,
         tech: secondaryCap, science: secondaryCap, health: secondaryCap,
       };
       const buckets = {};
@@ -523,8 +522,23 @@ app.get("/api/feed", async (req, res) => {
           buckets[cat].push(a);
         }
       }
-      articles = Object.values(buckets).flat()
-        .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+      const catOrder = ["world", "sports", "financial", "tech", "science", "health"];
+      const indices = {};
+      catOrder.forEach((c) => { indices[c] = 0; });
+      const interleaved = [];
+      let placed = true;
+      while (placed) {
+        placed = false;
+        for (const cat of catOrder) {
+          const bucket = buckets[cat];
+          if (bucket && indices[cat] < bucket.length) {
+            interleaved.push(bucket[indices[cat]]);
+            indices[cat]++;
+            placed = true;
+          }
+        }
+      }
+      articles = interleaved;
     }
 
     articles = articles.slice(0, limit);

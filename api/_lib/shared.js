@@ -480,7 +480,7 @@ export async function fetchSupplementalFeeds() {
   const results = await Promise.allSettled(
     SUPPLEMENTAL_FEEDS.map(async ({ url, name, color, category }) => {
       const feed = await parser.parseURL(url);
-      return (feed.items || []).slice(0, 15).map((item) => ({
+      return (feed.items || []).slice(0, 30).map((item) => ({
         item, name, color, category,
       }));
     })
