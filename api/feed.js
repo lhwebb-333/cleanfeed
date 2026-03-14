@@ -40,8 +40,8 @@ export default async function handler(req, res) {
     // Secondary (tech, science, health) get fewer but guaranteed slots
     // Fixed caps prevent any category from dominating regardless of limit
     if (!categoryFilter || categoryFilter === "all") {
-      const primaryCap = 75;
-      const secondaryCap = 50;
+      const primaryCap = 150;
+      const secondaryCap = 100;
       const caps = {
         world: primaryCap, sports: primaryCap, financial: primaryCap,
         tech: secondaryCap, science: secondaryCap, health: secondaryCap,

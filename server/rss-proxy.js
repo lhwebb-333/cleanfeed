@@ -508,8 +508,8 @@ app.get("/api/feed", async (req, res) => {
     // Primary (world, sports, financial) get more slots
     // Secondary (tech, science, health) get fewer but guaranteed slots
     if (!categoryFilter || categoryFilter === "all") {
-      const primaryCap = 75;
-      const secondaryCap = 50;
+      const primaryCap = 150;
+      const secondaryCap = 100;
       const caps = {
         world: primaryCap, sports: primaryCap, financial: primaryCap,
         tech: secondaryCap, science: secondaryCap, health: secondaryCap,
