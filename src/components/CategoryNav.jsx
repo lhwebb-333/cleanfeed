@@ -16,18 +16,9 @@ export function CategoryNav({
   const allOn = enabledCategories.size === CATEGORIES.length;
   const [expandedCat, setExpandedCat] = useState(null);
 
-  const handleCatClick = (key) => {
-    toggleCategory(key);
-  };
-
-  const handleExpandClick = (e, key) => {
-    e.stopPropagation();
-    setExpandedCat(expandedCat === key ? null : key);
-  };
-
   const renderSubPills = (catKey) => {
     const subs = CATEGORY_SUBSOURCES[catKey];
-    if (!subs || expandedCat !== catKey) return null;
+    if (!subs) return null;
 
     return subs.map((sub) => {
       const on = !disabledSubSources?.has(sub.name);
@@ -79,7 +70,6 @@ export function CategoryNav({
           const on = enabledCategories.has(cat.key);
           const count = categoryCounts[cat.key] || 0;
           const hasSubs = !!CATEGORY_SUBSOURCES[cat.key];
-          const isExpanded = expandedCat === cat.key;
 
           return (
             <div
@@ -92,7 +82,7 @@ export function CategoryNav({
               }}
             >
               <button
-                onClick={() => handleCatClick(cat.key)}
+                onClick={() => toggleCategory(cat.key)}
                 style={{
                   fontFamily: theme.fonts.mono,
                   fontSize: 11,
@@ -114,26 +104,7 @@ export function CategoryNav({
                   <span style={{ marginLeft: 4, opacity: 0.5 }}>{count}</span>
                 )}
               </button>
-              {hasSubs && (
-                <button
-                  onClick={(e) => handleExpandClick(e, cat.key)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: "4px 6px",
-                    fontSize: 9,
-                    opacity: isExpanded ? 0.8 : 0.4,
-                    display: "inline-block",
-                    transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
-                    transition: theme.transitions.fast,
-                    color: on ? theme.colors.textStrong : theme.colors.textFaint,
-                  }}
-                >
-                  ▸
-                </button>
-              )}
-              {renderSubPills(cat.key)}
+              {hasSubs && on && renderSubPills(cat.key)}
             </div>
           );
         })}
@@ -194,12 +165,11 @@ export function CategoryNav({
         const on = enabledCategories.has(cat.key);
         const count = categoryCounts[cat.key] || 0;
         const hasSubs = !!CATEGORY_SUBSOURCES[cat.key];
-        const isExpanded = expandedCat === cat.key;
 
         return (
           <div key={cat.key}>
             <button
-              onClick={() => handleCatClick(cat.key)}
+              onClick={() => toggleCategory(cat.key)}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -244,12 +214,15 @@ export function CategoryNav({
               )}
               {hasSubs && (
                 <span
-                  onClick={(e) => handleExpandClick(e, cat.key)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedCat(expandedCat === cat.key ? null : cat.key);
+                  }}
                   style={{
                     fontSize: 9,
-                    opacity: isExpanded ? 0.8 : 0.4,
+                    opacity: expandedCat === cat.key ? 0.8 : 0.4,
                     display: "inline-block",
-                    transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
+                    transform: expandedCat === cat.key ? "rotate(90deg)" : "rotate(0deg)",
                     transition: theme.transitions.fast,
                     cursor: "pointer",
                     padding: "2px 4px",
@@ -260,20 +233,19 @@ export function CategoryNav({
               )}
             </button>
 
-            {/* Sub-source pills — slide in below the category */}
+            {/* Sub-source pills — expand/collapse via arrow */}
             {hasSubs && (
               <div
                 style={{
-                  display: "flex",
                   display: "flex",
                   gap: 4,
                   paddingLeft: 12,
                   paddingRight: 12,
                   overflow: "hidden",
-                  maxHeight: isExpanded ? 40 : 0,
-                  opacity: isExpanded ? 1 : 0,
+                  maxHeight: expandedCat === cat.key ? 40 : 0,
+                  opacity: expandedCat === cat.key ? 1 : 0,
                   transition: "max-height 0.2s ease, opacity 0.15s ease",
-                  marginBottom: isExpanded ? 4 : 0,
+                  marginBottom: expandedCat === cat.key ? 4 : 0,
                 }}
               >
                 {CATEGORY_SUBSOURCES[cat.key].map((sub) => {
