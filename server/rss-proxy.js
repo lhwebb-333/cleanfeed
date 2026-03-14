@@ -515,23 +515,16 @@ app.get("/api/feed", async (req, res) => {
         tech: secondaryCap, science: secondaryCap, health: secondaryCap,
       };
       const buckets = {};
-      const overflow = [];
       for (const a of articles) {
         const cat = a.category || "world";
         if (!buckets[cat]) buckets[cat] = [];
         const cap = caps[cat] || secondaryCap;
         if (buckets[cat].length < cap) {
           buckets[cat].push(a);
-        } else {
-          overflow.push(a);
         }
       }
-      let balanced = Object.values(buckets).flat();
-      const remaining = limit - balanced.length;
-      if (remaining > 0) {
-        balanced = balanced.concat(overflow.slice(0, remaining));
-      }
-      articles = balanced.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+      articles = Object.values(buckets).flat()
+        .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
     }
 
     articles = articles.slice(0, limit);
