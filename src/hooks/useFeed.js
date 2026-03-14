@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { CATEGORIES, SOURCES } from "../utils/sources";
+import { CATEGORIES, SOURCES, ALL_SUBSOURCE_NAMES } from "../utils/sources";
 import { LOCAL_COLOR } from "../utils/stateSources";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
@@ -31,6 +31,19 @@ export function useFeed() {
   // Persisted filters
   const [enabledSources, setEnabledSources] = useState(() => loadSet("cleanfeed-sources", ALL_SRC_KEYS));
   const [enabledCategories, setEnabledCategories] = useState(() => loadSet("cleanfeed-categories", ALL_CAT_KEYS));
+  // Sub-source toggles (disabled set — empty means all on)
+  const [disabledSubSources, setDisabledSubSources] = useState(() => loadSet("cleanfeed-disabled-subsources", []));
+
+  const toggleSubSource = useCallback((name) => {
+    setDisabledSubSources((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      saveSet("cleanfeed-disabled-subsources", next);
+      return next;
+    });
+  }, []);
+
   const [mutedKeywords, setMutedKeywords] = useState(() => {
     try {
       const saved = localStorage.getItem("cleanfeed-muted");
@@ -213,8 +226,13 @@ export function useFeed() {
   // Client-side filtering: sources + categories + muted keywords + search
   const articles = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
+    const subSourceSet = new Set(ALL_SUBSOURCE_NAMES);
     return combinedArticles.filter((a) => {
-      if (!enabledSources.has(a.source)) return false;
+      if (subSourceSet.has(a.source)) {
+        if (disabledSubSources.has(a.source)) return false;
+      } else {
+        if (!enabledSources.has(a.source)) return false;
+      }
       if (!enabledCategories.has(a.category)) return false;
       if (mutedKeywords.length > 0) {
         const text = `${a.title} ${a.description}`.toLowerCase();
@@ -226,7 +244,7 @@ export function useFeed() {
       }
       return true;
     });
-  }, [combinedArticles, enabledSources, enabledCategories, mutedKeywords, searchQuery]);
+  }, [combinedArticles, enabledSources, enabledCategories, disabledSubSources, mutedKeywords, searchQuery]);
 
   const categoryCounts = useMemo(() => {
     const counts = {};
@@ -264,6 +282,8 @@ export function useFeed() {
     enableAllCats,
     disableAllCats,
     categoryCounts,
+    disabledSubSources,
+    toggleSubSource,
     mutedKeywords,
     addMutedKeyword,
     removeMutedKeyword,

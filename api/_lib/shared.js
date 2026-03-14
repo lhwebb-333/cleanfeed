@@ -19,9 +19,7 @@ export const SOURCES = {
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+NBA+basketball&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+NFL+football&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+MLB+OR+NHL+OR+soccer+OR+tennis+OR+golf+OR+F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+NBA+OR+NFL+OR+MLB+OR+NHL+OR+soccer+OR+F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#FF8C00",
   },
@@ -29,11 +27,8 @@ export const SOURCES = {
     name: "AP News",
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NBA+basketball&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NFL+football&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+MLB+baseball&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NHL+hockey&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+soccer+OR+tennis+OR+golf+OR+boxing+OR+NASCAR+OR+NCAA+OR+UFC+OR+MLS&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NBA+OR+NFL+OR+MLB+OR+NHL+OR+NASCAR+OR+NCAA+OR+soccer&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#4A90D9",
   },
@@ -466,6 +461,59 @@ function matchApprovedSource(item) {
   if (title.endsWith("- BBC News")) return APPROVED_SOURCES["bbc.com"];
   if (title.endsWith("- NPR")) return APPROVED_SOURCES["npr.org"];
   return null;
+}
+
+// Direct RSS from curated specialist outlets (supplemental to main sources)
+const SUPPLEMENTAL_FEEDS = [
+  { url: "https://phys.org/rss-feed/", name: "Phys.org", color: "#4FC3F7", category: "science" },
+  { url: "https://www.nature.com/nature.rss", name: "Nature", color: "#E53935", category: "science" },
+  { url: "https://kffhealthnews.org/feed/", name: "KFF Health", color: "#AB47BC", category: "health" },
+  { url: "https://www.statnews.com/feed/", name: "STAT News", color: "#00ACC1", category: "health" },
+  { url: "https://feeds.arstechnica.com/arstechnica/index", name: "Ars Technica", color: "#FF7043", category: "tech" },
+  { url: "https://www.technologyreview.com/feed/", name: "MIT Tech Review", color: "#EC407A", category: "tech" },
+];
+
+export async function fetchSupplementalFeeds() {
+  const cached = getCached("supplemental-feeds");
+  if (cached) return cached;
+
+  const results = await Promise.allSettled(
+    SUPPLEMENTAL_FEEDS.map(async ({ url, name, color, category }) => {
+      const feed = await parser.parseURL(url);
+      return (feed.items || []).slice(0, 15).map((item) => ({
+        item, name, color, category,
+      }));
+    })
+  );
+
+  const articles = [];
+  for (const result of results) {
+    if (result.status !== "fulfilled") continue;
+    for (const { item, name, color, category } of result.value) {
+      if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+      articles.push({
+        id: item.guid || item.link,
+        title: item.title,
+        description: desc,
+        link: item.link,
+        pubDate: item.isoDate || item.pubDate,
+        source: name,
+        color,
+        category: classifyArticle(item.title, desc, category),
+      });
+    }
+  }
+
+  const seen = new Set();
+  const deduped = articles.filter((a) => {
+    if (seen.has(a.link)) return false;
+    seen.add(a.link);
+    return true;
+  });
+
+  setCache("supplemental-feeds", deduped);
+  return deduped;
 }
 
 export async function fetchTopicFeeds() {

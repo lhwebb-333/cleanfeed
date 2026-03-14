@@ -25,7 +25,8 @@ const SOURCES = {
     name: "Reuters",
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+intitle:NFL+OR+intitle:NBA+OR+intitle:MLB+OR+intitle:NHL+OR+intitle:soccer+OR+intitle:tennis+OR+intitle:golf+OR+intitle:F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+NBA+OR+NFL+OR+MLB+OR+NHL+OR+soccer+OR+F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#FF8C00",
   },
@@ -33,8 +34,8 @@ const SOURCES = {
     name: "AP News",
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+intitle:NFL+OR+intitle:NBA+OR+intitle:MLB+OR+intitle:NHL+OR+intitle:NASCAR+OR+intitle:NCAA&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+intitle:soccer+OR+intitle:tennis+OR+intitle:golf+OR+intitle:boxing+OR+intitle:F1+OR+intitle:PGA+OR+intitle:WNBA+OR+intitle:MLS+OR+intitle:UFC&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NBA+OR+NFL+OR+MLB+OR+NHL+OR+NASCAR+OR+NCAA+OR+soccer&ceid=US:en&hl=en-US&gl=US", category: "sports" },
     ],
     color: "#4A90D9",
   },
@@ -370,6 +371,59 @@ function matchApprovedSource(item) {
   return null;
 }
 
+// Direct RSS from curated specialist outlets
+const SUPPLEMENTAL_FEEDS = [
+  { url: "https://phys.org/rss-feed/", name: "Phys.org", color: "#4FC3F7", category: "science" },
+  { url: "https://www.nature.com/nature.rss", name: "Nature", color: "#E53935", category: "science" },
+  { url: "https://kffhealthnews.org/feed/", name: "KFF Health", color: "#AB47BC", category: "health" },
+  { url: "https://www.statnews.com/feed/", name: "STAT News", color: "#00ACC1", category: "health" },
+  { url: "https://feeds.arstechnica.com/arstechnica/index", name: "Ars Technica", color: "#FF7043", category: "tech" },
+  { url: "https://www.technologyreview.com/feed/", name: "MIT Tech Review", color: "#EC407A", category: "tech" },
+];
+
+async function fetchSupplementalFeeds() {
+  const cached = getCached("supplemental-feeds");
+  if (cached) return cached;
+
+  const results = await Promise.allSettled(
+    SUPPLEMENTAL_FEEDS.map(async ({ url, name, color, category }) => {
+      const feed = await parser.parseURL(url);
+      return (feed.items || []).slice(0, 15).map((item) => ({
+        item, name, color, category,
+      }));
+    })
+  );
+
+  const articles = [];
+  for (const result of results) {
+    if (result.status !== "fulfilled") continue;
+    for (const { item, name, color, category } of result.value) {
+      if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+      articles.push({
+        id: item.guid || item.link,
+        title: item.title,
+        description: desc,
+        link: item.link,
+        pubDate: item.isoDate || item.pubDate,
+        source: name,
+        color,
+        category: classifyArticle(item.title, desc, category),
+      });
+    }
+  }
+
+  const seen = new Set();
+  const deduped = articles.filter((a) => {
+    if (seen.has(a.link)) return false;
+    seen.add(a.link);
+    return true;
+  });
+
+  setCache("supplemental-feeds", deduped);
+  return deduped;
+}
+
 async function fetchTopicFeeds() {
   const cached = getCached("topic-feeds");
   if (cached) return cached;
@@ -431,23 +485,56 @@ app.get("/api/feed", async (req, res) => {
       ? [sourceFilter]
       : Object.keys(SOURCES);
 
-    const [results, topicArticles] = await Promise.all([
+    const [results, topicArticles, supplementalArticles] = await Promise.all([
       Promise.allSettled(sourceKeys.map((key) => fetchSource(key))),
       sourceFilter ? Promise.resolve([]) : fetchTopicFeeds(),
+      sourceFilter ? Promise.resolve([]) : fetchSupplementalFeeds(),
     ]);
 
     let articles = [
       ...results.filter((r) => r.status === "fulfilled").flatMap((r) => r.value),
       ...topicArticles,
+      ...supplementalArticles,
     ];
 
     if (categoryFilter && categoryFilter !== "all") {
       articles = articles.filter((a) => a.category === categoryFilter);
     }
 
-    articles = articles
-      .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
-      .slice(0, limit);
+    // Sort by date first (newest first)
+    articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+    // Tiered weighting:
+    // Primary (world, sports, financial) get ~20% each = 60% total
+    // Secondary (tech, science, health) get ~13% each = 40% total
+    if (!categoryFilter || categoryFilter === "all") {
+      const primaryCap = Math.ceil(limit * 0.2);
+      const secondaryCap = Math.ceil(limit * 0.13);
+      const caps = {
+        world: primaryCap, sports: primaryCap, financial: primaryCap,
+        tech: secondaryCap, science: secondaryCap, health: secondaryCap,
+      };
+      const buckets = {};
+      const overflow = [];
+      for (const a of articles) {
+        const cat = a.category || "world";
+        if (!buckets[cat]) buckets[cat] = [];
+        const cap = caps[cat] || secondaryCap;
+        if (buckets[cat].length < cap) {
+          buckets[cat].push(a);
+        } else {
+          overflow.push(a);
+        }
+      }
+      let balanced = Object.values(buckets).flat();
+      const remaining = limit - balanced.length;
+      if (remaining > 0) {
+        balanced = balanced.concat(overflow.slice(0, remaining));
+      }
+      articles = balanced.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+    }
+
+    articles = articles.slice(0, limit);
 
     res.json({
       ok: true,

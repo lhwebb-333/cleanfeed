@@ -12,7 +12,33 @@ export const SOURCE_COLOR_MAP = {
   "AP News": "#4A90D9",
   BBC: "#C1272D",
   NPR: "#5BBD72",
+  "Phys.org": "#4FC3F7",
+  Nature: "#E53935",
+  "KFF Health": "#AB47BC",
+  "STAT News": "#00ACC1",
+  "Ars Technica": "#FF7043",
+  "MIT Tech Review": "#EC407A",
 };
+
+// Expandable sub-sources for secondary categories
+export const CATEGORY_SUBSOURCES = {
+  science: [
+    { name: "Phys.org", color: "#4FC3F7" },
+    { name: "Nature", color: "#E53935" },
+  ],
+  health: [
+    { name: "KFF Health", color: "#AB47BC" },
+    { name: "STAT News", color: "#00ACC1" },
+  ],
+  tech: [
+    { name: "Ars Technica", color: "#FF7043", short: "Ars" },
+    { name: "MIT Tech Review", color: "#EC407A", short: "MIT" },
+  ],
+};
+
+export const ALL_SUBSOURCE_NAMES = Object.values(CATEGORY_SUBSOURCES)
+  .flat()
+  .map((s) => s.name);
 
 // Returns color for a source name, including dynamic "Local XX" sources
 export function getSourceColor(name) {

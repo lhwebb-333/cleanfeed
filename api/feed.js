@@ -1,4 +1,4 @@
-import { fetchSource, fetchTopicFeeds, SOURCES } from "./_lib/shared.js";
+import { fetchSource, fetchTopicFeeds, fetchSupplementalFeeds, SOURCES } from "./_lib/shared.js";
 
 export default async function handler(req, res) {
   try {
@@ -7,14 +7,16 @@ export default async function handler(req, res) {
 
     const sourceKeys = sourceFilter ? [sourceFilter] : Object.keys(SOURCES);
 
-    const [sourceResults, topicArticles] = await Promise.all([
+    const [sourceResults, topicArticles, supplementalArticles] = await Promise.all([
       Promise.allSettled(sourceKeys.map((key) => fetchSource(key))),
       sourceFilter ? Promise.resolve([]) : fetchTopicFeeds(),
+      sourceFilter ? Promise.resolve([]) : fetchSupplementalFeeds(),
     ]);
 
     let articles = [
       ...sourceResults.filter((r) => r.status === "fulfilled").flatMap((r) => r.value),
       ...topicArticles,
+      ...supplementalArticles,
     ];
 
     // Dedupe by normalized title (same story from different queries)
@@ -30,9 +32,41 @@ export default async function handler(req, res) {
       articles = articles.filter((a) => a.category === categoryFilter);
     }
 
-    articles = articles
-      .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
-      .slice(0, limit);
+    // Sort by date first (newest first)
+    articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+    // When showing all categories, use tiered weighting:
+    // Primary (world, sports, financial) get ~20% each = 60% total
+    // Secondary (tech, science, health) get ~13% each = 40% total
+    // Overflow fills remaining slots by recency.
+    if (!categoryFilter || categoryFilter === "all") {
+      const primaryCap = Math.ceil(limit * 0.2);   // ~60 each at limit=300
+      const secondaryCap = Math.ceil(limit * 0.13); // ~39 each at limit=300
+      const caps = {
+        world: primaryCap, sports: primaryCap, financial: primaryCap,
+        tech: secondaryCap, science: secondaryCap, health: secondaryCap,
+      };
+      const buckets = {};
+      const overflow = [];
+      for (const a of articles) {
+        const cat = a.category || "world";
+        if (!buckets[cat]) buckets[cat] = [];
+        const cap = caps[cat] || secondaryCap;
+        if (buckets[cat].length < cap) {
+          buckets[cat].push(a);
+        } else {
+          overflow.push(a);
+        }
+      }
+      let balanced = Object.values(buckets).flat();
+      const remaining = limit - balanced.length;
+      if (remaining > 0) {
+        balanced = balanced.concat(overflow.slice(0, remaining));
+      }
+      articles = balanced.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+    }
+
+    articles = articles.slice(0, limit);
 
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=120");
     res.json({ ok: true, count: articles.length, articles });

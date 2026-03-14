@@ -30,6 +30,8 @@ export default function App() {
     enableAllCats,
     disableAllCats,
     categoryCounts,
+    disabledSubSources,
+    toggleSubSource,
     mutedKeywords,
     addMutedKeyword,
     removeMutedKeyword,
@@ -127,6 +129,8 @@ export default function App() {
           enableAll={enableAllCats}
           disableAll={disableAllCats}
           categoryCounts={categoryCounts}
+          disabledSubSources={disabledSubSources}
+          toggleSubSource={toggleSubSource}
           horizontal
         />
         <MuteFilter
@@ -159,6 +163,8 @@ export default function App() {
             enableAll={enableAllCats}
             disableAll={disableAllCats}
             categoryCounts={categoryCounts}
+            disabledSubSources={disabledSubSources}
+            toggleSubSource={toggleSubSource}
           />
           <MuteFilter
             mutedKeywords={mutedKeywords}
@@ -251,7 +257,7 @@ export default function App() {
             marginBottom: 4,
           }}
         >
-          Sources: Reuters · AP News · BBC · NPR{selectedState ? ` · Local ${selectedState}` : ""}
+          Sources: Reuters · AP News · BBC · NPR · Ars Technica · MIT Tech Review · Nature · Phys.org · STAT News · KFF Health{selectedState ? ` · Local ${selectedState}` : ""}
         </p>
         <p
           style={{
