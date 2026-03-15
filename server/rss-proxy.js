@@ -335,11 +335,15 @@ async function fetchSource(sourceKey) {
     }
   }
 
-  // Dedupe by link
-  const seen = new Set();
+  // Dedupe by link AND normalized title (same article from multiple Google News searches)
+  const seenLinks = new Set();
+  const seenTitles = new Set();
   const deduped = articles.filter((a) => {
-    if (seen.has(a.link)) return false;
-    seen.add(a.link);
+    if (seenLinks.has(a.link)) return false;
+    const titleKey = (a.title || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 60);
+    if (seenTitles.has(titleKey)) return false;
+    seenLinks.add(a.link);
+    seenTitles.add(titleKey);
     return true;
   });
 
