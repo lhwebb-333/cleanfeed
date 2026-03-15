@@ -136,6 +136,11 @@ const CATEGORY_KEYWORDS = {
     "red wings", "flyers", "oilers", "flames", "canucks", "avalanche",
     "hurricanes", "lightning", "predators", "blue jackets", "sabres",
     "islanders", "kraken", "wild",
+    // Premier League teams
+    "tottenham", "arsenal", "chelsea", "liverpool", "manchester united",
+    "man city", "manchester city", "aston villa", "newcastle united",
+    "west ham", "everton", "wolves", "wolverhampton", "crystal palace",
+    "nottingham forest", "bournemouth", "fulham", "leicester",
     // Common sports headline phrases
     "straight game", "straight games",
     // REMOVED: "match" (ambiguous), "points", "game " ("game-changing"),
