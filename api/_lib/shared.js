@@ -240,10 +240,9 @@ function classifyArticle(title = "", description = "", feedCategory = "world", t
     if (score > bestScore) { bestScore = score; bestCat = cat; }
   }
 
-  // No keywords matched at all:
-  // - Source feeds (trustFeed=true): trust the feed tag — we curated these feeds
-  // - Topic feeds (trustFeed=false): default to "world" — Google News is unreliable
-  if (bestScore === 0) return trustFeed ? feedCategory : "world";
+  // No keywords matched at all — default to "world".
+  // If it were truly sports/tech/etc, at least one keyword would match.
+  if (bestScore === 0) return "world";
 
   // Specialized feed category must score at least 1 on its own keywords
   // to keep its feed tag — otherwise the best keyword match wins.
