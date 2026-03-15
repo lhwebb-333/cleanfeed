@@ -327,7 +327,7 @@ async function fetchSource(sourceKey) {
           pubDate: item.isoDate || item.pubDate,
           source: source.name,
           color: source.color,
-          category: category === "world" ? classifyArticle(item.title, desc, category) : category,
+          category: classifyArticle(item.title, desc, category),
         });
       }
     } catch (err) {
