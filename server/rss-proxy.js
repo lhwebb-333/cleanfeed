@@ -169,7 +169,7 @@ const CATEGORY_KEYWORDS = {
   ],
   tech: [
     "ai ", " ai,", "artificial intelligence", "openai", "google", "apple",
-    "microsoft", "amazon", "meta", "nvidia", "semiconductor", "chip",
+    "microsoft", "amazon prime", "amazon web", "amazon.com", "aws ", "meta", "nvidia", "semiconductor", "chip",
     "software", "startup", "cyber", "hack", "data breach", "app ",
     "smartphone", "robot", "autonomous", "quantum", "blockchain",
     "cloud computing", "machine learning", "silicon valley",
