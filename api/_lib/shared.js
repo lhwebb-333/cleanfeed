@@ -255,6 +255,14 @@ function classifyArticle(title = "", description = "", feedCategory = "world", t
 
   // Feed category wins if it ties or beats the best keyword score
   if ((scores[feedCategory] || 0) >= bestScore) return feedCategory;
+
+  // For "world" feed articles, require a clear margin (2+) to reclassify.
+  // A single keyword match is too weak — "space" alone shouldn't pull
+  // a peace talks article into science.
+  if (feedCategory === "world" && bestScore - (scores.world || 0) < 2) {
+    return "world";
+  }
+
   return bestCat;
 }
 
@@ -416,7 +424,9 @@ export async function fetchSource(sourceKey) {
         pubDate: item.isoDate || item.pubDate,
         source: source.name,
         color: source.color,
-        category: classifyArticle(item.title, desc, category),
+        // Only classify articles from general "world" feeds.
+        // Section-specific feeds (sports, financial, tech, etc.) stay locked.
+        category: category === "world" ? classifyArticle(item.title, desc, category) : category,
       });
     }
   }

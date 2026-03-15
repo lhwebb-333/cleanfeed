@@ -254,6 +254,12 @@ function classifyArticle(title = "", description = "", feedCategory = "world", t
 
   // Feed category wins if it ties or beats the best keyword score
   if ((scores[feedCategory] || 0) >= bestScore) return feedCategory;
+
+  // For "world" feed articles, require a clear margin (2+) to reclassify.
+  if (feedCategory === "world" && bestScore - (scores.world || 0) < 2) {
+    return "world";
+  }
+
   return bestCat;
 }
 
@@ -321,7 +327,7 @@ async function fetchSource(sourceKey) {
           pubDate: item.isoDate || item.pubDate,
           source: source.name,
           color: source.color,
-          category: classifyArticle(item.title, desc, category),
+          category: category === "world" ? classifyArticle(item.title, desc, category) : category,
         });
       }
     } catch (err) {
