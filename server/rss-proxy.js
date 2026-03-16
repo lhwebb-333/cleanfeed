@@ -26,7 +26,7 @@ const SOURCES = {
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+NBA+OR+NFL+OR+MLB+OR+NHL+OR+soccer+OR+F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      // REMOVED: broad keyword sports feed — no section filter, poisoned classification
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/business+OR+site:reuters.com/markets&ceid=US:en&hl=en-US&gl=US", category: "financial" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+science+OR+climate+OR+space&ceid=US:en&hl=en-US&gl=US", category: "science" },
@@ -39,7 +39,7 @@ const SOURCES = {
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NBA+OR+NFL+OR+MLB+OR+NHL+OR+NASCAR+OR+NCAA+OR+soccer&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      // REMOVED: broad keyword sports feed — same issue as Reuters above
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/business&ceid=US:en&hl=en-US&gl=US", category: "financial" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/science&ceid=US:en&hl=en-US&gl=US", category: "science" },
@@ -113,29 +113,29 @@ const CATEGORY_KEYWORDS = {
     "boxing", "ufc", "mma",
     // Meta
     "espn", "sports", "series win", "series loss",
-    // NBA teams
-    "celtics", "nets", "knicks", "76ers", "sixers", "raptors",
+    // NBA teams (removed common English words: heat, magic, thunder, jazz, nets, kings, suns)
+    "celtics", "knicks", "76ers", "sixers", "raptors",
     "bulls", "cavaliers", "cavs", "pistons", "pacers", "bucks",
-    "hawks", "hornets", "heat", "magic", "wizards",
-    "nuggets", "timberwolves", "thunder", "trail blazers", "blazers", "jazz",
-    "warriors", "clippers", "lakers", "suns", "kings",
+    "hawks", "hornets", "wizards",
+    "nuggets", "timberwolves", "trail blazers", "blazers",
+    "warriors", "clippers", "lakers",
     "mavericks", "mavs", "rockets", "grizzlies", "pelicans", "spurs",
-    // NFL teams (distinctive names only)
-    "patriots", "chiefs", "eagles", "cowboys", "steelers", "packers",
+    // NFL teams (removed common words: bears, lions, giants, eagles, chiefs, rams, colts, titans, panthers, cardinals, saints)
+    "patriots", "cowboys", "steelers", "packers",
     "49ers", "seahawks", "ravens", "broncos", "dolphins", "chargers",
-    "bengals", "vikings", "saints", "buccaneers", "bucs", "falcons",
-    "raiders", "colts", "texans", "titans", "jaguars", "panthers",
-    "commanders", "cardinals", "rams", "bears", "lions", "giants",
-    // MLB teams (distinctive only)
+    "bengals", "vikings", "buccaneers", "bucs", "falcons",
+    "raiders", "texans", "jaguars",
+    "commanders",
+    // MLB teams (removed common words: reds, rays, twins, royals, pirates, athletics, rangers, guardians, rockies)
     "yankees", "red sox", "dodgers", "cubs", "astros", "braves",
-    "phillies", "padres", "mets", "orioles", "guardians", "mariners",
-    "blue jays", "twins", "brewers", "diamondbacks", "rockies", "royals",
-    "white sox", "reds", "pirates", "athletics", "rangers", "marlins", "rays",
-    // NHL teams (distinctive only)
+    "phillies", "padres", "mets", "orioles", "mariners",
+    "blue jays", "brewers", "diamondbacks",
+    "white sox", "marlins",
+    // NHL teams (removed common words: flames, lightning, hurricanes, wild, predators, avalanche)
     "bruins", "maple leafs", "canadiens", "penguins", "blackhawks",
-    "red wings", "flyers", "oilers", "flames", "canucks", "avalanche",
-    "hurricanes", "lightning", "predators", "blue jackets", "sabres",
-    "islanders", "kraken", "wild",
+    "red wings", "flyers", "oilers", "canucks",
+    "blue jackets", "sabres",
+    "islanders", "kraken",
     // Premier League teams
     "tottenham", "arsenal", "chelsea", "liverpool", "manchester united",
     "man city", "manchester city", "aston villa", "newcastle united",
@@ -149,7 +149,11 @@ const CATEGORY_KEYWORDS = {
     // "overtime" ("working overtime")
   ],
   financial: [
-    "stock", "shares", "market rally", "market drop", "wall street", "ftse",
+    "stock", "share price", "shares fell", "shares rose", "shares drop",
+    "shares jump", "shares surge", "shares tumble", "shares plunge", "shares climb",
+    "shares slump", "shares sink", "shares slip", "shares gain", "shares rally",
+    "market rally", "market drop", "wall street", "ftse",
+    // REMOVED: standalone "shares" (false positive — "Prince William shares a post" classified as financial)
     "nasdaq", "s&p 500", "dow jones", "fed rate", "interest rate", "inflation",
     "gdp", "recession", "ipo", "earnings", "revenue", "profit", "dividend",
     "bond", "yield", "forex", "cryptocurrency", "bitcoin", "bank of england",
@@ -164,33 +168,45 @@ const CATEGORY_KEYWORDS = {
     "market cap", "investor", "investment", "portfolio",
     "commodity", "gold price", "silver price", "copper",
     "supply chain", "cpi ", "ppi ", "economic growth",
-    "bull market", "bear market", "rally", "selloff", "sell-off",
+    "bull market", "bear market", "selloff", "sell-off",
     "dow ", "index fund", "etf ", "mutual fund",
+    "stock market", "stock price",
+    "price target", "analyst", "downgrade", "upgrade",
+    "nifty", "sensex", "hang seng", "nikkei", "dax ", "cac ",
+    "market volatility", "volatility", "equity", "equities",
+    // REMOVED: standalone "rally" (matches "political rally")
   ],
   tech: [
     "ai ", " ai,", "artificial intelligence", "openai", "google", "apple",
-    "microsoft", "amazon prime", "amazon web", "amazon.com", "aws ", "meta", "nvidia", "semiconductor", "chip",
+    "microsoft", "amazon prime", "amazon web", "amazon.com", "aws ", "meta", "nvidia", "semiconductor",
     "software", "startup", "cyber", "hack", "data breach", "app ",
-    "smartphone", "robot", "autonomous", "quantum", "blockchain",
-    "cloud computing", "machine learning", "silicon valley",
+    "smartphone", "robot", "autonomous", "blockchain",
+    "cloud computing", "cloud service", "machine learning", "silicon valley",
     "spacex", "tesla",
     "chatbot", "deepfake", "algorithm", "encryption", "5g ", "6g ",
     "self-driving", "chatgpt", "gemini", "copilot", "anthropic",
-    "open source", "saas", "cloud ", "streaming", "tiktok",
+    "open source", "saas", "streaming", "tiktok",
     "instagram", "social media", "tech giant", "silicon ",
     "microchip", "processor", "gpu ", "data center",
+    "quantum computing", "quantum computer",
+    "chip maker", "chip shortage", "chipmaker",
+    // REMOVED: "chip" standalone (golf "chip shot"), "cloud " standalone (weather),
+    // "quantum" standalone (physics — stays in science)
   ],
   health: [
     "cancer", "disease", "hospital", "vaccine", "virus", "pandemic",
     "nhs", "drug trial", "clinical trial", "mental health", "obesity",
     "diabetes", "surgery", "doctor", "patient", "diagnosis", "treatment",
     "outbreak", "public health", "life expectancy", "dementia", "alzheimer",
-    "fda ", "cdc ", "who ", "drug approval", "pharmaceutical",
+    "fda ", "cdc ", "drug approval", "pharmaceutical",
     "therapy", "prescription", "opioid", "fentanyl", "overdose",
     "medicare", "medicaid", "health care", "healthcare", "insurer",
     "biotech", "gene therapy", "stem cell", "organ transplant",
     "flu ", "infection", "antibiotic", "fertility", "maternal",
     "nutrition", "sleep ", "wellness", "epidemic", "mortality",
+    "world health organization",
+    // REMOVED: "who " (the pronoun "who" matches in virtually every article,
+    // inflating health score across all categories)
   ],
   science: [
     "nasa", "space", "planet", "asteroid", "climate", "fossil",
@@ -209,7 +225,7 @@ const CATEGORY_KEYWORDS = {
     "invasion", "sanctions", "nato", "united nations", "diplomat",
     "embassy", "refugee", "cease-fire", "ceasefire", "conflict",
     "president", "prime minister", "election", "parliament", "protest",
-    "coup", "regime", "tariff", "trade war", "navy", "army",
+    "coup", "regime", "navy", "army",
     "pentagon", "minister", "government",
     // Catch general hard-news events that aren't sports/tech/etc
     "crash", "fire ", "fires ", "shooting", "attack", "killed",
@@ -219,6 +235,8 @@ const CATEGORY_KEYWORDS = {
     "evacuate", "explosion", "hostage", "kidnap", "terror",
     "suspect", "investigation", "lawsuit", "indict",
     "influencer", "celebrity", "dinner", "lgbtq", "muslim",
+    // REMOVED: "tariff" and "trade war" (kept in financial only — they're economic concepts;
+    // world articles about tariffs still match via "president", "government", etc.)
   ],
 };
 
@@ -294,6 +312,21 @@ function isOpinion(title = "", description = "") {
   return OPINION_FILTERS.some((f) => text.includes(f));
 }
 
+// Aggressive title normalization for dedup — handles invisible char differences,
+// source suffix variations (hyphen vs en-dash vs em-dash), and Google News quirks
+function normalizeForDedup(title = "") {
+  return title
+    .replace(/\s*[-\u2010-\u2015\u2212|]\s*(Reuters|AP News|Associated Press|BBC|BBC News|NPR)\s*$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z]/g, "")
+    .slice(0, 50);
+}
+
+// Strip source attribution suffix from display title
+function stripSourceSuffix(title = "") {
+  return title.replace(/\s*[-\u2010-\u2015\u2212|]\s*(Reuters|AP News|Associated Press|BBC|BBC News|NPR)\s*$/, "").trim();
+}
+
 function getCached(key) {
   const entry = cache.get(key);
   if (!entry) return null;
@@ -323,16 +356,17 @@ async function fetchSource(sourceKey) {
       for (const item of feed.items || []) {
         if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
 
+        const title = stripSourceSuffix(item.title);
         const desc = (item.contentSnippet || item.content || "").slice(0, 250);
         articles.push({
           id: item.guid || item.link,
-          title: item.title,
+          title,
           description: desc,
           link: item.link,
           pubDate: item.isoDate || item.pubDate,
           source: source.name,
           color: source.color,
-          category: classifyArticle(item.title, desc, category),
+          category: classifyArticle(title, desc, category),
         });
       }
     } catch (err) {
@@ -345,7 +379,7 @@ async function fetchSource(sourceKey) {
   const seenTitles = new Set();
   const deduped = articles.filter((a) => {
     if (seenLinks.has(a.link)) return false;
-    const titleKey = (a.title || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 60);
+    const titleKey = normalizeForDedup(a.title);
     if (seenTitles.has(titleKey)) return false;
     seenLinks.add(a.link);
     seenTitles.add(titleKey);
@@ -436,10 +470,14 @@ async function fetchSupplementalFeeds() {
     }
   }
 
-  const seen = new Set();
+  const seenLinks = new Set();
+  const seenTitles = new Set();
   const deduped = articles.filter((a) => {
-    if (seen.has(a.link)) return false;
-    seen.add(a.link);
+    if (seenLinks.has(a.link)) return false;
+    const titleKey = normalizeForDedup(a.title);
+    if (seenTitles.has(titleKey)) return false;
+    seenLinks.add(a.link);
+    seenTitles.add(titleKey);
     return true;
   });
 
@@ -459,8 +497,7 @@ async function fetchTopicFeeds() {
         const sourceInfo = matchApprovedSource(item);
         if (!sourceInfo) continue;
         if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
-        let title = item.title || "";
-        title = title.replace(/ - (AP News|Reuters|BBC|BBC News|NPR)$/, "");
+        const title = stripSourceSuffix(item.title);
         const desc = (item.contentSnippet || item.content || "").slice(0, 250);
         articles.push({
           id: item.guid || item.link,
@@ -478,10 +515,15 @@ async function fetchTopicFeeds() {
     }
   }
 
-  const seen = new Set();
+  const seenLinks = new Set();
+  const seenTitles = new Set();
   const deduped = articles.filter((a) => {
-    if (seen.has(a.link)) return false;
-    seen.add(a.link); return true;
+    if (seenLinks.has(a.link)) return false;
+    const titleKey = normalizeForDedup(a.title);
+    if (seenTitles.has(titleKey)) return false;
+    seenLinks.add(a.link);
+    seenTitles.add(titleKey);
+    return true;
   });
 
   setCache("topic-feeds", deduped);
@@ -519,6 +561,15 @@ app.get("/api/feed", async (req, res) => {
       ...topicArticles,
       ...supplementalArticles,
     ];
+
+    // Dedupe by normalized title (same story from source feeds + topic feeds)
+    const seenTitles = new Set();
+    articles = articles.filter((a) => {
+      const key = normalizeForDedup(a.title);
+      if (seenTitles.has(key)) return false;
+      seenTitles.add(key);
+      return true;
+    });
 
     if (categoryFilter && categoryFilter !== "all") {
       articles = articles.filter((a) => a.category === categoryFilter);
@@ -694,8 +745,16 @@ async function fetchLocalFeed(stateCode) {
     }
   }
 
-  const seen = new Set();
-  const deduped = articles.filter((a) => { if (seen.has(a.link)) return false; seen.add(a.link); return true; });
+  const seenLinks = new Set();
+  const seenTitles = new Set();
+  const deduped = articles.filter((a) => {
+    if (seenLinks.has(a.link)) return false;
+    const titleKey = normalizeForDedup(a.title);
+    if (seenTitles.has(titleKey)) return false;
+    seenLinks.add(a.link);
+    seenTitles.add(titleKey);
+    return true;
+  });
   const sorted = deduped.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate)).slice(0, 50);
   setCache(cacheKey, sorted);
   return sorted;

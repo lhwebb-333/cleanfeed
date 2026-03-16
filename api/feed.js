@@ -1,4 +1,4 @@
-import { fetchSource, fetchTopicFeeds, fetchSupplementalFeeds, SOURCES } from "./_lib/shared.js";
+import { fetchSource, fetchTopicFeeds, fetchSupplementalFeeds, normalizeForDedup, SOURCES } from "./_lib/shared.js";
 
 export default async function handler(req, res) {
   try {
@@ -19,10 +19,10 @@ export default async function handler(req, res) {
       ...supplementalArticles,
     ];
 
-    // Dedupe by normalized title (same story from different queries)
+    // Dedupe by normalized title (same story from source feeds + topic feeds)
     const seenTitles = new Set();
     articles = articles.filter((a) => {
-      const key = (a.title || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 60);
+      const key = normalizeForDedup(a.title);
       if (seenTitles.has(key)) return false;
       seenTitles.add(key);
       return true;

@@ -19,7 +19,9 @@ export const SOURCES = {
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+NBA+OR+NFL+OR+MLB+OR+NHL+OR+soccer+OR+F1&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      // REMOVED: broad keyword sports feed (site:reuters.com+NBA+OR+NFL+...) — no section filter
+      // meant ANY reuters.com article mentioning those keywords got feedCategory="sports",
+      // poisoning classification for financial/tech articles. Section feed above is sufficient.
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/business+OR+site:reuters.com/markets&ceid=US:en&hl=en-US&gl=US", category: "financial" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+science+OR+climate+OR+space&ceid=US:en&hl=en-US&gl=US", category: "science" },
@@ -32,7 +34,7 @@ export const SOURCES = {
     feeds: [
       { url: "https://news.google.com/rss/search?q=when:5d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+NBA+OR+NFL+OR+MLB+OR+NHL+OR+NASCAR+OR+NCAA+OR+soccer&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      // REMOVED: broad keyword sports feed — same issue as Reuters above
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/business&ceid=US:en&hl=en-US&gl=US", category: "financial" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/science&ceid=US:en&hl=en-US&gl=US", category: "science" },
@@ -103,29 +105,29 @@ const CATEGORY_KEYWORDS = {
     "boxing", "ufc", "mma",
     // Meta
     "espn", "sports", "series win", "series loss",
-    // NBA teams
-    "celtics", "nets", "knicks", "76ers", "sixers", "raptors",
+    // NBA teams (removed common English words: heat, magic, thunder, jazz, nets, kings, suns)
+    "celtics", "knicks", "76ers", "sixers", "raptors",
     "bulls", "cavaliers", "cavs", "pistons", "pacers", "bucks",
-    "hawks", "hornets", "heat", "magic", "wizards",
-    "nuggets", "timberwolves", "thunder", "trail blazers", "blazers", "jazz",
-    "warriors", "clippers", "lakers", "suns", "kings",
+    "hawks", "hornets", "wizards",
+    "nuggets", "timberwolves", "trail blazers", "blazers",
+    "warriors", "clippers", "lakers",
     "mavericks", "mavs", "rockets", "grizzlies", "pelicans", "spurs",
-    // NFL teams (distinctive names only)
-    "patriots", "chiefs", "eagles", "cowboys", "steelers", "packers",
+    // NFL teams (removed common words: bears, lions, giants, eagles, chiefs, rams, colts, titans, panthers, cardinals, saints)
+    "patriots", "cowboys", "steelers", "packers",
     "49ers", "seahawks", "ravens", "broncos", "dolphins", "chargers",
-    "bengals", "vikings", "saints", "buccaneers", "bucs", "falcons",
-    "raiders", "colts", "texans", "titans", "jaguars", "panthers",
-    "commanders", "cardinals", "rams", "bears", "lions", "giants",
-    // MLB teams (distinctive only)
+    "bengals", "vikings", "buccaneers", "bucs", "falcons",
+    "raiders", "texans", "jaguars",
+    "commanders",
+    // MLB teams (removed common words: reds, rays, twins, royals, pirates, athletics, rangers, guardians, rockies)
     "yankees", "red sox", "dodgers", "cubs", "astros", "braves",
-    "phillies", "padres", "mets", "orioles", "guardians", "mariners",
-    "blue jays", "twins", "brewers", "diamondbacks", "rockies", "royals",
-    "white sox", "reds", "pirates", "athletics", "rangers", "marlins", "rays",
-    // NHL teams (distinctive only)
+    "phillies", "padres", "mets", "orioles", "mariners",
+    "blue jays", "brewers", "diamondbacks",
+    "white sox", "marlins",
+    // NHL teams (removed common words: flames, lightning, hurricanes, wild, predators, avalanche)
     "bruins", "maple leafs", "canadiens", "penguins", "blackhawks",
-    "red wings", "flyers", "oilers", "flames", "canucks", "avalanche",
-    "hurricanes", "lightning", "predators", "blue jackets", "sabres",
-    "islanders", "kraken", "wild",
+    "red wings", "flyers", "oilers", "canucks",
+    "blue jackets", "sabres",
+    "islanders", "kraken",
     // Premier League teams
     "tottenham", "arsenal", "chelsea", "liverpool", "manchester united",
     "man city", "manchester city", "aston villa", "newcastle united",
@@ -140,7 +142,11 @@ const CATEGORY_KEYWORDS = {
     // "overtime" ("working overtime")
   ],
   financial: [
-    "stock", "shares", "market rally", "market drop", "wall street", "ftse",
+    "stock", "share price", "shares fell", "shares rose", "shares drop",
+    "shares jump", "shares surge", "shares tumble", "shares plunge", "shares climb",
+    "shares slump", "shares sink", "shares slip", "shares gain", "shares rally",
+    "market rally", "market drop", "wall street", "ftse",
+    // REMOVED: standalone "shares" (false positive — "Prince William shares a post" classified as financial)
     "nasdaq", "s&p 500", "dow jones", "fed rate", "interest rate", "inflation",
     "gdp", "recession", "ipo", "earnings", "revenue", "profit", "dividend",
     "bond", "yield", "forex", "cryptocurrency", "bitcoin", "bank of england",
@@ -158,6 +164,9 @@ const CATEGORY_KEYWORDS = {
     "bull market", "bear market", "selloff", "sell-off",
     "dow ", "index fund", "etf ", "mutual fund",
     "stock market", "stock price",
+    "price target", "analyst", "downgrade", "upgrade",
+    "nifty", "sensex", "hang seng", "nikkei", "dax ", "cac ",
+    "market volatility", "volatility", "equity", "equities",
     // REMOVED: standalone "rally" (matches "political rally")
   ],
   tech: [
@@ -275,6 +284,21 @@ function isOpinion(title = "", description = "") {
   return OPINION_FILTERS.some((f) => text.includes(f));
 }
 
+// Aggressive title normalization for dedup — handles invisible char differences,
+// source suffix variations (hyphen vs en-dash vs em-dash), and Google News quirks
+export function normalizeForDedup(title = "") {
+  return title
+    .replace(/\s*[-\u2010-\u2015\u2212|]\s*(Reuters|AP News|Associated Press|BBC|BBC News|NPR)\s*$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z]/g, "")
+    .slice(0, 50);
+}
+
+// Strip source attribution suffix from display title
+function stripSourceSuffix(title = "") {
+  return title.replace(/\s*[-\u2010-\u2015\u2212|]\s*(Reuters|AP News|Associated Press|BBC|BBC News|NPR)\s*$/, "").trim();
+}
+
 function getCached(key) {
   const entry = cache.get(key);
   if (!entry) return null;
@@ -385,10 +409,15 @@ export async function fetchLocalFeed(stateCode) {
   }
 
   // Dedupe
-  const seen = new Set();
+  const seenLinks = new Set();
+  const seenTitles = new Set();
   const deduped = articles.filter((a) => {
-    if (seen.has(a.link)) return false;
-    seen.add(a.link); return true;
+    if (seenLinks.has(a.link)) return false;
+    const titleKey = normalizeForDedup(a.title);
+    if (seenTitles.has(titleKey)) return false;
+    seenLinks.add(a.link);
+    seenTitles.add(titleKey);
+    return true;
   });
 
   const sorted = deduped.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate)).slice(0, 50);
@@ -419,16 +448,17 @@ export async function fetchSource(sourceKey) {
     const { feed, category } = result.value;
     for (const item of feed.items || []) {
       if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      const title = stripSourceSuffix(item.title);
       const desc = (item.contentSnippet || item.content || "").slice(0, 250);
       articles.push({
         id: item.guid || item.link,
-        title: item.title,
+        title,
         description: desc,
         link: item.link,
         pubDate: item.isoDate || item.pubDate,
         source: source.name,
         color: source.color,
-        category: classifyArticle(item.title, desc, category),
+        category: classifyArticle(title, desc, category),
       });
     }
   }
@@ -438,7 +468,7 @@ export async function fetchSource(sourceKey) {
   const seenTitles = new Set();
   const deduped = articles.filter((a) => {
     if (seenLinks.has(a.link)) return false;
-    const titleKey = (a.title || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 60);
+    const titleKey = normalizeForDedup(a.title);
     if (seenTitles.has(titleKey)) return false;
     seenLinks.add(a.link);
     seenTitles.add(titleKey);
@@ -531,10 +561,14 @@ export async function fetchSupplementalFeeds() {
     }
   }
 
-  const seen = new Set();
+  const seenLinks = new Set();
+  const seenTitles = new Set();
   const deduped = articles.filter((a) => {
-    if (seen.has(a.link)) return false;
-    seen.add(a.link);
+    if (seenLinks.has(a.link)) return false;
+    const titleKey = normalizeForDedup(a.title);
+    if (seenTitles.has(titleKey)) return false;
+    seenLinks.add(a.link);
+    seenTitles.add(titleKey);
     return true;
   });
 
@@ -554,9 +588,7 @@ export async function fetchTopicFeeds() {
         const sourceInfo = matchApprovedSource(item);
         if (!sourceInfo) continue;
         if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
-        // Strip " - Source Name" suffix from title
-        let title = item.title || "";
-        title = title.replace(/ - (AP News|Reuters|BBC|BBC News|NPR)$/, "");
+        const title = stripSourceSuffix(item.title);
         const desc = (item.contentSnippet || item.content || "").slice(0, 250);
         articles.push({
           id: item.guid || item.link,
@@ -574,10 +606,15 @@ export async function fetchTopicFeeds() {
     }
   }
 
-  const seen = new Set();
+  const seenLinks = new Set();
+  const seenTitles = new Set();
   const deduped = articles.filter((a) => {
-    if (seen.has(a.link)) return false;
-    seen.add(a.link); return true;
+    if (seenLinks.has(a.link)) return false;
+    const titleKey = normalizeForDedup(a.title);
+    if (seenTitles.has(titleKey)) return false;
+    seenLinks.add(a.link);
+    seenTitles.add(titleKey);
+    return true;
   });
 
   setCache("topic-feeds", deduped);
