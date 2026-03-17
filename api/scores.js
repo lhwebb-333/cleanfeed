@@ -182,7 +182,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Sort: live first, then complete (most recent), then scheduled
+    // Sort within each league: live first, then complete, then scheduled
     games.sort((a, b) => {
       if (a.isLive && !b.isLive) return -1;
       if (!a.isLive && b.isLive) return 1;
@@ -191,20 +191,11 @@ export default async function handler(req, res) {
       return new Date(a.startTime) - new Date(b.startTime);
     });
 
-    // Debug: include raw event counts per league
-    const debugCounts = {};
-    for (let i = 0; i < results.length; i++) {
-      const lg = activeLeagues[i];
-      const r = results[i];
-      debugCounts[lg.label] = r.status === "fulfilled" ? r.value.length : `error: ${r.reason?.message}`;
-    }
-
     const result = {
       ok: true,
       count: games.length,
-      games: games.slice(0, 30),
+      games, // return all — frontend groups by league anyway
       leagues: activeLeagues.map((l) => l.label),
-      debug: debugCounts,
     };
 
     setCache("scores-v2", result);
