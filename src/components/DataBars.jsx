@@ -139,8 +139,8 @@ export function DataBars() {
       margin: "0 auto",
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
-      {/* Two bars side by side */}
-      <div style={{ display: "flex", minHeight: 26 }}>
+      {/* Side by side on desktop, stacked on mobile */}
+      <div style={{ display: "flex", minHeight: 26, flexWrap: "wrap" }} className="data-bars-row">
         {/* SCORES — league pills inline, click one to expand */}
         {hasScores && (
           <div style={{

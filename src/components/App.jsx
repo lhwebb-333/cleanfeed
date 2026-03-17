@@ -363,10 +363,13 @@ export default function App() {
         }
         .source-filter-row::-webkit-scrollbar { display: none; }
         .compact-filter-row::-webkit-scrollbar { display: none; }
+        .data-bars-row::-webkit-scrollbar { display: none; }
         .category-mobile-bar { display: none; }
         @media (max-width: 700px) {
           .category-sidebar { display: none; }
           .category-mobile-bar { display: block; }
+          .data-bars-row { flex-direction: column !important; }
+          .data-bars-row > * { border-right: none !important; border-bottom: 1px solid ${theme.colors.border}; }
         }
       `}</style>
       <Analytics />
