@@ -8,6 +8,7 @@ import { About } from "./About";
 import { MuteFilter } from "./MuteFilter";
 import { StateSelector } from "./StateSelector";
 import { IndicatorStrip } from "./IndicatorStrip";
+import { WeatherBar } from "./WeatherBar";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
@@ -113,6 +114,7 @@ export default function App() {
         onSearchChange={setSearchQuery}
       />
 
+      <WeatherBar />
       <IndicatorStrip />
 
       <SourceFilter
