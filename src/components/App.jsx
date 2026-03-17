@@ -5,10 +5,8 @@ import { SourceFilter } from "./SourceFilter";
 import { CategoryNav } from "./CategoryNav";
 import { FeedList } from "./FeedList";
 import { About } from "./About";
-import { MuteFilter } from "./MuteFilter";
-import { StateSelector } from "./StateSelector";
-import { IndicatorStrip } from "./IndicatorStrip";
-import { WeatherBar } from "./WeatherBar";
+import { InfoStrip } from "./InfoStrip";
+import { CompactFilters } from "./CompactFilters";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
@@ -49,7 +47,6 @@ export default function App() {
   const { pulling, pullDistance, triggered } = usePullToRefresh(refresh);
   const feedRef = useRef(null);
 
-  // Scroll feed into view when search changes
   useEffect(() => {
     if (searchQuery && feedRef.current) {
       feedRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -114,8 +111,8 @@ export default function App() {
         onSearchChange={setSearchQuery}
       />
 
-      <WeatherBar />
-      <IndicatorStrip />
+      {/* Single info line: weather + indicators */}
+      <InfoStrip />
 
       <SourceFilter
         enabledSources={enabledSources}
@@ -126,7 +123,7 @@ export default function App() {
         selectedState={selectedState}
       />
 
-      {/* Mobile category filter — horizontal scroll */}
+      {/* Mobile: categories + compact mute/local on one row */}
       <div className="category-mobile-bar">
         <CategoryNav
           enabledCategories={enabledCategories}
@@ -138,16 +135,14 @@ export default function App() {
           toggleSubSource={toggleSubSource}
           horizontal
         />
-        <MuteFilter
+        <CompactFilters
           mutedKeywords={mutedKeywords}
-          onAdd={addMutedKeyword}
-          onRemove={removeMutedKeyword}
-          onClear={clearMutedKeywords}
-        />
-        <StateSelector
+          onAddMuted={addMutedKeyword}
+          onRemoveMuted={removeMutedKeyword}
+          onClearMuted={clearMutedKeywords}
           selectedState={selectedState}
-          onSelect={selectState}
-          onClear={clearState}
+          onSelectState={selectState}
+          onClearState={clearState}
         />
       </div>
 
@@ -160,7 +155,7 @@ export default function App() {
           padding: `0 ${theme.spacing.lg}px`,
         }}
       >
-        {/* Sidebar filter — desktop, fixed width */}
+        {/* Sidebar — desktop */}
         <div className="category-sidebar" style={{ width: 180, flexShrink: 0, overflow: "hidden" }}>
           <CategoryNav
             enabledCategories={enabledCategories}
@@ -171,17 +166,14 @@ export default function App() {
             disabledSubSources={disabledSubSources}
             toggleSubSource={toggleSubSource}
           />
-          <MuteFilter
+          <CompactFilters
             mutedKeywords={mutedKeywords}
-            onAdd={addMutedKeyword}
-            onRemove={removeMutedKeyword}
-            onClear={clearMutedKeywords}
-            sidebar
-          />
-          <StateSelector
+            onAddMuted={addMutedKeyword}
+            onRemoveMuted={removeMutedKeyword}
+            onClearMuted={clearMutedKeywords}
             selectedState={selectedState}
-            onSelect={selectState}
-            onClear={clearState}
+            onSelectState={selectState}
+            onClearState={clearState}
             sidebar
           />
         </div>
@@ -262,7 +254,7 @@ export default function App() {
             marginBottom: 4,
           }}
         >
-          Sources: Reuters · AP News · BBC · NPR · Ars Technica · MIT Tech Review · Nature · Phys.org · STAT News · KFF Health · FRED · SEC · BLS · Treasury · Fed{selectedState ? ` · Local ${selectedState}` : ""} · Entertainment from all sources
+          Sources: Reuters · AP News · BBC · NPR · Ars Technica · MIT Tech Review · Nature · Phys.org · STAT News · KFF Health · FRED · SEC · BLS · Treasury · Fed{selectedState ? ` · Local ${selectedState}` : ""}
         </p>
         <p
           style={{
@@ -358,8 +350,7 @@ export default function App() {
           flex-shrink: 0;
         }
         .source-filter-row::-webkit-scrollbar { display: none; }
-        .mute-filter-row::-webkit-scrollbar { display: none; }
-        .state-filter-row::-webkit-scrollbar { display: none; }
+        .compact-filter-row::-webkit-scrollbar { display: none; }
         .category-mobile-bar { display: none; }
         @media (max-width: 700px) {
           .category-sidebar { display: none; }
