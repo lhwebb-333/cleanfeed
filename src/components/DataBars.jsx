@@ -139,58 +139,138 @@ export function DataBars() {
       margin: "0 auto",
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
-      {/* Side by side on desktop, stacked on mobile */}
-      <div style={{ display: "flex", minHeight: 26, flexWrap: "wrap" }} className="data-bars-row">
-        {/* SCORES — league pills inline, click one to expand */}
-        {hasScores && (
-          <div style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            gap: 5,
-            padding: `3px ${theme.spacing.lg}px`,
-            borderRight: (hasMarkets || hasIndicators) ? `1px solid ${theme.colors.border}` : "none",
-            overflowX: "auto",
-            scrollbarWidth: "none",
-            WebkitOverflowScrolling: "touch",
-          }}>
-            <span style={labelStyle}>SCORES</span>
-            {Object.entries(gamesByLeague).map(([league, games]) => {
-              const liveCount = games.filter((g) => g.isLive).length;
-              const isExpanded = expandedLeague === league;
-              const lc = leagueColor(league, theme.colors.textFaint);
-              return (
-                <button
-                  key={league}
-                  onClick={() => setExpandedLeague(isExpanded ? null : league)}
-                  style={{
-                    fontFamily: theme.fonts.mono,
-                    fontSize: 8,
-                    fontWeight: 700,
-                    padding: "2px 6px",
-                    borderRadius: theme.radii.sm,
-                    cursor: "pointer",
-                    letterSpacing: "0.03em",
-                    border: `1px solid ${isExpanded ? lc + "60" : theme.colors.border}`,
-                    background: isExpanded ? lc + "15" : "transparent",
-                    color: isExpanded ? lc : theme.colors.textMuted,
-                    flexShrink: 0,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 3,
-                    transition: theme.transitions.fast,
-                  }}
-                >
-                  {league}
-                  {liveCount > 0 && (
-                    <span style={{ fontSize: 6, color: "#4CAF50", fontWeight: 700 }}>LIVE</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
+      {/* SCORES bar */}
+      {hasScores && (
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 5,
+          padding: `3px ${theme.spacing.lg}px`,
+          borderBottom: `1px solid ${theme.colors.border}`,
+          overflowX: "auto",
+          scrollbarWidth: "none",
+          WebkitOverflowScrolling: "touch",
+          minHeight: 26,
+        }}>
+          <span style={labelStyle}>SCORES</span>
+          {Object.entries(gamesByLeague).map(([league, games]) => {
+            const liveCount = games.filter((g) => g.isLive).length;
+            const isExpanded = expandedLeague === league;
+            const lc = leagueColor(league, theme.colors.textFaint);
+            return (
+              <button
+                key={league}
+                onClick={() => setExpandedLeague(isExpanded ? null : league)}
+                style={{
+                  fontFamily: theme.fonts.mono,
+                  fontSize: 8,
+                  fontWeight: 700,
+                  padding: "2px 6px",
+                  borderRadius: theme.radii.sm,
+                  cursor: "pointer",
+                  letterSpacing: "0.03em",
+                  border: `1px solid ${isExpanded ? lc + "60" : theme.colors.border}`,
+                  background: isExpanded ? lc + "15" : "transparent",
+                  color: isExpanded ? lc : theme.colors.textMuted,
+                  flexShrink: 0,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 3,
+                  transition: theme.transitions.fast,
+                }}
+              >
+                {league}
+                {liveCount > 0 && (
+                  <span style={{ fontSize: 6, color: "#4CAF50", fontWeight: 700 }}>LIVE</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
+      {/* League games — expands RIGHT HERE between scores and markets */}
+      {expandedLeague && gamesByLeague[expandedLeague] && (
+        <div style={{
+          padding: `3px ${theme.spacing.lg}px 5px`,
+          borderBottom: `1px solid ${theme.colors.border}`,
+          display: "flex",
+          gap: 4,
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}>
+          {gamesByLeague[expandedLeague].map((g) => (
+            g.type === "golf" ? (
+              <div key={g.id} style={{
+                fontFamily: theme.fonts.mono,
+                fontSize: 9,
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 6,
+                alignItems: "center",
+                width: "100%",
+              }}>
+                <span style={{ color: theme.colors.textStrong, fontWeight: 700, fontSize: 10 }}>
+                  {g.eventName}
+                </span>
+                <span style={{
+                  fontSize: 7,
+                  color: g.isLive ? "#4CAF50" : theme.colors.textGhost,
+                  fontWeight: g.isLive ? 700 : 400,
+                }}>
+                  {g.isLive ? "LIVE" : g.isComplete ? "FINAL" : g.statusDetail}
+                </span>
+                {(g.leaderboard || []).map((p, i) => (
+                  <span key={i} style={{
+                    color: i < 3 ? theme.colors.textStrong : theme.colors.textMuted,
+                    fontWeight: i < 3 ? 700 : 400,
+                  }}>
+                    {i + 1}. {p.name} ({p.score})
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span key={g.id} style={{
+                fontFamily: theme.fonts.mono,
+                fontSize: 9,
+                color: theme.colors.textMuted,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 3,
+                padding: "1px 6px",
+                background: g.isLive ? "#4CAF50" + "0C" : "transparent",
+                borderRadius: 2,
+              }}>
+                <span style={{
+                  fontWeight: g.away.winner ? 700 : 400,
+                  color: g.away.winner ? theme.colors.textStrong : undefined,
+                }}>
+                  {g.away.abbrev}
+                </span>
+                <span style={{ color: theme.colors.textGhost }}>
+                  {g.away.score != null ? g.away.score : ""}-{g.home.score != null ? g.home.score : ""}
+                </span>
+                <span style={{
+                  fontWeight: g.home.winner ? 700 : 400,
+                  color: g.home.winner ? theme.colors.textStrong : undefined,
+                }}>
+                  {g.home.abbrev}
+                </span>
+                <span style={{
+                  fontSize: 7,
+                  color: g.isLive ? "#4CAF50" : theme.colors.textGhost,
+                  fontWeight: g.isLive ? 700 : 400,
+                }}>
+                  {g.isLive ? "LIVE" : g.isComplete ? "F" : g.statusDetail}
+                </span>
+              </span>
+            )
+          ))}
+        </div>
+      )}
+
+      {/* MARKETS bar */}
+      <div style={{ display: "flex", minHeight: 26 }} className="data-bars-row">
         {/* MARKETS bar */}
         {(hasMarkets || hasIndicators) && (
           <button
@@ -252,88 +332,6 @@ export function DataBars() {
           </button>
         )}
       </div>
-
-      {/* League games — expands below when a league pill is clicked */}
-      {expandedLeague && gamesByLeague[expandedLeague] && (
-        <div style={{
-          padding: `3px ${theme.spacing.lg}px 5px`,
-          borderTop: `1px solid ${theme.colors.border}`,
-          display: "flex",
-          gap: 4,
-          flexWrap: "wrap",
-          alignItems: "center",
-        }}>
-          {gamesByLeague[expandedLeague].map((g) => (
-            g.type === "golf" ? (
-              // Golf leaderboard
-              <div key={g.id} style={{
-                fontFamily: theme.fonts.mono,
-                fontSize: 9,
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 6,
-                alignItems: "center",
-                width: "100%",
-              }}>
-                <span style={{ color: theme.colors.textStrong, fontWeight: 700, fontSize: 10 }}>
-                  {g.eventName}
-                </span>
-                <span style={{
-                  fontSize: 7,
-                  color: g.isLive ? "#4CAF50" : theme.colors.textGhost,
-                  fontWeight: g.isLive ? 700 : 400,
-                }}>
-                  {g.isLive ? "LIVE" : g.isComplete ? "FINAL" : g.statusDetail}
-                </span>
-                {(g.leaderboard || []).map((p, i) => (
-                  <span key={i} style={{
-                    color: i < 3 ? theme.colors.textStrong : theme.colors.textMuted,
-                    fontWeight: i < 3 ? 700 : 400,
-                  }}>
-                    {i + 1}. {p.name} ({p.score})
-                  </span>
-                ))}
-              </div>
-            ) : (
-              // Regular game score
-              <span key={g.id} style={{
-                fontFamily: theme.fonts.mono,
-                fontSize: 9,
-                color: theme.colors.textMuted,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 3,
-                padding: "1px 6px",
-                background: g.isLive ? "#4CAF50" + "0C" : "transparent",
-                borderRadius: 2,
-              }}>
-                <span style={{
-                  fontWeight: g.away.winner ? 700 : 400,
-                  color: g.away.winner ? theme.colors.textStrong : undefined,
-                }}>
-                  {g.away.abbrev}
-                </span>
-                <span style={{ color: theme.colors.textGhost }}>
-                  {g.away.score != null ? g.away.score : ""}-{g.home.score != null ? g.home.score : ""}
-                </span>
-                <span style={{
-                  fontWeight: g.home.winner ? 700 : 400,
-                  color: g.home.winner ? theme.colors.textStrong : undefined,
-                }}>
-                  {g.home.abbrev}
-                </span>
-                <span style={{
-                  fontSize: 7,
-                  color: g.isLive ? "#4CAF50" : theme.colors.textGhost,
-                  fontWeight: g.isLive ? 700 : 400,
-                }}>
-                  {g.isLive ? "LIVE" : g.isComplete ? "F" : g.statusDetail}
-                </span>
-              </span>
-            )
-          ))}
-        </div>
-      )}
 
       {/* MARKETS expanded */}
       {marketsOpen && (
