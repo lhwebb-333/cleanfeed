@@ -114,20 +114,19 @@ export function DataBars() {
     fontFamily: theme.fonts.mono,
     fontSize: 8,
     fontWeight: 700,
-    color: theme.colors.textGhost,
+    color: theme.colors.textMuted,
     letterSpacing: "0.06em",
     textTransform: "uppercase",
     flexShrink: 0,
   };
 
-  // Preview: first 3 completed/live
-  const previewGames = (scores?.games || []).slice(0, 3);
-  const scorePreview = previewGames.map((g) => {
-    if (g.isComplete || g.isLive) {
-      return `${g.away.abbrev} ${g.away.score}-${g.home.score} ${g.home.abbrev}`;
-    }
-    return `${g.away.abbrev} vs ${g.home.abbrev}`;
-  }).join(" \u00B7 ");
+  // Preview: show league names with game counts instead of scores
+  const leaguePreview = Object.entries(gamesByLeague)
+    .map(([league, games]) => {
+      const live = games.filter((g) => g.isLive).length;
+      return live > 0 ? `${league} (${live} live)` : league;
+    })
+    .join(" \u00B7 ");
 
   // Group games by league for expanded view
   const gamesByLeague = {};
@@ -172,14 +171,14 @@ export function DataBars() {
             <span style={{
               fontFamily: theme.fonts.mono,
               fontSize: 9,
-              color: theme.colors.textMuted,
+              color: theme.colors.textStrong,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
               flex: 1,
               minWidth: 0,
             }}>
-              {scorePreview}
+              {leaguePreview}
             </span>
             <span style={{
               fontFamily: theme.fonts.mono,
@@ -221,13 +220,13 @@ export function DataBars() {
               <span key={idx.symbol} style={{
                 fontFamily: theme.fonts.mono,
                 fontSize: 9,
-                color: theme.colors.textMuted,
+                color: theme.colors.textStrong,
                 flexShrink: 0,
                 display: "flex",
                 alignItems: "baseline",
                 gap: 3,
               }}>
-                <span style={{ color: theme.colors.textGhost, fontSize: 8 }}>{idx.short}</span>
+                <span style={{ color: theme.colors.textMuted, fontSize: 8 }}>{idx.short}</span>
                 <span style={{ fontWeight: 700, color: theme.colors.textStrong, fontSize: 10 }}>
                   {formatPrice(idx.price)}
                 </span>
@@ -244,7 +243,7 @@ export function DataBars() {
                 alignItems: "baseline",
                 gap: 3,
               }}>
-                <span style={{ color: theme.colors.textGhost, fontSize: 8 }}>{ind.label}</span>
+                <span style={{ color: theme.colors.textMuted, fontSize: 8 }}>{ind.label}</span>
                 <span style={{ fontWeight: 700, color: theme.colors.textStrong, fontSize: 10 }}>
                   {formatIndicator(ind.value, ind.unit)}
                 </span>

@@ -153,7 +153,7 @@ export function InfoStrip() {
         <span style={{
           fontFamily: theme.fonts.mono,
           fontSize: 9,
-          color: theme.colors.textFaint,
+          color: theme.colors.textMuted,
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
@@ -165,7 +165,7 @@ export function InfoStrip() {
         <span style={{
           fontFamily: theme.fonts.mono,
           fontSize: 9,
-          color: theme.colors.textGhost,
+          color: theme.colors.textFaint,
           flexShrink: 0,
         }}>
           {locationStr}
