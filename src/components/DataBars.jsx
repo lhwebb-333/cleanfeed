@@ -150,7 +150,9 @@ export function DataBars() {
             gap: 5,
             padding: `3px ${theme.spacing.lg}px`,
             borderRight: (hasMarkets || hasIndicators) ? `1px solid ${theme.colors.border}` : "none",
-            overflow: "hidden",
+            overflowX: "auto",
+            scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch",
           }}>
             <span style={labelStyle}>SCORES</span>
             {Object.entries(gamesByLeague).map(([league, games]) => {
