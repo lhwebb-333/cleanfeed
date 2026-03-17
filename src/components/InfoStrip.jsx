@@ -3,7 +3,6 @@ import { useTheme } from "../hooks/useTheme";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 const WEATHER_REFRESH = 15 * 60 * 1000;
-const INDICATOR_REFRESH = 5 * 60 * 1000;
 const LOC_KEY = "cleanfeed-weather-loc";
 const UNIT_KEY = "cleanfeed-weather-unit";
 
@@ -31,36 +30,14 @@ function weatherIcon(short) {
   return "\u2600";
 }
 
-function formatValue(value, unit) {
-  if (value == null) return "\u2014";
-  const num = typeof value === "number" ? value : parseFloat(value);
-  if (isNaN(num)) return "\u2014";
-  if (unit === "%") return `${num.toFixed(1)}%`;
-  if (unit === "K") return `${num.toFixed(0)}K`;
-  return num.toFixed(2);
-}
-
-function dirArrow(d) {
-  if (d === "up") return "\u25B2";
-  if (d === "down") return "\u25BC";
-  return "";
-}
-function dirColor(d) {
-  if (d === "up") return "#4CAF50";
-  if (d === "down") return "#EF5350";
-  return "#888";
-}
-
 const ALERT_COLORS = { Extreme: "#D32F2F", Severe: "#EF5350", Moderate: "#FF8C00" };
 
 export function InfoStrip() {
   const { theme } = useTheme();
   const [weather, setWeather] = useState(null);
-  const [indicators, setIndicators] = useState([]);
-  const [unit, setUnit] = useState(getUnit);
   const [denied, setDenied] = useState(false);
+  const [unit, setUnit] = useState(getUnit);
 
-  // Weather
   const fetchWeather = useCallback(async (lat, lon) => {
     try {
       const res = await fetch(`${API_BASE}/api/weather?lat=${lat}&lon=${lon}`);
@@ -92,22 +69,6 @@ export function InfoStrip() {
     return () => clearInterval(i);
   }, [fetchWeather]);
 
-  // Indicators
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const res = await fetch(`${API_BASE}/api/financial-indicators`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data.ok && !cancelled) setIndicators(data.indicators || []);
-      } catch {}
-    }
-    load();
-    const i = setInterval(load, INDICATOR_REFRESH);
-    return () => { cancelled = true; clearInterval(i); };
-  }, []);
-
   function toggleUnit(e) {
     e.stopPropagation();
     const next = unit === "F" ? "C" : "F";
@@ -120,11 +81,11 @@ export function InfoStrip() {
     return unit === "C" ? `${toC(f)}\u00B0C` : `${f}\u00B0F`;
   }
 
-  const hasWeather = weather && !denied;
-  const hasIndicators = indicators.length > 0;
-  const hasAlerts = weather?.alerts?.length > 0;
+  if (denied || !weather) return null;
 
-  if (!hasWeather && !hasIndicators) return null;
+  const { location, current, alerts } = weather;
+  const locationStr = [location.city, location.state].filter(Boolean).join(", ");
+  const hasAlerts = alerts?.length > 0;
 
   return (
     <div style={{
@@ -132,8 +93,7 @@ export function InfoStrip() {
       margin: "0 auto",
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
-      {/* Alert banner */}
-      {hasAlerts && weather.alerts.map((alert, i) => (
+      {hasAlerts && alerts.map((alert, i) => (
         <div key={i} style={{
           padding: "4px 24px",
           background: (ALERT_COLORS[alert.severity] || "#FF8C00") + "15",
@@ -166,101 +126,50 @@ export function InfoStrip() {
         </div>
       ))}
 
-      {/* Single combined line */}
       <div style={{
         display: "flex",
         alignItems: "center",
-        gap: 14,
+        gap: 12,
         padding: `5px ${theme.spacing.lg}px`,
-        overflowX: "auto",
-        WebkitOverflowScrolling: "touch",
-        scrollbarWidth: "none",
       }}>
-        {/* Weather section */}
-        {hasWeather && (
-          <>
-            <span style={{ fontSize: 12, lineHeight: 1, flexShrink: 0 }}>
-              {weatherIcon(weather.current.short)}
-            </span>
-            <span
-              onClick={toggleUnit}
-              style={{
-                fontFamily: theme.fonts.mono,
-                fontSize: 11,
-                fontWeight: 700,
-                color: theme.colors.textStrong,
-                letterSpacing: "-0.02em",
-                flexShrink: 0,
-                cursor: "pointer",
-              }}
-              title="Toggle F/C"
-            >
-              {displayTemp(weather.current.temp)}
-            </span>
-            <span style={{
-              fontFamily: theme.fonts.mono,
-              fontSize: 9,
-              color: theme.colors.textFaint,
-              flexShrink: 0,
-              maxWidth: 120,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}>
-              {weather.current.short}
-            </span>
-
-            {/* Divider between weather and indicators */}
-            {hasIndicators && (
-              <span style={{
-                width: 1,
-                height: 12,
-                background: theme.colors.border,
-                flexShrink: 0,
-              }} />
-            )}
-          </>
-        )}
-
-        {/* Indicators section */}
-        {indicators.map((ind) => (
-          <div
-            key={ind.key}
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: 4,
-              flexShrink: 0,
-            }}
-          >
-            <span style={{
-              fontFamily: theme.fonts.mono,
-              fontSize: 8,
-              color: theme.colors.textGhost,
-              letterSpacing: "0.03em",
-            }}>
-              {ind.label}
-            </span>
-            <span style={{
-              fontFamily: theme.fonts.mono,
-              fontSize: 11,
-              fontWeight: 700,
-              color: theme.colors.textStrong,
-              letterSpacing: "-0.02em",
-            }}>
-              {formatValue(ind.value, ind.unit)}
-            </span>
-            {ind.direction !== "flat" && (
-              <span style={{
-                fontFamily: theme.fonts.mono,
-                fontSize: 7,
-                color: dirColor(ind.direction),
-              }}>
-                {dirArrow(ind.direction)}
-              </span>
-            )}
-          </div>
-        ))}
+        <span style={{ fontSize: 12, lineHeight: 1, flexShrink: 0 }}>
+          {weatherIcon(current.short)}
+        </span>
+        <span
+          onClick={toggleUnit}
+          style={{
+            fontFamily: theme.fonts.mono,
+            fontSize: 11,
+            fontWeight: 700,
+            color: theme.colors.textStrong,
+            letterSpacing: "-0.02em",
+            flexShrink: 0,
+            cursor: "pointer",
+          }}
+          title="Toggle F/C"
+        >
+          {displayTemp(current.temp)}
+        </span>
+        <span style={{
+          fontFamily: theme.fonts.mono,
+          fontSize: 9,
+          color: theme.colors.textFaint,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          flex: 1,
+          minWidth: 0,
+        }}>
+          {current.short}
+        </span>
+        <span style={{
+          fontFamily: theme.fonts.mono,
+          fontSize: 9,
+          color: theme.colors.textGhost,
+          flexShrink: 0,
+        }}>
+          {locationStr}
+        </span>
       </div>
     </div>
   );

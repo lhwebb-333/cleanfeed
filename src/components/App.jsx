@@ -6,6 +6,7 @@ import { CategoryNav } from "./CategoryNav";
 import { FeedList } from "./FeedList";
 import { About } from "./About";
 import { InfoStrip } from "./InfoStrip";
+import { DataBars } from "./DataBars";
 import { CompactFilters } from "./CompactFilters";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
@@ -111,8 +112,11 @@ export default function App() {
         onSearchChange={setSearchQuery}
       />
 
-      {/* Single info line: weather + indicators */}
+      {/* Weather line */}
       <InfoStrip />
+
+      {/* Scores + Markets — thin expandable bars */}
+      <DataBars />
 
       <SourceFilter
         enabledSources={enabledSources}
