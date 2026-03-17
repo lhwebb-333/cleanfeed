@@ -4,6 +4,8 @@
 
 import { getCached, setCache, recordError } from "./cache.js";
 import { generateHeadline, generateSummary } from "./headlines.js";
+import { computeStreak, calendarContext } from "./context.js";
+import { fetchMarketSnapshot, formatMarketReaction } from "./alpha-vantage.js";
 
 const API_BASE = "https://api.bls.gov/publicAPI/v2/timeseries/data/";
 
@@ -68,6 +70,7 @@ export const blsAdapter = {
         throw new Error(`BLS: ${json.message?.[0] || "Request failed"}`);
       }
 
+      const marketSnapshot = await fetchMarketSnapshot().catch(() => ({}));
       const items = [];
       const seriesResults = json.Results?.series || [];
 
@@ -98,17 +101,39 @@ export const blsAdapter = {
         let displayUnit = seriesConfig.unit;
 
         if (seriesConfig.indexToPercent) {
-          // Convert index levels to MoM percent change
           displayActual = priorVal !== 0 ? +((actual - priorVal) / priorVal * 100).toFixed(1) : 0;
           const prevPrior = dataPoints.length > 2 ? parseFloat(dataPoints[2].value) : priorVal;
           displayPrior = prevPrior !== 0 ? +((priorVal - prevPrior) / prevPrior * 100).toFixed(1) : 0;
           displayUnit = "%";
         } else if (seriesConfig.levelToDelta) {
-          // Convert absolute levels to period-over-period change
           displayActual = +(actual - priorVal).toFixed(0);
           const prevPrior = dataPoints.length > 2 ? parseFloat(dataPoints[2].value) : priorVal;
           displayPrior = +(priorVal - prevPrior).toFixed(0);
         }
+
+        // Compute streak
+        const displayValues = [];
+        if (seriesConfig.indexToPercent) {
+          for (let j = 0; j < dataPoints.length - 1; j++) {
+            const a = parseFloat(dataPoints[j].value);
+            const b = parseFloat(dataPoints[j + 1].value);
+            if (!isNaN(a) && !isNaN(b) && b !== 0) displayValues.push(+((a - b) / b * 100).toFixed(1));
+          }
+        } else if (seriesConfig.levelToDelta) {
+          for (let j = 0; j < dataPoints.length - 1; j++) {
+            displayValues.push(parseFloat(dataPoints[j].value) - parseFloat(dataPoints[j + 1].value));
+          }
+        } else {
+          for (const dp of dataPoints) {
+            const v = parseFloat(dp.value);
+            if (!isNaN(v)) displayValues.push(v);
+          }
+        }
+        const streak = computeStreak(displayValues);
+        const calendar = calendarContext(periodToDate(latest.year, latest.period).toISOString());
+
+        // Market reaction
+        const marketReaction = formatMarketReaction(marketSnapshot, periodToDate(latest.year, latest.period).toISOString());
 
         const delta = +(displayActual - displayPrior).toFixed(2);
         const period = parsePeriod(latest.year, latest.period);
@@ -123,10 +148,17 @@ export const blsAdapter = {
           period,
           label: seriesConfig.label,
           indicator: seriesConfig.label,
+          marketReaction,
         };
 
         const title = generateHeadline(seriesConfig.type, data);
-        const summary = generateSummary(seriesConfig.type, data);
+        let summary = generateSummary(seriesConfig.type, data);
+        const extraContext = [];
+        if (streak) extraContext.push(streak.description);
+        if (calendar) extraContext.push(calendar);
+        if (extraContext.length > 0) {
+          summary = summary + " " + extraContext.join(" ");
+        }
 
         items.push({
           id: `bls-${seriesConfig.id.toLowerCase()}-${latest.year}-${latest.period}`,

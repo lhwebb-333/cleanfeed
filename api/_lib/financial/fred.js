@@ -4,6 +4,8 @@
 
 import { getCached, setCache, recordError } from "./cache.js";
 import { generateHeadline, generateSummary } from "./headlines.js";
+import { computeYoY, computeStreak, computeHistoricalRange, calendarContext } from "./context.js";
+import { fetchMarketSnapshot, formatMarketReaction } from "./alpha-vantage.js";
 
 const API_BASE = "https://api.stlouisfed.org/fred";
 
@@ -32,7 +34,8 @@ function formatPeriod(date, frequency) {
 }
 
 async function fetchSeries(seriesId, apiKey) {
-  const url = `${API_BASE}/series/observations?series_id=${seriesId}&api_key=${apiKey}&file_type=json&sort_order=desc&limit=5`;
+  // Pull 24 observations for YoY, streak, and historical range computation
+  const url = `${API_BASE}/series/observations?series_id=${seriesId}&api_key=${apiKey}&file_type=json&sort_order=desc&limit=24`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`FRED ${seriesId}: HTTP ${res.status}`);
   const json = await res.json();
@@ -63,12 +66,19 @@ export const fredAdapter = {
     }
 
     try {
-      const results = await Promise.allSettled(
-        SERIES.map((s) => fetchSeries(s.id, apiKey).then((obs) => ({ series: s, obs })))
-      );
+      // Fetch all series + market snapshot in parallel
+      const [seriesResults, marketSnapshot] = await Promise.all([
+        Promise.allSettled(
+          SERIES.map((s) => fetchSeries(s.id, apiKey).then((obs) => ({ series: s, obs })))
+        ),
+        fetchMarketSnapshot().catch(() => ({})),
+      ]);
 
+      // First pass: collect indicator values for cross-referencing
+      const indicatorValues = {};
       const items = [];
-      for (const result of results) {
+
+      for (const result of seriesResults) {
         if (result.status !== "fulfilled") continue;
         const { series, obs } = result.value;
         if (obs.length < 2) continue;
@@ -85,19 +95,58 @@ export const fredAdapter = {
         let displayUnit = series.displayUnit || series.unit;
 
         if (series.indexToPercent) {
-          // Convert index levels to month-over-month percent change
-          // e.g., CPI 326.785 → 325.252 = +0.47%
           displayActual = priorVal !== 0 ? +((actual - priorVal) / priorVal * 100).toFixed(1) : 0;
           const prevPrior = obs.length > 2 ? parseFloat(obs[2].value) : priorVal;
           displayPrior = prevPrior !== 0 ? +((priorVal - prevPrior) / prevPrior * 100).toFixed(1) : 0;
           displayUnit = "%";
         } else if (series.levelToDelta) {
-          // Convert absolute levels to period-over-period change
-          // e.g., Payrolls 157,000K → 157,092K = +92K
           displayActual = +(actual - priorVal).toFixed(0);
           const prevPrior = obs.length > 2 ? parseFloat(obs[2].value) : priorVal;
           displayPrior = +(priorVal - prevPrior).toFixed(0);
         }
+
+        // Store for cross-referencing
+        if (series.type === "fed_funds") indicatorValues.fed_funds = { value: actual };
+        if (series.type === "unemployment") indicatorValues.unemployment = { value: actual };
+
+        // Compute YoY for index-based series (CPI raw index)
+        let yoy = null;
+        if (series.indexToPercent) {
+          yoy = computeYoY(obs, actual);
+        } else if (series.type === "unemployment" || series.type === "fed_funds") {
+          yoy = computeYoY(obs, actual);
+        }
+
+        // Compute streak from display values
+        const displayValues = [];
+        if (series.indexToPercent) {
+          // Compute MoM% for each pair
+          for (let i = 0; i < obs.length - 1; i++) {
+            const a = parseFloat(obs[i].value);
+            const b = parseFloat(obs[i + 1].value);
+            if (!isNaN(a) && !isNaN(b) && b !== 0) displayValues.push(+((a - b) / b * 100).toFixed(1));
+          }
+        } else if (series.levelToDelta) {
+          for (let i = 0; i < obs.length - 1; i++) {
+            displayValues.push(parseFloat(obs[i].value) - parseFloat(obs[i + 1].value));
+          }
+        } else {
+          for (const o of obs) {
+            const v = parseFloat(o.value);
+            if (!isNaN(v)) displayValues.push(v);
+          }
+        }
+        const streak = computeStreak(displayValues);
+
+        // Historical range (only for non-index series)
+        const rawValues = obs.map((o) => parseFloat(o.value)).filter((v) => !isNaN(v));
+        const historicalRange = computeHistoricalRange(obs, actual, series.indexToPercent);
+
+        // Calendar context
+        const calendar = calendarContext(latest.date);
+
+        // Market reaction
+        const marketReaction = formatMarketReaction(marketSnapshot, latest.date);
 
         const delta = +(displayActual - displayPrior).toFixed(2);
         const period = formatPeriod(latest.date, series.frequency);
@@ -105,16 +154,31 @@ export const fredAdapter = {
         const data = {
           actual: displayActual,
           prior: displayPrior,
-          expected: null, // FRED doesn't provide consensus
+          expected: null,
           delta,
           unit: displayUnit,
           period,
           label: series.label,
           indicator: series.label,
+          marketReaction,
         };
 
         const title = generateHeadline(series.type, data);
-        const summary = generateSummary(series.type, data);
+
+        // Build rich summary
+        let summary = generateSummary(series.type, data);
+        const extraContext = [];
+        if (yoy) extraContext.push(`Year-over-year change: ${yoy.pctChange > 0 ? "+" : ""}${yoy.pctChange}% from ${yoy.period}.`);
+        if (streak) extraContext.push(streak.description);
+        if (historicalRange) extraContext.push(historicalRange.description);
+        // Cross-reference fed funds on inflation/labor data
+        if ((series.type === "cpi" || series.type === "ppi" || series.type === "unemployment") && indicatorValues.fed_funds) {
+          extraContext.push(`Fed funds rate currently at ${indicatorValues.fed_funds.value}%.`);
+        }
+        if (calendar) extraContext.push(calendar);
+        if (extraContext.length > 0) {
+          summary = summary + " " + extraContext.join(" ");
+        }
 
         items.push({
           id: `fred-${series.id.toLowerCase()}-${latest.date}`,
