@@ -1,18 +1,18 @@
 // Markets endpoint — major index quotes
-// Uses Yahoo Finance unofficial API (free, no key)
+// Uses Yahoo Finance v8 chart API (more reliable than v7 quote)
 
 const SYMBOLS = [
-  { symbol: "^GSPC", label: "S&P 500", short: "S&P" },
-  { symbol: "^DJI", label: "Dow Jones", short: "Dow" },
-  { symbol: "^IXIC", label: "Nasdaq", short: "Nasdaq" },
-  { symbol: "^VIX", label: "VIX", short: "VIX" },
-  { symbol: "GC=F", label: "Gold", short: "Gold" },
-  { symbol: "CL=F", label: "Crude Oil", short: "Oil" },
-  { symbol: "^TNX", label: "10Y Yield", short: "10Y" },
+  { symbol: "%5EGSPC", raw: "^GSPC", label: "S&P 500", short: "S&P" },
+  { symbol: "%5EDJI", raw: "^DJI", label: "Dow Jones", short: "Dow" },
+  { symbol: "%5EIXIC", raw: "^IXIC", label: "Nasdaq", short: "Nasdaq" },
+  { symbol: "%5EVIX", raw: "^VIX", label: "VIX", short: "VIX" },
+  { symbol: "GC%3DF", raw: "GC=F", label: "Gold", short: "Gold" },
+  { symbol: "CL%3DF", raw: "CL=F", label: "Crude Oil", short: "Oil" },
+  { symbol: "%5ETNX", raw: "^TNX", label: "10Y Yield", short: "10Y" },
 ];
 
 const cache = new Map();
-const CACHE_TTL = 2 * 60 * 1000; // 2 min
+const CACHE_TTL = 2 * 60 * 1000;
 
 function getCached(key) {
   const entry = cache.get(key);
@@ -24,6 +24,40 @@ function setCache(key, data) {
   cache.set(key, { data, ts: Date.now() });
 }
 
+async function fetchQuote(sym) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym.symbol}?range=1d&interval=1d`;
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    },
+  });
+  if (!res.ok) throw new Error(`Yahoo ${res.status} for ${sym.raw}`);
+  const data = await res.json();
+  const result = data.chart?.result?.[0];
+  if (!result) return null;
+
+  const meta = result.meta || {};
+  const price = meta.regularMarketPrice;
+  const prevClose = meta.chartPreviousClose || meta.previousClose;
+
+  if (price == null || prevClose == null) return null;
+
+  const change = price - prevClose;
+  const changePct = prevClose !== 0 ? (change / prevClose) * 100 : 0;
+
+  return {
+    symbol: sym.raw,
+    label: sym.label,
+    short: sym.short,
+    price: +price.toFixed(2),
+    change: +change.toFixed(2),
+    changePct: +changePct.toFixed(2),
+    prevClose: +prevClose.toFixed(2),
+    direction: change > 0.001 ? "up" : change < -0.001 ? "down" : "flat",
+    marketState: meta.marketState || "CLOSED",
+  };
+}
+
 export default async function handler(req, res) {
   try {
     const cached = getCached("markets");
@@ -32,40 +66,10 @@ export default async function handler(req, res) {
       return res.json(cached);
     }
 
-    const symbolList = SYMBOLS.map((s) => s.symbol).join(",");
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbolList)}`;
-
-    const yRes = await fetch(url, {
-      headers: {
-        "User-Agent": "CleanFeed/1.0",
-      },
-    });
-
-    if (!yRes.ok) throw new Error(`Yahoo Finance ${yRes.status}`);
-    const data = await yRes.json();
-    const quotes = data.quoteResponse?.result || [];
-
+    const results = await Promise.allSettled(SYMBOLS.map(fetchQuote));
     const indices = [];
-    for (const sym of SYMBOLS) {
-      const q = quotes.find((r) => r.symbol === sym.symbol);
-      if (!q) continue;
-
-      const price = q.regularMarketPrice;
-      const change = q.regularMarketChange;
-      const changePct = q.regularMarketChangePercent;
-      const prevClose = q.regularMarketPreviousClose;
-
-      indices.push({
-        symbol: sym.symbol,
-        label: sym.label,
-        short: sym.short,
-        price: price != null ? +price.toFixed(2) : null,
-        change: change != null ? +change.toFixed(2) : null,
-        changePct: changePct != null ? +changePct.toFixed(2) : null,
-        prevClose: prevClose != null ? +prevClose.toFixed(2) : null,
-        direction: change > 0 ? "up" : change < 0 ? "down" : "flat",
-        marketState: q.marketState || "CLOSED",
-      });
+    for (const r of results) {
+      if (r.status === "fulfilled" && r.value) indices.push(r.value);
     }
 
     const result = {

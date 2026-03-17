@@ -118,17 +118,16 @@ export default function App() {
       {/* Scores + Markets — thin expandable bars */}
       <DataBars />
 
-      <SourceFilter
-        enabledSources={enabledSources}
-        toggleSource={toggleSource}
-        enableAllSources={enableAllSources}
-        disableAllSources={disableAllSources}
-        sourceCounts={sourceCounts}
-        selectedState={selectedState}
-      />
-
-      {/* Mobile: categories + compact mute/local on one row */}
+      {/* Mobile: sources + categories + filters in one block */}
       <div className="category-mobile-bar">
+        <SourceFilter
+          enabledSources={enabledSources}
+          toggleSource={toggleSource}
+          enableAllSources={enableAllSources}
+          disableAllSources={disableAllSources}
+          sourceCounts={sourceCounts}
+          selectedState={selectedState}
+        />
         <CategoryNav
           enabledCategories={enabledCategories}
           toggleCategory={toggleCategory}
@@ -161,6 +160,15 @@ export default function App() {
       >
         {/* Sidebar — desktop */}
         <div className="category-sidebar" style={{ width: 180, flexShrink: 0, overflow: "hidden" }}>
+          <SourceFilter
+            enabledSources={enabledSources}
+            toggleSource={toggleSource}
+            enableAllSources={enableAllSources}
+            disableAllSources={disableAllSources}
+            sourceCounts={sourceCounts}
+            selectedState={selectedState}
+            sidebar
+          />
           <CategoryNav
             enabledCategories={enabledCategories}
             toggleCategory={toggleCategory}
