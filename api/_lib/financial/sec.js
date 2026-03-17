@@ -33,7 +33,7 @@ const ITEM_TYPES = {
 export const secAdapter = {
   name: "SEC",
   key: "sec",
-  color: "#D4A017",
+  color: "#607D8B",
 
   async fetch() {
     const cached = getCached("sec", "filings");
@@ -88,7 +88,7 @@ export const secAdapter = {
           link: filingUrl,
           pubDate: fileDate ? new Date(fileDate).toISOString() : new Date().toISOString(),
           source: "SEC",
-          color: "#D4A017",
+          color: "#607D8B",
           category: "financial",
           type: "financial-data",
           dataSource: "sec",

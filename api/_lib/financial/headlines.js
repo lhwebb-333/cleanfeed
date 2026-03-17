@@ -178,21 +178,96 @@ export function generateHeadline(type, data) {
   return template(data);
 }
 
+// Factual benchmarks — not opinion, these are established reference points
+// Used to give normal readers context on whether a number is high, low, or typical
+function cpiBenchmark(actual) {
+  // Fed's stated inflation target is 2% annual. MoM ~0.17% = on-target pace.
+  if (actual <= 0) return "Prices fell month-over-month — deflation.";
+  if (actual <= 0.1) return "Monthly pace below the Fed's 2% annual inflation target.";
+  if (actual <= 0.2) return "Monthly pace roughly in line with the Fed's 2% annual inflation target.";
+  if (actual <= 0.4) return "Monthly pace above the Fed's 2% annual target — annualizes to roughly " + (actual * 12).toFixed(0) + "%.";
+  return "Monthly pace well above the Fed's 2% target — annualizes to roughly " + (actual * 12).toFixed(0) + "%.";
+}
+
+function unemploymentBenchmark(actual) {
+  // Historical U.S. average ~5.7%. Below 4% is historically tight. Above 6% is elevated.
+  if (actual < 3.5) return "This is near historic lows — the U.S. average since 1948 is 5.7%.";
+  if (actual < 4.0) return "Below the long-term U.S. average of 5.7%. The labor market is tight by historical standards.";
+  if (actual < 5.0) return "Below the long-term U.S. average of 5.7%.";
+  if (actual < 6.0) return "Near the long-term U.S. average of 5.7%.";
+  if (actual < 8.0) return "Above the long-term U.S. average of 5.7%. Elevated by historical standards.";
+  return "Well above the long-term U.S. average of 5.7%.";
+}
+
+function fedFundsBenchmark(actual) {
+  // Historical average ~4.6%. Near zero = emergency stimulus. Above 5% = restrictive.
+  if (actual < 0.5) return "Near zero — the lowest the Fed can set rates. This is emergency-level stimulus.";
+  if (actual < 2.0) return "Below the long-term average of ~4.6%. The Fed considers this accommodative.";
+  if (actual < 3.5) return "Below the long-term average of ~4.6%.";
+  if (actual < 5.0) return "Near the long-term average of ~4.6%.";
+  return "Above the long-term average of ~4.6%. The Fed considers this restrictive — intended to slow borrowing and spending.";
+}
+
+function gdpBenchmark(actual) {
+  // U.S. long-run average ~2-3% annual growth. Negative = contraction.
+  if (actual < -1) return "The economy contracted. Two consecutive negative quarters is the common shorthand for recession.";
+  if (actual < 0) return "The economy contracted slightly. Long-run U.S. average growth is 2-3% annually.";
+  if (actual < 1) return "Growth is positive but below the long-run U.S. average of 2-3% annually.";
+  if (actual < 3) return "Growth is within the normal long-run U.S. range of 2-3% annually.";
+  return "Growth is above the long-run U.S. average of 2-3% annually.";
+}
+
+function payrollBenchmark(actual) {
+  // 150K+/month generally keeps up with population growth. 200K+ is strong. Negative = job losses.
+  if (actual < -100) return "Significant job losses. The economy needs roughly 100-150K new jobs per month to keep up with population growth.";
+  if (actual < 0) return "The economy lost jobs. Roughly 100-150K new jobs per month are needed to keep up with population growth.";
+  if (actual < 100) return "Below the ~100-150K per month needed to keep pace with population growth.";
+  if (actual < 200) return "Roughly in line with the ~100-150K per month needed to keep pace with population growth.";
+  if (actual < 350) return "Above the pace needed to keep up with population growth (~100-150K/month).";
+  return "Well above the pace needed for population growth (~100-150K/month). Unusually strong.";
+}
+
+function yieldBenchmark(actual, label) {
+  const is10y = label && label.includes("10-Year");
+  const is2y = label && label.includes("2-Year");
+  if (is10y) {
+    if (actual < 2) return "The 10-year yield is low by historical standards — the long-run average is around 4.25%.";
+    if (actual < 3.5) return "Below the long-run average of ~4.25% for the 10-year Treasury.";
+    if (actual < 5) return "Near the long-run average of ~4.25%. The 10-year yield influences mortgage rates and borrowing costs.";
+    return "Above the long-run average of ~4.25%. Higher yields mean higher borrowing costs for mortgages, car loans, and business investment.";
+  }
+  if (is2y) {
+    // 2Y is more sensitive to Fed policy expectations
+    return "The 2-year yield closely tracks where markets expect the Fed to set interest rates over the next two years.";
+  }
+  return "";
+}
+
+function ppiBenchmark(actual) {
+  if (actual <= 0) return "Producer prices fell — input costs are declining for businesses.";
+  if (actual <= 0.2) return "Producer price growth is modest. PPI measures costs before they reach consumers.";
+  if (actual <= 0.4) return "Producer prices are rising. PPI often leads consumer inflation (CPI) by 1-3 months.";
+  return "Producer prices are rising quickly. PPI often leads consumer inflation (CPI) by 1-3 months.";
+}
+
 // Generate a 2-3 sentence narrative summary
-// Slots: actual, prior, expected (if available), market reaction (if available)
+// Lead with the fact, then benchmark context so a normal person knows if this is good/bad/normal
 const SUMMARY_TEMPLATES = {
   cpi: (data) => {
-    const parts = [`CPI ${data.actual > data.prior ? "increased" : data.actual < data.prior ? "decreased" : "was unchanged at"} ${formatValue(data.actual, data.unit)} in ${data.period || "the latest month"}, compared to ${formatValue(data.prior, data.unit)} the prior month.`];
+    const dir = data.actual > data.prior ? "increased" : data.actual < data.prior ? "decreased" : "was unchanged at";
+    const parts = [`Consumer prices ${dir} ${formatValue(data.actual, data.unit)} month-over-month in ${data.period || "the latest month"}, compared to ${formatValue(data.prior, data.unit)} the prior month.`];
+    parts.push(cpiBenchmark(data.actual));
     if (data.expected != null) {
       const vs = data.actual > data.expected ? "above" : data.actual < data.expected ? "below" : "in line with";
-      parts.push(`Consensus forecast was ${formatValue(data.expected, data.unit)} — actual came in ${vs} expectations.`);
+      parts.push(`Economists expected ${formatValue(data.expected, data.unit)} — actual came in ${vs}.`);
     }
     if (data.marketReaction) parts.push(data.marketReaction);
     return parts.join(" ");
   },
 
   gdp: (data) => {
-    const parts = [`Real GDP grew at ${formatValue(data.actual, data.unit)} annualized in ${data.period || "the latest quarter"}, compared to ${formatValue(data.prior, data.unit)} the prior quarter.`];
+    const parts = [`GDP grew at ${formatValue(data.actual, data.unit)} annualized in ${data.period || "the latest quarter"}, compared to ${formatValue(data.prior, data.unit)} the prior quarter.`];
+    parts.push(gdpBenchmark(data.actual));
     if (data.expected != null) {
       const vs = data.actual > data.expected ? "above" : data.actual < data.expected ? "below" : "in line with";
       parts.push(`Forecast was ${formatValue(data.expected, data.unit)} — actual came in ${vs}.`);
@@ -203,7 +278,8 @@ const SUMMARY_TEMPLATES = {
 
   unemployment: (data) => {
     const dir = data.actual > data.prior ? "rose to" : data.actual < data.prior ? "fell to" : "held at";
-    const parts = [`Unemployment rate ${dir} ${formatValue(data.actual, data.unit)}, from ${formatValue(data.prior, data.unit)} the prior month.`];
+    const parts = [`The unemployment rate ${dir} ${formatValue(data.actual, data.unit)}, from ${formatValue(data.prior, data.unit)} the prior month.`];
+    parts.push(unemploymentBenchmark(data.actual));
     if (data.expected != null) {
       const vs = data.actual > data.expected ? "above" : data.actual < data.expected ? "below" : "in line with";
       parts.push(`Economists expected ${formatValue(data.expected, data.unit)} — actual ${vs}.`);
@@ -213,8 +289,9 @@ const SUMMARY_TEMPLATES = {
   },
 
   fed_funds: (data) => {
-    const dir = data.actual > data.prior ? "raised to" : data.actual < data.prior ? "lowered to" : "held at";
-    const parts = [`The Federal Reserve ${dir} the federal funds rate at ${formatValue(data.actual, data.unit)}.`];
+    const dir = data.actual > data.prior ? "raised" : data.actual < data.prior ? "lowered" : "held";
+    const parts = [`The Federal Reserve ${dir} the federal funds rate ${dir === "held" ? "at" : "to"} ${formatValue(data.actual, data.unit)}.`];
+    parts.push(fedFundsBenchmark(data.actual));
     if (data.prior !== data.actual) parts.push(`Previous rate was ${formatValue(data.prior, data.unit)}.`);
     if (data.marketReaction) parts.push(data.marketReaction);
     return parts.join(" ");
@@ -224,14 +301,17 @@ const SUMMARY_TEMPLATES = {
     const label = data.label || "10-Year Treasury yield";
     const dir = data.actual > data.prior ? "rose" : data.actual < data.prior ? "fell" : "was unchanged";
     const delta = Math.abs(data.actual - data.prior).toFixed(2);
-    const parts = [`${label} ${dir} to ${formatValue(data.actual, data.unit)}, a move of ${delta} percentage points from the prior session's ${formatValue(data.prior, data.unit)}.`];
+    const parts = [`The ${label} ${dir} to ${formatValue(data.actual, data.unit)}, a change of ${delta} percentage points from ${formatValue(data.prior, data.unit)}.`];
+    const bench = yieldBenchmark(data.actual, label);
+    if (bench) parts.push(bench);
     if (data.marketReaction) parts.push(data.marketReaction);
     return parts.join(" ");
   },
 
   payroll: (data) => {
     const verb = data.actual >= 0 ? "added" : "lost";
-    const parts = [`The economy ${verb} ${formatValue(Math.abs(data.actual), data.unit)} jobs in ${data.period || "the latest month"}, compared to ${formatValue(data.prior, data.unit)} the prior month.`];
+    const parts = [`The economy ${verb} ${formatValue(Math.abs(data.actual), data.unit)} jobs in ${data.period || "the latest month"}, compared to ${formatValue(Math.abs(data.prior), data.unit)} the prior month.`];
+    parts.push(payrollBenchmark(data.actual));
     if (data.expected != null) {
       const vs = data.actual > data.expected ? "above" : data.actual < data.expected ? "below" : "in line with";
       parts.push(`Forecast was ${formatValue(data.expected, data.unit)} — actual ${vs}.`);
@@ -241,7 +321,9 @@ const SUMMARY_TEMPLATES = {
   },
 
   ppi: (data) => {
-    const parts = [`Producer prices ${data.actual > data.prior ? "increased" : data.actual < data.prior ? "decreased" : "were unchanged at"} ${formatValue(data.actual, data.unit)} in ${data.period || "the latest month"}, compared to ${formatValue(data.prior, data.unit)} prior.`];
+    const dir = data.actual > data.prior ? "increased" : data.actual < data.prior ? "decreased" : "were unchanged at";
+    const parts = [`Producer prices ${dir} ${formatValue(data.actual, data.unit)} in ${data.period || "the latest month"}, compared to ${formatValue(data.prior, data.unit)} prior.`];
+    parts.push(ppiBenchmark(data.actual));
     if (data.expected != null) {
       const vs = data.actual > data.expected ? "above" : data.actual < data.expected ? "below" : "in line with";
       parts.push(`Forecast was ${formatValue(data.expected, data.unit)} — actual ${vs}.`);
@@ -251,7 +333,11 @@ const SUMMARY_TEMPLATES = {
   },
 
   filing: (data) => {
-    return `${data.company} filed Form ${data.formType || "8-K"} with the SEC.${data.description ? " " + data.description + "." : ""}`;
+    const parts = [`${data.company} filed Form ${data.formType || "8-K"} with the SEC.`];
+    if (data.description) parts.push(data.description + ".");
+    // Give normie context on what 8-K means
+    if (data.formType === "8-K") parts.push("An 8-K is filed when a company has a major event investors should know about.");
+    return parts.join(" ");
   },
 
   generic: (data) => {

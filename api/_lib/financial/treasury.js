@@ -17,7 +17,7 @@ const MATURITIES = ["1 Mo", "2 Mo", "3 Mo", "4 Mo", "6 Mo", "1 Yr", "2 Yr", "3 Y
 export const treasuryAdapter = {
   name: "Treasury",
   key: "treasury",
-  color: "#4169E1",
+  color: "#607D8B",
 
   async fetch() {
     const cached = getCached("treasury", "yields");
@@ -73,7 +73,7 @@ export const treasuryAdapter = {
           link: "https://fiscaldata.treasury.gov/datasets/average-interest-rates-treasury-securities/average-interest-rates-on-u-s-treasury-securities",
           pubDate: new Date(latestDate).toISOString(),
           source: "Treasury",
-          color: "#4169E1",
+          color: "#607D8B",
           category: "financial",
           type: "financial-data",
           dataSource: "treasury",

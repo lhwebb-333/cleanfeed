@@ -40,7 +40,7 @@ function periodToDate(year, period) {
 export const blsAdapter = {
   name: "BLS",
   key: "bls",
-  color: "#228B22",
+  color: "#607D8B",
 
   async fetch() {
     const cached = getCached("bls", "all");
@@ -167,7 +167,7 @@ export const blsAdapter = {
           link: `https://data.bls.gov/timeseries/${seriesConfig.id}`,
           pubDate: pubDate.toISOString(),
           source: "BLS",
-          color: "#228B22",
+          color: "#607D8B",
           category: "financial",
           type: "financial-data",
           dataSource: "bls",

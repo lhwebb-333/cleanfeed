@@ -53,7 +53,7 @@ async function fetchSeriesInfo(seriesId, apiKey) {
 export const fredAdapter = {
   name: "FRED",
   key: "fred",
-  color: "#2E86AB",
+  color: "#607D8B",
 
   async fetch() {
     const cached = getCached("fred", "all");
@@ -187,7 +187,7 @@ export const fredAdapter = {
           link: `https://fred.stlouisfed.org/series/${series.id}`,
           pubDate: new Date(latest.date).toISOString(),
           source: "FRED",
-          color: "#2E86AB",
+          color: "#607D8B",
           category: "financial",
           type: "financial-data",
           dataSource: "fred",

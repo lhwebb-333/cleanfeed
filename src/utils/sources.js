@@ -3,11 +3,11 @@ export const SOURCES = [
   { key: "ap", name: "AP News", color: "#4A90D9" },
   { key: "bbc", name: "BBC", color: "#C1272D" },
   { key: "npr", name: "NPR", color: "#5BBD72" },
-  { key: "fred", name: "FRED", color: "#2E86AB" },
-  { key: "sec", name: "SEC", color: "#D4A017" },
-  { key: "bls", name: "BLS", color: "#228B22" },
-  { key: "treasury", name: "Treasury", color: "#4169E1" },
-  { key: "fed", name: "Fed", color: "#8B0000" },
+  { key: "fred", name: "FRED", color: "#607D8B" },
+  { key: "sec", name: "SEC", color: "#607D8B" },
+  { key: "bls", name: "BLS", color: "#607D8B" },
+  { key: "treasury", name: "Treasury", color: "#607D8B" },
+  { key: "fed", name: "Fed", color: "#607D8B" },
 ];
 
 export const LOCAL_COLOR = "#9b59b6";
@@ -23,33 +23,36 @@ export const SOURCE_COLOR_MAP = {
   "STAT News": "#00ACC1",
   "Ars Technica": "#FF7043",
   "MIT Tech Review": "#EC407A",
-  FRED: "#2E86AB",
-  SEC: "#D4A017",
-  BLS: "#228B22",
-  Treasury: "#4169E1",
-  Fed: "#8B0000",
+  FRED: "#607D8B",
+  SEC: "#607D8B",
+  BLS: "#607D8B",
+  Treasury: "#607D8B",
+  Fed: "#607D8B",
 };
 
 // Expandable sub-sources for secondary categories
+// All sub-source pills use the same accent color as category buttons
+const SUB_COLOR = "#FF8C00";
+
 export const CATEGORY_SUBSOURCES = {
   science: [
-    { name: "Phys.org", color: "#4FC3F7" },
-    { name: "Nature", color: "#E53935" },
+    { name: "Phys.org", color: SUB_COLOR },
+    { name: "Nature", color: SUB_COLOR },
   ],
   health: [
-    { name: "KFF Health", color: "#AB47BC" },
-    { name: "STAT News", color: "#00ACC1" },
+    { name: "KFF Health", color: SUB_COLOR },
+    { name: "STAT News", color: SUB_COLOR },
   ],
   tech: [
-    { name: "Ars Technica", color: "#FF7043", short: "Ars" },
-    { name: "MIT Tech Review", color: "#EC407A", short: "MIT" },
+    { name: "Ars Technica", color: SUB_COLOR, short: "Ars" },
+    { name: "MIT Tech Review", color: SUB_COLOR, short: "MIT" },
   ],
   financial: [
-    { name: "FRED", color: "#2E86AB" },
-    { name: "SEC", color: "#D4A017" },
-    { name: "BLS", color: "#228B22" },
-    { name: "Treasury", color: "#4169E1" },
-    { name: "Fed", color: "#8B0000" },
+    { name: "FRED", color: SUB_COLOR },
+    { name: "SEC", color: SUB_COLOR },
+    { name: "BLS", color: SUB_COLOR },
+    { name: "Treasury", color: SUB_COLOR },
+    { name: "Fed", color: SUB_COLOR },
   ],
 };
 

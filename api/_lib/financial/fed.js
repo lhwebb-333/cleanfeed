@@ -32,7 +32,7 @@ const FED_FEEDS = [
 export const fedAdapter = {
   name: "Fed",
   key: "fed",
-  color: "#8B0000",
+  color: "#607D8B",
 
   async fetch() {
     const cached = getCached("fed", "all");
@@ -68,7 +68,7 @@ export const fedAdapter = {
             link: item.link,
             pubDate: item.isoDate || item.pubDate || new Date().toISOString(),
             source: "Fed",
-            color: "#8B0000",
+            color: "#607D8B",
             category: "financial",
             type: "financial-data",
             dataSource: "fed",

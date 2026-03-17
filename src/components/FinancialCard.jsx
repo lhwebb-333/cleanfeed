@@ -2,22 +2,17 @@ import { useState } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { timeAgo } from "../utils/time";
 
-const SOURCE_COLORS = {
-  FRED: "#2E86AB",
-  SEC: "#D4A017",
-  BLS: "#228B22",
-  Treasury: "#4169E1",
-  Fed: "#8B0000",
-};
+const FINANCIAL_COLOR = "#607D8B";
 
 function formatValue(value, unit) {
-  if (value == null) return "—";
+  if (value == null) return "\u2014";
   const num = typeof value === "number" ? value : parseFloat(value);
   if (isNaN(num)) return String(value);
   if (unit === "%") return `${num.toFixed(1)}%`;
   if (unit === "K") return `${num > 0 ? "+" : ""}${num.toFixed(0)}K`;
   if (unit === "M") return `${num.toFixed(1)}M`;
   if (unit === "B") return `$${num.toFixed(1)}B`;
+  if (unit === "$B") return `$${num.toFixed(1)}B`;
   if (unit === "bp") return `${num.toFixed(0)} bp`;
   return num.toFixed(2);
 }
@@ -27,12 +22,23 @@ function deltaColor(delta, theme) {
   return delta > 0 ? "#4CAF50" : "#EF5350";
 }
 
+// Split description into discrete factual lines
+function parseContextLines(description) {
+  if (!description) return [];
+  // Split on sentence boundaries — each fact becomes its own line
+  return description
+    .split(/(?<=\.)\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
 export function FinancialCard({ item }) {
   const { theme } = useTheme();
   const [hovered, setHovered] = useState(false);
-  const color = SOURCE_COLORS[item.source] || item.color || "#888";
+  const color = FINANCIAL_COLOR;
   const data = item.data || {};
   const hasNumbers = data.actual != null;
+  const contextLines = parseContextLines(item.description);
 
   return (
     <a
@@ -53,7 +59,7 @@ export function FinancialCard({ item }) {
         cursor: "pointer",
       }}
     >
-      {/* Top row: source + category + time */}
+      {/* Top row: source + indicator + time */}
       <div
         style={{
           display: "flex",
@@ -122,7 +128,7 @@ export function FinancialCard({ item }) {
             display: "flex",
             alignItems: "baseline",
             gap: 16,
-            marginBottom: 6,
+            marginBottom: 10,
             flexWrap: "wrap",
           }}
         >
@@ -174,19 +180,24 @@ export function FinancialCard({ item }) {
         </div>
       )}
 
-      {/* Narrative summary */}
-      {item.description && (
-        <p
-          style={{
-            fontFamily: theme.fonts.serif,
-            fontSize: 14,
-            lineHeight: 1.55,
-            color: theme.colors.textMuted,
-            marginBottom: item.context ? 6 : 0,
-          }}
-        >
-          {item.description}
-        </p>
+      {/* Factual context — each fact on its own line */}
+      {contextLines.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          {contextLines.map((line, i) => (
+            <p
+              key={i}
+              style={{
+                fontFamily: theme.fonts.serif,
+                fontSize: 13,
+                lineHeight: 1.5,
+                color: i === 0 ? theme.colors.textMuted : theme.colors.textFaint,
+                margin: 0,
+              }}
+            >
+              {line}
+            </p>
+          ))}
+        </div>
       )}
 
       {/* Source context line */}
@@ -197,6 +208,7 @@ export function FinancialCard({ item }) {
             fontSize: 10,
             color: theme.colors.textFaint,
             letterSpacing: "0.02em",
+            marginTop: 6,
           }}
         >
           {item.context}
