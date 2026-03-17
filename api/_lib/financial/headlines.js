@@ -60,6 +60,7 @@ function formatValue(value, unit) {
   if (unit === "K") return `${value}K`;
   if (unit === "M") return `${value}M`;
   if (unit === "B") return `$${value}B`;
+  if (unit === "$B") return `$${Number(value).toLocaleString()}B`;
   if (unit === "bp") return `${value} bp`;
   return String(value);
 }

@@ -7,11 +7,13 @@ import { generateHeadline } from "./headlines.js";
 
 const API_BASE = "https://api.bls.gov/publicAPI/v2/timeseries/data/";
 
+// indexToPercent: compute MoM % change from index levels (CPI, PPI)
+// levelToDelta: compute period-over-period change from absolute levels (payrolls)
 const SERIES = [
   { id: "LNS14000000", label: "Unemployment Rate", type: "unemployment", unit: "%", category: "labor" },
-  { id: "CUUR0000SA0", label: "CPI-U (All Items)", type: "cpi", unit: "%", category: "economic" },
-  { id: "WPUFD49104", label: "PPI (Final Demand)", type: "ppi", unit: "%", category: "economic" },
-  { id: "CES0000000001", label: "Nonfarm Payrolls", type: "payroll", unit: "K", category: "labor" },
+  { id: "CUUR0000SA0", label: "CPI-U (All Items)", type: "cpi", unit: "%", category: "economic", indexToPercent: true },
+  { id: "WPUFD49104", label: "PPI (Final Demand)", type: "ppi", unit: "%", category: "economic", indexToPercent: true },
+  { id: "CES0000000001", label: "Nonfarm Payrolls", type: "payroll", unit: "K", category: "labor", levelToDelta: true },
 ];
 
 const MONTHS = {
@@ -91,15 +93,24 @@ export const blsAdapter = {
 
         if (isNaN(actual) || isNaN(priorVal)) continue;
 
-        // For payrolls, compute month-over-month change
         let displayActual = actual;
         let displayPrior = priorVal;
-        if (seriesConfig.type === "payroll") {
-          displayActual = actual - priorVal;
-          displayPrior = dataPoints.length > 2 ? priorVal - parseFloat(dataPoints[2].value) : 0;
+        let displayUnit = seriesConfig.unit;
+
+        if (seriesConfig.indexToPercent) {
+          // Convert index levels to MoM percent change
+          displayActual = priorVal !== 0 ? +((actual - priorVal) / priorVal * 100).toFixed(1) : 0;
+          const prevPrior = dataPoints.length > 2 ? parseFloat(dataPoints[2].value) : priorVal;
+          displayPrior = prevPrior !== 0 ? +((priorVal - prevPrior) / prevPrior * 100).toFixed(1) : 0;
+          displayUnit = "%";
+        } else if (seriesConfig.levelToDelta) {
+          // Convert absolute levels to period-over-period change
+          displayActual = +(actual - priorVal).toFixed(0);
+          const prevPrior = dataPoints.length > 2 ? parseFloat(dataPoints[2].value) : priorVal;
+          displayPrior = +(priorVal - prevPrior).toFixed(0);
         }
 
-        const delta = displayActual - displayPrior;
+        const delta = +(displayActual - displayPrior).toFixed(2);
         const period = parsePeriod(latest.year, latest.period);
         const pubDate = periodToDate(latest.year, latest.period);
 
@@ -108,7 +119,7 @@ export const blsAdapter = {
           prior: displayPrior,
           expected: null,
           delta,
-          unit: seriesConfig.unit,
+          unit: displayUnit,
           period,
           label: seriesConfig.label,
           indicator: seriesConfig.label,
@@ -132,7 +143,7 @@ export const blsAdapter = {
             expected: null,
             prior: displayPrior,
             delta,
-            unit: seriesConfig.unit,
+            unit: displayUnit,
           },
           indicator: seriesConfig.label,
           tags: [seriesConfig.category, seriesConfig.id.toLowerCase()],
