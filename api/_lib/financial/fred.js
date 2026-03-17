@@ -3,7 +3,7 @@
 // Rate limit: 120 req/min
 
 import { getCached, setCache, recordError } from "./cache.js";
-import { generateHeadline } from "./headlines.js";
+import { generateHeadline, generateSummary } from "./headlines.js";
 
 const API_BASE = "https://api.stlouisfed.org/fred";
 
@@ -114,11 +114,12 @@ export const fredAdapter = {
         };
 
         const title = generateHeadline(series.type, data);
+        const summary = generateSummary(series.type, data);
 
         items.push({
           id: `fred-${series.id.toLowerCase()}-${latest.date}`,
           title,
-          description: series.context,
+          description: summary || series.context,
           link: `https://fred.stlouisfed.org/series/${series.id}`,
           pubDate: new Date(latest.date).toISOString(),
           source: "FRED",

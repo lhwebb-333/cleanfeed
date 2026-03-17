@@ -177,3 +177,94 @@ export function generateHeadline(type, data) {
   const template = TEMPLATES[type] || TEMPLATES.generic;
   return template(data);
 }
+
+// Generate a 2-3 sentence narrative summary
+// Slots: actual, prior, expected (if available), market reaction (if available)
+const SUMMARY_TEMPLATES = {
+  cpi: (data) => {
+    const parts = [`CPI ${data.actual > data.prior ? "increased" : data.actual < data.prior ? "decreased" : "was unchanged at"} ${formatValue(data.actual, data.unit)} in ${data.period || "the latest month"}, compared to ${formatValue(data.prior, data.unit)} the prior month.`];
+    if (data.expected != null) {
+      const vs = data.actual > data.expected ? "above" : data.actual < data.expected ? "below" : "in line with";
+      parts.push(`Consensus forecast was ${formatValue(data.expected, data.unit)} — actual came in ${vs} expectations.`);
+    }
+    if (data.marketReaction) parts.push(data.marketReaction);
+    return parts.join(" ");
+  },
+
+  gdp: (data) => {
+    const parts = [`Real GDP grew at ${formatValue(data.actual, data.unit)} annualized in ${data.period || "the latest quarter"}, compared to ${formatValue(data.prior, data.unit)} the prior quarter.`];
+    if (data.expected != null) {
+      const vs = data.actual > data.expected ? "above" : data.actual < data.expected ? "below" : "in line with";
+      parts.push(`Forecast was ${formatValue(data.expected, data.unit)} — actual came in ${vs}.`);
+    }
+    if (data.marketReaction) parts.push(data.marketReaction);
+    return parts.join(" ");
+  },
+
+  unemployment: (data) => {
+    const dir = data.actual > data.prior ? "rose to" : data.actual < data.prior ? "fell to" : "held at";
+    const parts = [`Unemployment rate ${dir} ${formatValue(data.actual, data.unit)}, from ${formatValue(data.prior, data.unit)} the prior month.`];
+    if (data.expected != null) {
+      const vs = data.actual > data.expected ? "above" : data.actual < data.expected ? "below" : "in line with";
+      parts.push(`Economists expected ${formatValue(data.expected, data.unit)} — actual ${vs}.`);
+    }
+    if (data.marketReaction) parts.push(data.marketReaction);
+    return parts.join(" ");
+  },
+
+  fed_funds: (data) => {
+    const dir = data.actual > data.prior ? "raised to" : data.actual < data.prior ? "lowered to" : "held at";
+    const parts = [`The Federal Reserve ${dir} the federal funds rate at ${formatValue(data.actual, data.unit)}.`];
+    if (data.prior !== data.actual) parts.push(`Previous rate was ${formatValue(data.prior, data.unit)}.`);
+    if (data.marketReaction) parts.push(data.marketReaction);
+    return parts.join(" ");
+  },
+
+  yield: (data) => {
+    const label = data.label || "10-Year Treasury yield";
+    const dir = data.actual > data.prior ? "rose" : data.actual < data.prior ? "fell" : "was unchanged";
+    const delta = Math.abs(data.actual - data.prior).toFixed(2);
+    const parts = [`${label} ${dir} to ${formatValue(data.actual, data.unit)}, a move of ${delta} percentage points from the prior session's ${formatValue(data.prior, data.unit)}.`];
+    if (data.marketReaction) parts.push(data.marketReaction);
+    return parts.join(" ");
+  },
+
+  payroll: (data) => {
+    const verb = data.actual >= 0 ? "added" : "lost";
+    const parts = [`The economy ${verb} ${formatValue(Math.abs(data.actual), data.unit)} jobs in ${data.period || "the latest month"}, compared to ${formatValue(data.prior, data.unit)} the prior month.`];
+    if (data.expected != null) {
+      const vs = data.actual > data.expected ? "above" : data.actual < data.expected ? "below" : "in line with";
+      parts.push(`Forecast was ${formatValue(data.expected, data.unit)} — actual ${vs}.`);
+    }
+    if (data.marketReaction) parts.push(data.marketReaction);
+    return parts.join(" ");
+  },
+
+  ppi: (data) => {
+    const parts = [`Producer prices ${data.actual > data.prior ? "increased" : data.actual < data.prior ? "decreased" : "were unchanged at"} ${formatValue(data.actual, data.unit)} in ${data.period || "the latest month"}, compared to ${formatValue(data.prior, data.unit)} prior.`];
+    if (data.expected != null) {
+      const vs = data.actual > data.expected ? "above" : data.actual < data.expected ? "below" : "in line with";
+      parts.push(`Forecast was ${formatValue(data.expected, data.unit)} — actual ${vs}.`);
+    }
+    if (data.marketReaction) parts.push(data.marketReaction);
+    return parts.join(" ");
+  },
+
+  filing: (data) => {
+    return `${data.company} filed Form ${data.formType || "8-K"} with the SEC.${data.description ? " " + data.description + "." : ""}`;
+  },
+
+  generic: (data) => {
+    if (data.actual != null && data.prior != null) {
+      const label = data.label || data.indicator || "Indicator";
+      const dir = data.actual > data.prior ? "increased to" : data.actual < data.prior ? "decreased to" : "unchanged at";
+      return `${label} ${dir} ${formatValue(data.actual, data.unit)}, from ${formatValue(data.prior, data.unit)} previously.`;
+    }
+    return "";
+  },
+};
+
+export function generateSummary(type, data) {
+  const template = SUMMARY_TEMPLATES[type] || SUMMARY_TEMPLATES.generic;
+  return template(data);
+}

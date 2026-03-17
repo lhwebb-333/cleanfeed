@@ -3,7 +3,7 @@
 // Without key: 25 req/day. With key: 500 req/day.
 
 import { getCached, setCache, recordError } from "./cache.js";
-import { generateHeadline } from "./headlines.js";
+import { generateHeadline, generateSummary } from "./headlines.js";
 
 const API_BASE = "https://api.bls.gov/publicAPI/v2/timeseries/data/";
 
@@ -126,11 +126,12 @@ export const blsAdapter = {
         };
 
         const title = generateHeadline(seriesConfig.type, data);
+        const summary = generateSummary(seriesConfig.type, data);
 
         items.push({
           id: `bls-${seriesConfig.id.toLowerCase()}-${latest.year}-${latest.period}`,
           title,
-          description: `Bureau of Labor Statistics, ${seriesConfig.label}`,
+          description: summary || `Bureau of Labor Statistics, ${seriesConfig.label}`,
           link: `https://data.bls.gov/timeseries/${seriesConfig.id}`,
           pubDate: pubDate.toISOString(),
           source: "BLS",

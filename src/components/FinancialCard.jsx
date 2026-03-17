@@ -174,7 +174,22 @@ export function FinancialCard({ item }) {
         </div>
       )}
 
-      {/* Context line */}
+      {/* Narrative summary */}
+      {item.description && (
+        <p
+          style={{
+            fontFamily: theme.fonts.serif,
+            fontSize: 14,
+            lineHeight: 1.55,
+            color: theme.colors.textMuted,
+            marginBottom: item.context ? 6 : 0,
+          }}
+        >
+          {item.description}
+        </p>
+      )}
+
+      {/* Source context line */}
       {item.context && (
         <p
           style={{
