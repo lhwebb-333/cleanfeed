@@ -58,6 +58,9 @@ export function useFeed() {
   const [localArticles, setLocalArticles] = useState([]);
   const localFetchRef = useRef(null);
 
+  // Financial data
+  const [financialArticles, setFinancialArticles] = useState([]);
+
   const addMutedKeyword = useCallback((word) => {
     const trimmed = word.trim().toLowerCase();
     if (!trimmed) return;
@@ -169,6 +172,20 @@ export function useFeed() {
     }
   }, []);
 
+  const fetchFinancialFeed = useCallback(async () => {
+    try {
+      const url = `${API_BASE}/api/financial-feed?limit=100`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.ok) {
+        setFinancialArticles(data.items || []);
+      }
+    } catch (err) {
+      console.warn("[CleanFeed] Financial feed error:", err);
+    }
+  }, []);
+
   // Fetch local feed when state changes or on refresh
   useEffect(() => {
     if (selectedState) {
@@ -205,7 +222,9 @@ export function useFeed() {
     if (localFetchRef.current) {
       fetchLocalFeed(localFetchRef.current);
     }
-  }, [fetchLocalFeed]);
+    // Refresh financial data
+    fetchFinancialFeed();
+  }, [fetchLocalFeed, fetchFinancialFeed]);
 
   useEffect(() => {
     setLoading(true);
@@ -214,14 +233,13 @@ export function useFeed() {
     return () => clearInterval(interval);
   }, [fetchFeed]);
 
-  // Merge national + local articles
+  // Merge national + local + financial articles
   const combinedArticles = useMemo(() => {
-    if (localArticles.length === 0) return allArticles;
-    const merged = [...allArticles, ...localArticles];
+    const merged = [...allArticles, ...localArticles, ...financialArticles];
     // Sort by date, newest first
     merged.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
     return merged;
-  }, [allArticles, localArticles]);
+  }, [allArticles, localArticles, financialArticles]);
 
   // Client-side filtering: sources + categories + muted keywords + search
   const articles = useMemo(() => {

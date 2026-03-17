@@ -3,6 +3,11 @@ export const SOURCES = [
   { key: "ap", name: "AP News", color: "#4A90D9" },
   { key: "bbc", name: "BBC", color: "#C1272D" },
   { key: "npr", name: "NPR", color: "#5BBD72" },
+  { key: "fred", name: "FRED", color: "#2E86AB" },
+  { key: "sec", name: "SEC", color: "#D4A017" },
+  { key: "bls", name: "BLS", color: "#228B22" },
+  { key: "treasury", name: "Treasury", color: "#4169E1" },
+  { key: "fed", name: "Fed", color: "#8B0000" },
 ];
 
 export const LOCAL_COLOR = "#9b59b6";
@@ -18,6 +23,11 @@ export const SOURCE_COLOR_MAP = {
   "STAT News": "#00ACC1",
   "Ars Technica": "#FF7043",
   "MIT Tech Review": "#EC407A",
+  FRED: "#2E86AB",
+  SEC: "#D4A017",
+  BLS: "#228B22",
+  Treasury: "#4169E1",
+  Fed: "#8B0000",
 };
 
 // Expandable sub-sources for secondary categories
@@ -33,6 +43,13 @@ export const CATEGORY_SUBSOURCES = {
   tech: [
     { name: "Ars Technica", color: "#FF7043", short: "Ars" },
     { name: "MIT Tech Review", color: "#EC407A", short: "MIT" },
+  ],
+  financial: [
+    { name: "FRED", color: "#2E86AB" },
+    { name: "SEC", color: "#D4A017" },
+    { name: "BLS", color: "#228B22" },
+    { name: "Treasury", color: "#4169E1" },
+    { name: "Fed", color: "#8B0000" },
   ],
 };
 

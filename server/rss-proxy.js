@@ -772,9 +772,96 @@ app.get("/api/local-feed", async (req, res) => {
   }
 });
 
+// === Financial Vertical Routes ===
+// These proxy to the same adapter logic used by Vercel serverless functions
+
+let financialRegistry = null;
+async function getFinancialRegistry() {
+  if (!financialRegistry) {
+    financialRegistry = await import("../api/_lib/financial/index.js");
+  }
+  return financialRegistry;
+}
+
+app.get("/api/financial-feed", async (req, res) => {
+  try {
+    const registry = await getFinancialRegistry();
+    const { source, category } = req.query;
+    const limit = Math.min(parseInt(req.query.limit) || 100, 500);
+
+    let items;
+    if (source) {
+      items = await registry.fetchBySource(source);
+    } else {
+      items = await registry.fetchAll();
+    }
+
+    if (category) {
+      items = items.filter((item) => item.tags?.includes(category));
+    }
+
+    const total = items.length;
+    items = items.slice(0, limit);
+    res.json({ ok: true, count: items.length, total, items });
+  } catch (err) {
+    console.error("[CleanFeed] Financial feed error:", err);
+    res.status(500).json({ ok: false, error: "Failed to fetch financial data" });
+  }
+});
+
+app.get("/api/financial-indicators", async (req, res) => {
+  try {
+    const registry = await getFinancialRegistry();
+    const items = await registry.fetchAll();
+
+    const KEY_INDICATORS = [
+      { match: "Federal Funds Rate", short: "Fed Rate" },
+      { match: "10-Year Treasury Yield", short: "10Y Yield" },
+      { match: "Unemployment Rate", short: "Unemployment" },
+      { match: "CPI", short: "CPI" },
+      { match: "GDP", short: "GDP" },
+    ];
+
+    const indicators = [];
+    for (const ki of KEY_INDICATORS) {
+      const item = items.find((i) => i.indicator && i.indicator.includes(ki.match));
+      if (!item || !item.data) continue;
+      const { actual, prior, delta, unit } = item.data;
+      let direction = "flat";
+      if (actual != null && prior != null) {
+        if (actual > prior) direction = "up";
+        else if (actual < prior) direction = "down";
+      }
+      indicators.push({
+        key: ki.short.toLowerCase().replace(/\s+/g, "_"),
+        label: ki.short,
+        value: actual, unit: unit || "", delta: delta || 0, direction,
+        updatedAt: item.pubDate,
+      });
+    }
+    res.json({ ok: true, indicators });
+  } catch (err) {
+    console.error("[CleanFeed] Financial indicators error:", err);
+    res.status(500).json({ ok: false, error: "Failed to fetch indicators" });
+  }
+});
+
+app.get("/api/financial-health", async (req, res) => {
+  try {
+    const registry = await getFinancialRegistry();
+    const status = registry.getAdapterStatus();
+    const adapters = registry.getAdapterList();
+    res.json({ ok: true, adapters: status, registered: adapters.map((a) => a.key) });
+  } catch (err) {
+    console.error("[CleanFeed] Financial health error:", err);
+    res.status(500).json({ ok: false, error: "Health check failed" });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`[CleanFeed] Server running on port ${PORT}`);
   console.log(`[CleanFeed] Sources: ${Object.keys(SOURCES).join(", ")}`);
   console.log(`[CleanFeed] Cache TTL: ${CACHE_TTL / 1000}s`);
+  console.log(`[CleanFeed] Financial vertical: /api/financial-feed, /api/financial-indicators, /api/financial-health`);
 });

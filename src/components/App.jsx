@@ -7,6 +7,7 @@ import { FeedList } from "./FeedList";
 import { About } from "./About";
 import { MuteFilter } from "./MuteFilter";
 import { StateSelector } from "./StateSelector";
+import { IndicatorStrip } from "./IndicatorStrip";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
@@ -111,6 +112,8 @@ export default function App() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
+
+      <IndicatorStrip />
 
       <SourceFilter
         enabledSources={enabledSources}
@@ -257,7 +260,7 @@ export default function App() {
             marginBottom: 4,
           }}
         >
-          Sources: Reuters · AP News · BBC · NPR · Ars Technica · MIT Tech Review · Nature · Phys.org · STAT News · KFF Health{selectedState ? ` · Local ${selectedState}` : ""}
+          Sources: Reuters · AP News · BBC · NPR · Ars Technica · MIT Tech Review · Nature · Phys.org · STAT News · KFF Health · FRED · SEC · BLS · Treasury · Fed{selectedState ? ` · Local ${selectedState}` : ""}
         </p>
         <p
           style={{

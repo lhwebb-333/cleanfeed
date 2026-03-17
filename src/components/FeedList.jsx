@@ -1,5 +1,6 @@
 import { useTheme } from "../hooks/useTheme";
 import { ArticleCard } from "./ArticleCard";
+import { FinancialCard } from "./FinancialCard";
 
 export function FeedList({ articles, loading, error, onRetry }) {
   const { theme } = useTheme();
@@ -81,9 +82,13 @@ export function FeedList({ articles, loading, error, onRetry }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {articles.map((article, i) => (
-        <ArticleCard key={article.id || i} article={article} />
-      ))}
+      {articles.map((article, i) =>
+        article.type === "financial-data" ? (
+          <FinancialCard key={article.id || i} item={article} />
+        ) : (
+          <ArticleCard key={article.id || i} article={article} />
+        )
+      )}
     </div>
   );
 }
