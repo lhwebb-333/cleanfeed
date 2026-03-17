@@ -1,5 +1,6 @@
 // Sports scores — ESPN unofficial API (free, no key)
 // Fetches today's scoreboard for active major leagues
+// v2: golf leaderboard + EPL score fix
 
 const LEAGUES = [
   // US Big 4
