@@ -264,40 +264,73 @@ export function DataBars() {
           alignItems: "center",
         }}>
           {gamesByLeague[expandedLeague].map((g) => (
-            <span key={g.id} style={{
-              fontFamily: theme.fonts.mono,
-              fontSize: 9,
-              color: theme.colors.textMuted,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 3,
-              padding: "1px 6px",
-              background: g.isLive ? "#4CAF50" + "0C" : "transparent",
-              borderRadius: 2,
-            }}>
-              <span style={{
-                fontWeight: g.away.winner ? 700 : 400,
-                color: g.away.winner ? theme.colors.textStrong : undefined,
+            g.type === "golf" ? (
+              // Golf leaderboard
+              <div key={g.id} style={{
+                fontFamily: theme.fonts.mono,
+                fontSize: 9,
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 6,
+                alignItems: "center",
+                width: "100%",
               }}>
-                {g.away.abbrev}
-              </span>
-              <span style={{ color: theme.colors.textGhost }}>
-                {g.away.score != null ? g.away.score : ""}-{g.home.score != null ? g.home.score : ""}
-              </span>
-              <span style={{
-                fontWeight: g.home.winner ? 700 : 400,
-                color: g.home.winner ? theme.colors.textStrong : undefined,
+                <span style={{ color: theme.colors.textStrong, fontWeight: 700, fontSize: 10 }}>
+                  {g.eventName}
+                </span>
+                <span style={{
+                  fontSize: 7,
+                  color: g.isLive ? "#4CAF50" : theme.colors.textGhost,
+                  fontWeight: g.isLive ? 700 : 400,
+                }}>
+                  {g.isLive ? "LIVE" : g.isComplete ? "FINAL" : g.statusDetail}
+                </span>
+                {(g.leaderboard || []).map((p, i) => (
+                  <span key={i} style={{
+                    color: i < 3 ? theme.colors.textStrong : theme.colors.textMuted,
+                    fontWeight: i < 3 ? 700 : 400,
+                  }}>
+                    {i + 1}. {p.name} ({p.score})
+                  </span>
+                ))}
+              </div>
+            ) : (
+              // Regular game score
+              <span key={g.id} style={{
+                fontFamily: theme.fonts.mono,
+                fontSize: 9,
+                color: theme.colors.textMuted,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 3,
+                padding: "1px 6px",
+                background: g.isLive ? "#4CAF50" + "0C" : "transparent",
+                borderRadius: 2,
               }}>
-                {g.home.abbrev}
+                <span style={{
+                  fontWeight: g.away.winner ? 700 : 400,
+                  color: g.away.winner ? theme.colors.textStrong : undefined,
+                }}>
+                  {g.away.abbrev}
+                </span>
+                <span style={{ color: theme.colors.textGhost }}>
+                  {g.away.score != null ? g.away.score : ""}-{g.home.score != null ? g.home.score : ""}
+                </span>
+                <span style={{
+                  fontWeight: g.home.winner ? 700 : 400,
+                  color: g.home.winner ? theme.colors.textStrong : undefined,
+                }}>
+                  {g.home.abbrev}
+                </span>
+                <span style={{
+                  fontSize: 7,
+                  color: g.isLive ? "#4CAF50" : theme.colors.textGhost,
+                  fontWeight: g.isLive ? 700 : 400,
+                }}>
+                  {g.isLive ? "LIVE" : g.isComplete ? "F" : g.statusDetail}
+                </span>
               </span>
-              <span style={{
-                fontSize: 7,
-                color: g.isLive ? "#4CAF50" : theme.colors.textGhost,
-                fontWeight: g.isLive ? 700 : 400,
-              }}>
-                {g.isLive ? "LIVE" : g.isComplete ? "F" : g.statusDetail}
-              </span>
-            </span>
+            )
           ))}
         </div>
       )}

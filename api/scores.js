@@ -45,7 +45,55 @@ async function fetchScoreboard(sport, league) {
   return res.json();
 }
 
+// Parse golf tournaments — leaderboard top 10 instead of home/away
+function parseGolfEvent(event, leagueLabel) {
+  const comp = event.competitions?.[0];
+  if (!comp) return null;
+
+  const status = event.status?.type?.name || "STATUS_SCHEDULED";
+  const statusDetail = event.status?.type?.shortDetail || event.status?.type?.detail || "";
+  const isComplete = status === "STATUS_FINAL";
+  const isLive = status === "STATUS_IN_PROGRESS";
+
+  const competitors = comp.competitors || [];
+  // Sort by position, take top 10
+  const sorted = competitors
+    .filter((c) => c.athlete || c.team)
+    .sort((a, b) => {
+      const posA = parseInt(a.order || a.sortOrder || 999);
+      const posB = parseInt(b.order || b.sortOrder || 999);
+      return posA - posB;
+    })
+    .slice(0, 10);
+
+  const leaderboard = sorted.map((c) => {
+    const name = c.athlete?.shortName || c.athlete?.displayName || c.team?.displayName || "?";
+    const score = c.score || c.linescores?.map((l) => l.value).join("/") || "E";
+    return { name, score, pos: c.order || c.sortOrder || "" };
+  });
+
+  return {
+    id: event.id,
+    league: leagueLabel,
+    type: "golf",
+    eventName: event.name || event.shortName || "Tournament",
+    leaderboard,
+    status,
+    statusDetail,
+    isComplete,
+    isLive,
+    startTime: event.date,
+    headline: event.name || "PGA Tournament",
+    // Dummy home/away so the UI doesn't break
+    home: { name: "", abbrev: "", score: null, winner: false },
+    away: { name: "", abbrev: "", score: null, winner: false },
+  };
+}
+
 function parseGame(event, leagueLabel) {
+  // Golf gets special handling
+  if (leagueLabel === "PGA") return parseGolfEvent(event, leagueLabel);
+
   const comp = event.competitions?.[0];
   if (!comp) return null;
 
@@ -60,19 +108,27 @@ function parseGame(event, leagueLabel) {
   const isComplete = status === "STATUS_FINAL";
   const isLive = status === "STATUS_IN_PROGRESS" || status === "STATUS_HALFTIME" || status === "STATUS_END_PERIOD";
 
+  // Parse score — handle "0" as valid (not null)
+  function parseScore(s) {
+    if (s == null || s === "") return null;
+    const n = parseInt(s);
+    return isNaN(n) ? null : n;
+  }
+
   return {
     id: event.id,
     league: leagueLabel,
+    type: "game",
     home: {
       name: home.team?.shortDisplayName || home.team?.displayName || "Home",
       abbrev: home.team?.abbreviation || "",
-      score: home.score ? parseInt(home.score) : null,
+      score: parseScore(home.score),
       winner: home.winner || false,
     },
     away: {
       name: away.team?.shortDisplayName || away.team?.displayName || "Away",
       abbrev: away.team?.abbreviation || "",
-      score: away.score ? parseInt(away.score) : null,
+      score: parseScore(away.score),
       winner: away.winner || false,
     },
     status,
