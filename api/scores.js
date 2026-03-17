@@ -154,15 +154,27 @@ export default async function handler(req, res) {
 
     const results = await Promise.allSettled(
       activeLeagues.map(async (lg) => {
-        const data = await fetchScoreboard(lg.sport, lg.league);
-        const events = data.events || [];
-        return events.map((e) => parseGame(e, lg.label)).filter(Boolean);
+        try {
+          const data = await fetchScoreboard(lg.sport, lg.league);
+          const events = data.events || [];
+          const parsed = events.map((e) => parseGame(e, lg.label)).filter(Boolean);
+          console.log(`[Scores] ${lg.label}: ${events.length} events → ${parsed.length} parsed`);
+          return parsed;
+        } catch (err) {
+          console.error(`[Scores] ${lg.label} FAILED:`, err.message);
+          throw err;
+        }
       })
     );
 
     const games = [];
-    for (const r of results) {
-      if (r.status === "fulfilled") games.push(...r.value);
+    for (let i = 0; i < results.length; i++) {
+      const r = results[i];
+      if (r.status === "fulfilled") {
+        games.push(...r.value);
+      } else {
+        console.error(`[Scores] ${activeLeagues[i].label} rejected:`, r.reason?.message);
+      }
     }
 
     // Sort: live first, then complete (most recent), then scheduled
