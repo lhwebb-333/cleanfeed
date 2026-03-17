@@ -189,7 +189,7 @@ export function About({ open, onClose }) {
               marginBottom: 12,
             }}
           >
-            Topic-specific outlets selected for factual, research-driven reporting.
+            Topic-specific outlets and government data sources selected for factual, primary-source reporting.
           </p>
           {[
             { name: "Ars Technica", color: "#FF7043", desc: "In-depth technology reporting", cat: "Tech" },
@@ -198,6 +198,11 @@ export function About({ open, onClose }) {
             { name: "Phys.org", color: "#4FC3F7", desc: "University & lab press releases", cat: "Science" },
             { name: "KFF Health News", color: "#AB47BC", desc: "Nonpartisan health policy", cat: "Health" },
             { name: "STAT News", color: "#00ACC1", desc: "Pharma & biotech reporting", cat: "Health" },
+            { name: "FRED", color: "#607D8B", desc: "Federal Reserve Economic Data", cat: "Financial" },
+            { name: "BLS", color: "#607D8B", desc: "Bureau of Labor Statistics", cat: "Financial" },
+            { name: "Treasury", color: "#607D8B", desc: "U.S. Treasury rates & fiscal data", cat: "Financial" },
+            { name: "SEC", color: "#607D8B", desc: "Securities & Exchange Commission filings", cat: "Financial" },
+            { name: "Federal Reserve", color: "#607D8B", desc: "FOMC statements & policy releases", cat: "Financial" },
           ].map((s) => (
             <div
               key={s.name}
@@ -280,8 +285,61 @@ export function About({ open, onClose }) {
             Powered by RSS — an open standard that news organizations use to
             distribute their headlines. We fetch public feeds, filter out
             opinion and editorial content, and display what's left in
-            chronological order. No tracking, no cookies, no accounts required.
+            chronological order. No accounts required.
           </p>
+        </div>
+
+        <div style={{
+          marginBottom: 20,
+          padding: 16,
+          background: theme.colors.bg,
+          border: `1px solid ${theme.colors.border}`,
+          borderRadius: theme.radii.md,
+        }}>
+          <p
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: theme.colors.textFaint,
+              textTransform: "uppercase",
+              marginBottom: 10,
+            }}
+          >
+            Your Privacy
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {[
+              { label: "No accounts", detail: "No sign-up, no login, no profile. You are anonymous." },
+              { label: "No tracking", detail: "We do not track you across the web. No advertising pixels, no fingerprinting, no analytics cookies." },
+              { label: "No data sold", detail: "We have no data to sell. We don't collect personal information." },
+              { label: "Location (weather)", detail: "If you allow location access, your coordinates are sent to the National Weather Service API to fetch your local forecast. Your location is stored only in your browser's local storage — never on our servers, never shared with third parties. You can deny the prompt and weather simply won't appear." },
+              { label: "Local storage only", detail: "Your preferences (theme, filters, muted keywords, selected state, weather location, F/C preference) are saved in your browser's local storage. This data never leaves your device." },
+              { label: "Vercel Analytics", detail: "We use Vercel's privacy-focused analytics to count page views. This collects no personal data, uses no cookies, and cannot identify individual visitors." },
+            ].map((item) => (
+              <div key={item.label}>
+                <span style={{
+                  fontFamily: theme.fonts.mono,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: theme.colors.textMuted,
+                  letterSpacing: "0.03em",
+                }}>
+                  {item.label}
+                </span>
+                <p style={{
+                  fontFamily: theme.fonts.serif,
+                  fontSize: 12,
+                  lineHeight: 1.5,
+                  color: theme.colors.textFaint,
+                  margin: "2px 0 0",
+                }}>
+                  {item.detail}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div style={{ marginBottom: 20 }}>
