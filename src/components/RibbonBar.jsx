@@ -9,15 +9,11 @@ export function SourceRibbon({
   enabledSources, toggleSource, enableAllSources, disableAllSources, sourceCounts, selectedState,
 }) {
   const { theme } = useTheme();
-  const [open, setOpen] = useState(false);
   const localName = selectedState ? `Local ${selectedState}` : null;
   const primarySources = SOURCES.filter((s) => !SUB_SET.has(s.name));
   const allSources = localName
     ? [...primarySources, { key: "local", name: localName, color: getSourceColor(localName) }]
     : primarySources;
-
-  const activeCount = allSources.filter((s) => enabledSources.has(s.name)).length;
-  const allOn = activeCount >= allSources.length;
 
   return (
     <div style={{
@@ -25,49 +21,26 @@ export function SourceRibbon({
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
       <div style={{
-        display: "flex", alignItems: "center", gap: 6,
+        display: "flex", alignItems: "center", gap: 5,
         padding: `3px ${theme.spacing.lg}px`,
         overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
         minHeight: 26,
       }}>
-        <button onClick={() => setOpen(!open)} style={{
-          ...lblStyle(theme), fontSize: 7,
-          transform: open ? "rotate(90deg)" : "rotate(0deg)",
-          transition: theme.transitions.fast,
-          background: "none", border: "none", cursor: "pointer", padding: 0,
-        }}>▸</button>
         <span style={lblStyle(theme)}>SOURCES</span>
-
-        {!open ? (
-          <span style={{
-            fontFamily: theme.fonts.mono, fontSize: 9, color: theme.colors.textMuted,
-          }}>
-            {activeCount}/{allSources.length} active
-          </span>
-        ) : (
-          <>
-            <button onClick={allOn ? disableAllSources : enableAllSources} style={{
-              ...pillBase(theme), color: theme.colors.textFaint,
-              border: `1px solid ${theme.colors.border}`, background: "transparent",
+        {allSources.map((s) => {
+          const on = enabledSources.has(s.name);
+          return (
+            <button key={s.key} onClick={() => toggleSource(s.name)} style={{
+              ...pillBase(theme),
+              border: on ? `1px solid ${s.color}50` : `1px solid ${theme.colors.border}`,
+              background: on ? s.color + "15" : "transparent",
+              color: on ? s.color : theme.colors.textFaint,
+              opacity: on ? 1 : 0.5,
             }}>
-              {allOn ? "NONE" : "ALL"}
+              {s.name}
             </button>
-            {allSources.map((s) => {
-              const on = enabledSources.has(s.name);
-              return (
-                <button key={s.key} onClick={() => toggleSource(s.name)} style={{
-                  ...pillBase(theme),
-                  border: on ? `1px solid ${s.color}50` : `1px solid ${theme.colors.border}`,
-                  background: on ? s.color + "15" : "transparent",
-                  color: on ? s.color : theme.colors.textFaint,
-                  opacity: on ? 1 : 0.5,
-                }}>
-                  {s.name}
-                </button>
-              );
-            })}
-          </>
-        )}
+          );
+        })}
       </div>
     </div>
   );
