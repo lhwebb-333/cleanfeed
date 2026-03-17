@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     if (!categoryFilter || categoryFilter === "all") {
       const secondaryCap = 100;
       const caps = {
-        world: 200, sports: 200, financial: 150,
+        world: 200, sports: 200, financial: 150, entertainment: 150,
         tech: secondaryCap, science: secondaryCap, health: secondaryCap,
       };
       // Build per-category buckets (already sorted by date)
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
         }
       }
       // Round-robin interleave: 1 from each category per round
-      const catOrder = ["world", "sports", "financial", "tech", "science", "health"];
+      const catOrder = ["world", "sports", "entertainment", "financial", "tech", "science", "health"];
       const indices = {};
       catOrder.forEach((c) => { indices[c] = 0; });
       const interleaved = [];

@@ -72,6 +72,7 @@ export const CATEGORIES = [
   { key: "financial", label: "Financial" },
   { key: "tech", label: "Tech" },
   { key: "sports", label: "Sports" },
+  { key: "entertainment", label: "Entertainment" },
   { key: "science", label: "Science" },
   { key: "health", label: "Health" },
 ];

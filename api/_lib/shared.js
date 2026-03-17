@@ -26,6 +26,7 @@ export const SOURCES = {
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+science+OR+climate+OR+space&ceid=US:en&hl=en-US&gl=US", category: "science" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+health+OR+vaccine+OR+disease+OR+FDA&ceid=US:en&hl=en-US&gl=US", category: "health" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/lifestyle&ceid=US:en&hl=en-US&gl=US", category: "entertainment" },
     ],
     color: "#FF8C00",
   },
@@ -39,6 +40,7 @@ export const SOURCES = {
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/science&ceid=US:en&hl=en-US&gl=US", category: "science" },
       { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+health+OR+medical+OR+CDC+OR+FDA&ceid=US:en&hl=en-US&gl=US", category: "health" },
+      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/entertainment&ceid=US:en&hl=en-US&gl=US", category: "entertainment" },
     ],
     color: "#4A90D9",
   },
@@ -52,6 +54,7 @@ export const SOURCES = {
       { url: "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml", category: "science" },
       { url: "https://feeds.bbci.co.uk/sport/rss.xml", category: "sports" },
       { url: "https://feeds.bbci.co.uk/news/health/rss.xml", category: "health" },
+      { url: "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml", category: "entertainment" },
     ],
     color: "#C1272D",
   },
@@ -64,6 +67,8 @@ export const SOURCES = {
       { url: "https://feeds.npr.org/1019/rss.xml", category: "tech" },
       { url: "https://feeds.npr.org/1007/rss.xml", category: "science" },
       { url: "https://feeds.npr.org/1128/rss.xml", category: "health" },
+      { url: "https://feeds.npr.org/1048/rss.xml", category: "entertainment" },
+      { url: "https://feeds.npr.org/1032/rss.xml", category: "entertainment" },
     ],
     color: "#5BBD72",
   },
@@ -74,6 +79,7 @@ export const CATEGORIES = [
   { key: "financial", label: "Financial" },
   { key: "tech", label: "Tech" },
   { key: "sports", label: "Sports" },
+  { key: "entertainment", label: "Entertainment" },
   { key: "science", label: "Science" },
   { key: "health", label: "Health" },
 ];
@@ -200,6 +206,37 @@ const CATEGORY_KEYWORDS = {
     "world health organization",
     // REMOVED: "who " (the pronoun "who" matches in virtually every article,
     // inflating health score across all categories)
+  ],
+  entertainment: [
+    // Movies & TV
+    "movie", "movies", "film ", "films ", "box office", "blockbuster",
+    "sequel", "prequel", "remake", "reboot", "franchise",
+    "oscar", "oscars", "academy award", "golden globe", "emmy", "emmys",
+    "grammy", "grammys", "bafta", "cannes", "sundance", "venice film",
+    "netflix", "disney+", "hbo", "hulu", "amazon prime video",
+    "streaming", "premiere", "trailer", "season finale", "series finale",
+    "showrunner", "screenwriter", "director", "actress", "actor",
+    "box office", "opening weekend", "studio", "warner bros", "universal",
+    "paramount", "sony pictures", "lionsgate", "a24",
+    "tv show", "tv series", "television",
+    // Music
+    "album", "single", "concert", "tour ", "festival",
+    "billboard", "charts", "platinum", "grammy",
+    "songwriter", "rapper", "singer", "band ",
+    "coachella", "glastonbury", "lollapalooza",
+    "record label", "music video", "ep ",
+    // Culture & Arts
+    "broadway", "theater", "theatre", "musical",
+    "exhibition", "museum", "gallery", "art exhibit",
+    "best-seller", "bestseller", "book review", "author",
+    "novel", "memoir", "pulitzer",
+    "fashion week", "met gala", "red carpet",
+    "comedian", "stand-up", "comedy special",
+    // Celebrity news (factual only — the classifier + opinion filter handle gossip)
+    "celebrity", "star ", "stars ",
+    // Gaming (news, not reviews)
+    "video game", "playstation", "xbox", "nintendo",
+    "esports", "e-sports",
   ],
   science: [
     "nasa", "space", "planet", "asteroid", "climate", "fossil",
@@ -485,6 +522,7 @@ const TOPIC_FEEDS = [
   { url: "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp0Y1RjU0FtVnVHZ0pWVXlnQVAB?ceid=US:en&hl=en-US&gl=US", category: "science" },
   { url: "https://news.google.com/rss/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNR3QwTlRFU0FtVnVLQUFQAQ?ceid=US:en&hl=en-US&gl=US", category: "health" },
   { url: "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtVnVHZ0pWVXlnQVAB?ceid=US:en&hl=en-US&gl=US", category: "financial" },
+  { url: "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx1ZEdvU0FtVnVHZ0pWVXlnQVAB?ceid=US:en&hl=en-US&gl=US", category: "entertainment" },
 ];
 
 const APPROVED_SOURCES = {
