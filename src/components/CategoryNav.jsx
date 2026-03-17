@@ -56,7 +56,7 @@ export function CategoryNav({
       <div
         style={{
           display: "flex",
-          gap: 6,
+          gap: 5,
           padding: `0 ${theme.spacing.lg}px ${theme.spacing.md}px`,
           overflowX: "auto",
           maxWidth: 960,
@@ -70,13 +70,14 @@ export function CategoryNav({
           const on = enabledCategories.has(cat.key);
           const count = categoryCounts[cat.key] || 0;
           const hasSubs = !!CATEGORY_SUBSOURCES[cat.key];
+          const isExpanded = expandedCat === cat.key;
 
           return (
             <div
               key={cat.key}
               style={{
                 display: "flex",
-                gap: 4,
+                gap: 3,
                 alignItems: "center",
                 flexShrink: 0,
               }}
@@ -85,8 +86,8 @@ export function CategoryNav({
                 onClick={() => toggleCategory(cat.key)}
                 style={{
                   fontFamily: theme.fonts.mono,
-                  fontSize: 11,
-                  padding: "5px 12px",
+                  fontSize: 10,
+                  padding: "4px 10px",
                   border: on
                     ? "1px solid rgba(255,140,0,0.3)"
                     : `1px solid ${theme.colors.border}`,
@@ -101,10 +102,34 @@ export function CategoryNav({
               >
                 {cat.label}
                 {count > 0 && (
-                  <span style={{ marginLeft: 4, opacity: 0.5 }}>{count}</span>
+                  <span style={{ marginLeft: 4, opacity: 0.5, fontSize: 9 }}>{count}</span>
                 )}
               </button>
-              {hasSubs && on && renderSubPills(cat.key)}
+              {/* Small expand arrow — only if category is on and has subs */}
+              {hasSubs && on && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setExpandedCat(isExpanded ? null : cat.key);
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: "2px 3px",
+                    fontSize: 8,
+                    color: theme.colors.textFaint,
+                    opacity: isExpanded ? 0.9 : 0.4,
+                    transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
+                    transition: theme.transitions.fast,
+                    flexShrink: 0,
+                  }}
+                >
+                  ▸
+                </button>
+              )}
+              {/* Sub-source pills — only when explicitly expanded */}
+              {hasSubs && on && isExpanded && renderSubPills(cat.key)}
             </div>
           );
         })}
