@@ -143,7 +143,7 @@ function parseGame(event, leagueLabel) {
 
 export default async function handler(req, res) {
   try {
-    const cached = getCached("scores");
+    const cached = getCached("scores-v2");
     if (cached) {
       res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=120");
       return res.json(cached);
@@ -181,7 +181,7 @@ export default async function handler(req, res) {
       leagues: activeLeagues.map((l) => l.label),
     };
 
-    setCache("scores", result);
+    setCache("scores-v2", result);
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=120");
     res.json(result);
   } catch (err) {
