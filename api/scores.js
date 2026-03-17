@@ -154,16 +154,21 @@ export default async function handler(req, res) {
 
     const results = await Promise.allSettled(
       activeLeagues.map(async (lg) => {
-        try {
-          const data = await fetchScoreboard(lg.sport, lg.league);
-          const events = data.events || [];
-          const parsed = events.map((e) => parseGame(e, lg.label)).filter(Boolean);
-          console.log(`[Scores] ${lg.label}: ${events.length} events → ${parsed.length} parsed`);
-          return parsed;
-        } catch (err) {
-          console.error(`[Scores] ${lg.label} FAILED:`, err.message);
-          throw err;
+        const data = await fetchScoreboard(lg.sport, lg.league);
+        const events = data.events || [];
+        const parsed = [];
+        for (const e of events) {
+          const result = parseGame(e, lg.label);
+          if (result) {
+            parsed.push(result);
+          } else {
+            // Debug: log why it failed
+            const comp = e.competitions?.[0];
+            const teams = comp?.competitors || [];
+            console.error(`[Scores] ${lg.label} parseGame returned null for event ${e.id}: teams=${teams.length}, homeAway=${teams.map(t=>t.homeAway).join(',')}`);
+          }
         }
+        return parsed;
       })
     );
 
@@ -186,11 +191,20 @@ export default async function handler(req, res) {
       return new Date(a.startTime) - new Date(b.startTime);
     });
 
+    // Debug: include raw event counts per league
+    const debugCounts = {};
+    for (let i = 0; i < results.length; i++) {
+      const lg = activeLeagues[i];
+      const r = results[i];
+      debugCounts[lg.label] = r.status === "fulfilled" ? r.value.length : `error: ${r.reason?.message}`;
+    }
+
     const result = {
       ok: true,
       count: games.length,
       games: games.slice(0, 30),
       leagues: activeLeagues.map((l) => l.label),
+      debug: debugCounts,
     };
 
     setCache("scores-v2", result);
