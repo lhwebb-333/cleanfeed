@@ -120,20 +120,20 @@ export function DataBars() {
     flexShrink: 0,
   };
 
-  // Preview: show league names with game counts instead of scores
+  // Group games by league
+  const gamesByLeague = {};
+  for (const g of (scores?.games || [])) {
+    if (!gamesByLeague[g.league]) gamesByLeague[g.league] = [];
+    gamesByLeague[g.league].push(g);
+  }
+
+  // Preview: show league names with game counts
   const leaguePreview = Object.entries(gamesByLeague)
     .map(([league, games]) => {
       const live = games.filter((g) => g.isLive).length;
       return live > 0 ? `${league} (${live} live)` : league;
     })
     .join(" \u00B7 ");
-
-  // Group games by league for expanded view
-  const gamesByLeague = {};
-  for (const g of (scores?.games || [])) {
-    if (!gamesByLeague[g.league]) gamesByLeague[g.league] = [];
-    gamesByLeague[g.league].push(g);
-  }
 
   return (
     <div style={{
