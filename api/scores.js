@@ -2,19 +2,20 @@
 // Fetches today's scoreboard for active major leagues
 
 const LEAGUES = [
-  // US major
+  // US Big 4
   { key: "nfl", sport: "football", league: "nfl", label: "NFL", season: [9, 10, 11, 12, 1, 2] },
   { key: "nba", sport: "basketball", league: "nba", label: "NBA", season: [10, 11, 12, 1, 2, 3, 4, 5, 6] },
   { key: "mlb", sport: "baseball", league: "mlb", label: "MLB", season: [3, 4, 5, 6, 7, 8, 9, 10] },
   { key: "nhl", sport: "hockey", league: "nhl", label: "NHL", season: [10, 11, 12, 1, 2, 3, 4, 5, 6] },
-  { key: "mls", sport: "soccer", league: "usa.1", label: "MLS", season: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
-  // International football
+  // College
+  { key: "ncaam", sport: "basketball", league: "mens-college-basketball", label: "NCAAM", season: [11, 12, 1, 2, 3, 4] },
+  { key: "ncaaf", sport: "football", league: "college-football", label: "NCAAF", season: [8, 9, 10, 11, 12, 1] },
+  // International
   { key: "epl", sport: "soccer", league: "eng.1", label: "EPL", season: [8, 9, 10, 11, 12, 1, 2, 3, 4, 5] },
-  { key: "laliga", sport: "soccer", league: "esp.1", label: "La Liga", season: [8, 9, 10, 11, 12, 1, 2, 3, 4, 5] },
-  { key: "seriea", sport: "soccer", league: "ita.1", label: "Serie A", season: [8, 9, 10, 11, 12, 1, 2, 3, 4, 5] },
-  { key: "ucl", sport: "soccer", league: "uefa.champions", label: "UCL", season: [9, 10, 11, 12, 2, 3, 4, 5] },
   // Motorsport
   { key: "f1", sport: "racing", league: "f1", label: "F1", season: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
+  // Golf
+  { key: "golf", sport: "golf", league: "pga", label: "PGA", season: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
 ];
 
 const cache = new Map();

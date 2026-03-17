@@ -37,13 +37,12 @@ const LEAGUE_COLORS = {
   NFL: "#013369",
   NBA: "#C9082A",
   MLB: "#002D72",
-  NHL: "#000000",
-  MLS: "#5F259F",
+  NHL: "#A2AAAD",
+  NCAAM: "#FF6B00",
+  NCAAF: "#FF6B00",
   EPL: "#3D195B",
-  "La Liga": "#EE8707",
-  "Serie A": "#024494",
-  UCL: "#00194B",
   F1: "#E10600",
+  PGA: "#00543E",
 };
 
 function leagueColor(league, fallback) {
