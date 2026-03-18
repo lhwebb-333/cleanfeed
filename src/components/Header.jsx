@@ -155,17 +155,17 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
           marginTop: 12,
         }}
       >
-        <div style={{ position: "relative", flex: 1, maxWidth: 240 }}>
+        <div style={{ position: "relative", flex: 1, maxWidth: 180 }}>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search headlines..."
+            placeholder="Search..."
             style={{
               width: "100%",
               fontFamily: theme.fonts.mono,
-              fontSize: 10,
-              padding: searchQuery ? "3px 22px 3px 8px" : "3px 8px",
+              fontSize: 9,
+              padding: searchQuery ? "2px 20px 2px 6px" : "2px 6px",
               background: theme.colors.surface,
               border: `1px solid ${searchQuery ? theme.colors.textMuted : theme.colors.border}`,
               borderRadius: theme.radii.sm,
