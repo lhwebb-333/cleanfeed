@@ -119,26 +119,26 @@ export function TopicRibbon({
         padding: `3px ${theme.spacing.lg}px`,
         minHeight: 26,
       }}>
-        <button onClick={() => toggle("sources")} style={{
+        <button className="ribbon-label" onClick={() => toggle("sources")} style={{
           ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
-          padding: 0, display: "inline-flex", alignItems: "center", gap: 4,
+          padding: "4px 0", display: "inline-flex", alignItems: "center", gap: 4,
         }}>
           <span style={arrowStyle(openSection === "sources")}>▸</span>
           SOURCES
-          <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
+          <span className="ribbon-count" style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
             {activeSourceCount}/{allSources.length}
           </span>
         </button>
 
         <span style={{ width: 1, height: 12, background: theme.colors.border, flexShrink: 0 }} />
 
-        <button onClick={() => toggle("topics")} style={{
+        <button className="ribbon-label" onClick={() => toggle("topics")} style={{
           ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
-          padding: 0, display: "inline-flex", alignItems: "center", gap: 4,
+          padding: "4px 0", display: "inline-flex", alignItems: "center", gap: 4,
         }}>
           <span style={arrowStyle(openSection === "topics")}>▸</span>
           TOPICS
-          <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
+          <span className="ribbon-count" style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
             {activeTopicCount}/{CATEGORIES.length}
           </span>
         </button>
@@ -146,13 +146,13 @@ export function TopicRibbon({
         {hasScores && (
           <>
             <span style={{ width: 1, height: 12, background: theme.colors.border, flexShrink: 0 }} />
-            <button onClick={() => toggle("scores")} style={{
+            <button className="ribbon-label" onClick={() => toggle("scores")} style={{
               ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
-              padding: 0, display: "inline-flex", alignItems: "center", gap: 4,
+              padding: "4px 0", display: "inline-flex", alignItems: "center", gap: 4,
             }}>
               <span style={arrowStyle(openSection === "scores")}>▸</span>
               SCORES
-              <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
+              <span className="ribbon-count" style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
                 {Object.keys(gamesByLeague).length}
               </span>
             </button>
@@ -162,7 +162,7 @@ export function TopicRibbon({
 
       {/* SOURCES dropdown */}
       {openSection === "sources" && (
-        <div style={{
+        <div className="ribbon-dropdown" style={{
           display: "flex", alignItems: "center", gap: 5,
           padding: `3px ${theme.spacing.lg}px 5px`,
           borderTop: `1px solid ${theme.colors.border}`,
@@ -187,7 +187,7 @@ export function TopicRibbon({
 
       {/* TOPICS dropdown */}
       {openSection === "topics" && (
-        <div style={{
+        <div className="ribbon-dropdown" style={{
           display: "flex", alignItems: "center", gap: 5,
           padding: `3px ${theme.spacing.lg}px 5px`,
           borderTop: `1px solid ${theme.colors.border}`,
@@ -242,7 +242,7 @@ export function TopicRibbon({
 
       {/* SCORES dropdown — league pills, click one to expand games */}
       {openSection === "scores" && hasScores && (
-        <div style={{
+        <div className="ribbon-dropdown" style={{
           padding: `3px ${theme.spacing.lg}px 5px`,
           borderTop: `1px solid ${theme.colors.border}`,
         }}>

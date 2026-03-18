@@ -192,6 +192,13 @@ export default function App() {
         ::-webkit-scrollbar-thumb { background: ${theme.colors.textGhost}; border-radius: 2px; }
         a { text-decoration: none; color: inherit; }
         .source-filter-row::-webkit-scrollbar { display: none; }
+        @media (max-width: 700px) {
+          .ribbon-label { font-size: 10px !important; padding: 6px 0 !important; }
+          .ribbon-label span { font-size: 9px !important; }
+          .ribbon-count { font-size: 10px !important; }
+          .ribbon-dropdown button { font-size: 11px !important; padding: 4px 10px !important; }
+          .ribbon-dropdown span { font-size: 10px !important; }
+        }
       `}</style>
       <Analytics />
     </div>
