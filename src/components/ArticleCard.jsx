@@ -199,9 +199,9 @@ export function ArticleCard({ article }) {
       )}
       {/* Running story arc */}
       {article.storyArc && (
-        <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 6 }}>
+        <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} style={{ marginTop: 6 }}>
           <button
-            onClick={() => setArcOpen(!arcOpen)}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setArcOpen(!arcOpen); }}
             style={{
               fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
               color: "#9C27B0", background: "rgba(156,39,176,0.06)",

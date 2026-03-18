@@ -380,29 +380,39 @@ export function FilterRibbon({
               placeholder="+ keyword" style={inputStyle(theme)} />
           </form>
           {/* Quick presets */}
-          {/* Quick presets */}
-          {!mutedKeywords.some((kw) => ["trump", "biden", "election"].includes(kw)) && (
-            <button onClick={() => {
-              ["trump", "biden", "election", "democrat", "republican", "congress", "senate", "partisan", "gop", "liberal", "conservative"].forEach((kw) => onAddMuted(kw));
-            }} style={{
-              ...pillBase(theme), fontSize: 7, padding: "2px 6px",
-              background: "transparent", border: `1px solid ${theme.colors.border}`,
-              color: theme.colors.textFaint, letterSpacing: "0.04em",
-            }}>
-              MUTE POLITICS
-            </button>
-          )}
-          {!mutedKeywords.some((kw) => ["killed", "murder", "shooting"].includes(kw)) && (
-            <button onClick={() => {
-              ["killed", "murder", "shooting", "stabbing", "assault", "rape", "abuse", "gunman", "massacre", "execution", "torture", "fentanyl", "overdose", "suicide", "bomb", "bombing", "terrorist", "hostage", "graphic", "explicit", "violence"].forEach((kw) => onAddMuted(kw));
-            }} style={{
-              ...pillBase(theme), fontSize: 7, padding: "2px 6px",
-              background: "transparent", border: `1px solid ${theme.colors.border}`,
-              color: theme.colors.textFaint, letterSpacing: "0.04em",
-            }}>
-              FAMILY MODE
-            </button>
-          )}
+          {/* Quick presets — toggle on/off */}
+          {(() => {
+            const politicsWords = ["trump", "biden", "election", "democrat", "republican", "congress", "senate", "partisan", "gop", "liberal", "conservative"];
+            const familyWords = ["killed", "murder", "shooting", "stabbing", "assault", "rape", "abuse", "gunman", "massacre", "execution", "torture", "fentanyl", "overdose", "suicide", "bomb", "bombing", "terrorist", "hostage", "graphic", "explicit", "violence"];
+            const politicsOn = mutedKeywords.some((kw) => politicsWords.includes(kw));
+            const familyOn = mutedKeywords.some((kw) => familyWords.includes(kw));
+            return (
+              <>
+                <button onClick={() => {
+                  if (politicsOn) { politicsWords.forEach((kw) => onRemoveMuted(kw)); }
+                  else { politicsWords.forEach((kw) => onAddMuted(kw)); }
+                }} style={{
+                  ...pillBase(theme), fontSize: 7, padding: "2px 6px",
+                  background: politicsOn ? "rgba(239,83,80,0.08)" : "transparent",
+                  border: `1px solid ${politicsOn ? "rgba(239,83,80,0.3)" : theme.colors.border}`,
+                  color: politicsOn ? "#EF5350" : theme.colors.textFaint, letterSpacing: "0.04em",
+                }}>
+                  {politicsOn ? "POLITICS MUTED ×" : "MUTE POLITICS"}
+                </button>
+                <button onClick={() => {
+                  if (familyOn) { familyWords.forEach((kw) => onRemoveMuted(kw)); }
+                  else { familyWords.forEach((kw) => onAddMuted(kw)); }
+                }} style={{
+                  ...pillBase(theme), fontSize: 7, padding: "2px 6px",
+                  background: familyOn ? "rgba(76,175,80,0.08)" : "transparent",
+                  border: `1px solid ${familyOn ? "rgba(76,175,80,0.3)" : theme.colors.border}`,
+                  color: familyOn ? "#4CAF50" : theme.colors.textFaint, letterSpacing: "0.04em",
+                }}>
+                  {familyOn ? "FAMILY MODE ON ×" : "FAMILY MODE"}
+                </button>
+              </>
+            );
+          })()}
           {mutedKeywords.map((kw) => (
             <button key={kw} onClick={() => onRemoveMuted(kw)} title="Unmute" style={{
               ...pillBase(theme), fontSize: 8, padding: "2px 6px",
