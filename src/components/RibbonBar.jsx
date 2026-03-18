@@ -400,7 +400,8 @@ export function FilterRibbon({
               background: "transparent", border: `1px solid ${theme.colors.border}`, color: theme.colors.textGhost,
             }}>CLEAR</button>
           )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
