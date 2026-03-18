@@ -200,8 +200,8 @@ export default function App() {
           .ribbon-label { font-size: 9px !important; padding: 5px 0 !important; }
           .ribbon-label span { font-size: 8px !important; }
           .ribbon-count { font-size: 9px !important; }
-          .ribbon-dropdown button { font-size: 10px !important; padding: 3px 9px !important; }
-          .ribbon-dropdown span { font-size: 9px !important; }
+          .ribbon-dropdown button { font-size: 9px !important; padding: 3px 8px !important; }
+          .ribbon-dropdown span { font-size: 8px !important; }
         }
       `}</style>
       <Analytics />
