@@ -160,6 +160,62 @@ export default async function handler(req, res) {
     const moonPhase = getMoonPhase(now);
     const calendar = getCalendarEvents(dateStr);
 
+    // Fetch gas prices from AAA (national average)
+    let gas = null;
+    try {
+      const gasRes = await fetch("https://gasprices.aaa.com/wp-json/fuel/v1/national-averages", {
+        headers: { "User-Agent": "CleanFeed/1.0" },
+      });
+      if (gasRes.ok) {
+        const gasData = await gasRes.json();
+        if (gasData?.regular) gas = { regular: gasData.regular, diesel: gasData.diesel || null };
+      }
+    } catch {}
+
+    // Daily digest — top multi-source stories (fetched from our own feed)
+    let digest = [];
+    try {
+      // Use internal feed to find multi-source stories
+      const feedModule = await import("./_lib/shared.js");
+      const sourceKeys = Object.keys(feedModule.SOURCES);
+      const results = await Promise.allSettled(sourceKeys.map((key) => feedModule.fetchSource(key)));
+      const allArticles = results.filter((r) => r.status === "fulfilled").flatMap((r) => r.value);
+
+      // Find stories covered by multiple wire services
+      const STOP = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","is","are","was","were","has","have","had","not","its","it","with","from","by","as","this","that","says","said","say","new","up","down","out","just","also","now"]);
+      function getWords(title) {
+        return title.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter((w) => w.length > 2 && !STOP.has(w));
+      }
+
+      const wireServices = ["Reuters", "AP News", "BBC", "NPR"];
+      const wireArticles = allArticles.filter((a) => wireServices.includes(a.source));
+
+      for (const a of wireArticles) {
+        if (a._digestChecked) continue;
+        const aWords = new Set(getWords(a.title));
+        if (aWords.size < 3) continue;
+        const sources = new Set([a.source]);
+
+        for (const b of wireArticles) {
+          if (a === b || sources.has(b.source)) continue;
+          const bWords = getWords(b.title);
+          const overlap = bWords.filter((w) => aWords.has(w)).length;
+          if (overlap >= 3 && overlap / Math.min(aWords.size, bWords.length) >= 0.4) {
+            sources.add(b.source);
+            b._digestChecked = true;
+          }
+        }
+
+        if (sources.size >= 2) {
+          digest.push({ title: a.title, sources: [...sources], sourceCount: sources.size });
+        }
+      }
+      digest.sort((a, b) => b.sourceCount - a.sourceCount);
+      digest = digest.slice(0, 5);
+    } catch (err) {
+      console.warn("[Today] Digest error:", err.message);
+    }
+
     const result = {
       ok: true,
       date: {
@@ -171,6 +227,8 @@ export default async function handler(req, res) {
       moon: moonPhase,
       calendar,
       history,
+      gas,
+      digest,
     };
 
     setCache(cacheKey, result);

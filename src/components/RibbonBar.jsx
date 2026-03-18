@@ -503,6 +503,42 @@ export function TodayRibbon() {
             </div>
           )}
 
+          {/* Daily Digest */}
+          {data.digest?.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <span style={{
+                fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
+                color: theme.colors.textGhost, letterSpacing: "0.06em", textTransform: "uppercase",
+              }}>TODAY'S TOP STORIES</span>
+              {data.digest.map((d, i) => (
+                <p key={i} style={{
+                  fontFamily: theme.fonts.serif, fontSize: 12, lineHeight: 1.4,
+                  color: theme.colors.text, margin: 0,
+                  display: "flex", alignItems: "baseline", gap: 6,
+                }}>
+                  <span style={{
+                    fontFamily: theme.fonts.mono, fontSize: 8, color: "#FF8C00",
+                    fontWeight: 700, flexShrink: 0,
+                  }}>{d.sourceCount}+</span>
+                  {d.title}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {/* Gas prices */}
+          {data.gas && (
+            <div style={{
+              fontFamily: theme.fonts.mono, fontSize: 9,
+              display: "flex", gap: 12, color: theme.colors.textMuted,
+            }}>
+              <span style={{ color: theme.colors.textGhost, fontSize: 8, fontWeight: 700 }}>GAS</span>
+              <span>Regular: <span style={{ fontWeight: 700, color: theme.colors.textStrong }}>${data.gas.regular}</span></span>
+              {data.gas.diesel && <span>Diesel: <span style={{ fontWeight: 700, color: theme.colors.textStrong }}>${data.gas.diesel}</span></span>}
+              <span style={{ fontSize: 7, color: theme.colors.textGhost }}>national avg</span>
+            </div>
+          )}
+
           {/* This Day in History */}
           {history.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
