@@ -164,7 +164,13 @@ export function ArticleCard({ article }) {
         >
           {article.sourceLinks.length >= 3 && (
             <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); article.sourceLinks.forEach((sl) => window.open(sl.link, "_blank")); }}
+              onClick={(e) => {
+                e.preventDefault(); e.stopPropagation();
+                // Open one at a time with delays to avoid popup blocker
+                article.sourceLinks.forEach((sl, i) => {
+                  setTimeout(() => window.open(sl.link, "_blank"), i * 300);
+                });
+              }}
               style={{
                 fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
                 padding: "2px 6px", borderRadius: 3, cursor: "pointer",
