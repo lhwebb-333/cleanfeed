@@ -330,5 +330,7 @@ export function useFeed() {
     refresh: () => fetchFeed(true),
     loadMore,
     hasMore,
+    hoursWindow,
+    setBriefMode: (hours) => setHoursWindow(hours),
   };
 }

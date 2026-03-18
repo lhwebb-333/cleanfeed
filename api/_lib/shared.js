@@ -612,6 +612,8 @@ const SUPPLEMENTAL_FEEDS = [
   { url: "https://www.statnews.com/feed/", name: "STAT News", color: "#00ACC1", category: "health" },
   { url: "https://feeds.arstechnica.com/arstechnica/index", name: "Ars Technica", color: "#FF7043", category: "tech" },
   { url: "https://www.technologyreview.com/feed/", name: "MIT Tech Review", color: "#EC407A", category: "tech" },
+  { url: "https://www.smithsonianmag.com/rss/latest_articles/", name: "Smithsonian", color: "#B8860B", category: "science", serendipity: true },
+  { url: "https://www.atlasobscura.com/feeds/latest", name: "Atlas Obscura", color: "#C97E4A", category: "science", serendipity: true },
 ];
 
 export async function fetchSupplementalFeeds() {
@@ -619,10 +621,10 @@ export async function fetchSupplementalFeeds() {
   if (cached) return cached;
 
   const results = await Promise.allSettled(
-    SUPPLEMENTAL_FEEDS.map(async ({ url, name, color, category }) => {
+    SUPPLEMENTAL_FEEDS.map(async ({ url, name, color, category, serendipity }) => {
       const feed = await parser.parseURL(url);
       return (feed.items || []).slice(0, 30).map((item) => ({
-        item, name, color, category,
+        item, name, color, category, serendipity: !!serendipity,
       }));
     })
   );
@@ -630,7 +632,7 @@ export async function fetchSupplementalFeeds() {
   const articles = [];
   for (const result of results) {
     if (result.status !== "fulfilled") continue;
-    for (const { item, name, color, category } of result.value) {
+    for (const { item, name, color, category, serendipity } of result.value) {
       if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
       const desc = (item.contentSnippet || item.content || "").slice(0, 250);
       if (isJournalPaper(item.title, desc, name, item.link || item.guid)) continue;
@@ -642,7 +644,8 @@ export async function fetchSupplementalFeeds() {
         pubDate: item.isoDate || item.pubDate,
         source: name,
         color,
-        category, // Lock to feed category — no keyword reclassification
+        category,
+        ...(serendipity ? { serendipity: true } : {}),
       });
     }
   }

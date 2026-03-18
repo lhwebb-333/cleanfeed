@@ -3,6 +3,26 @@ import { useTheme } from "../hooks/useTheme";
 import { timeAgo } from "../utils/time";
 import { getSourceColor } from "../utils/sources";
 
+const SOURCE_INFO = {
+  "Reuters": "International wire service, founded 1851. Part of Thomson Reuters. Governed by the Thomson Reuters Trust Principles.",
+  "AP News": "Independent, non-profit wire service, founded 1846. Cooperative owned by its member newspapers and broadcasters.",
+  "BBC": "British Broadcasting Corporation. Public service broadcaster funded by UK license fees. Editorially independent from government.",
+  "NPR": "National Public Radio. Non-profit media organization funded by member stations, grants, and listeners.",
+  "Phys.org": "Science news aggregator publishing press releases from universities and research institutions.",
+  "Nature": "Premier peer-reviewed scientific journal, published since 1869. Part of Springer Nature.",
+  "KFF Health": "Kaiser Family Foundation Health News. Non-profit, non-partisan health policy journalism.",
+  "STAT News": "Health and medicine newsroom covering pharma, biotech, and health policy.",
+  "Ars Technica": "Technology publication known for in-depth, technically accurate reporting. Founded 1998.",
+  "MIT Tech Review": "Published by MIT since 1899. Covers emerging technologies and their impact.",
+  "FRED": "Federal Reserve Economic Data. Official data from the St. Louis Federal Reserve Bank.",
+  "BLS": "Bureau of Labor Statistics. U.S. government agency tracking employment, prices, and productivity.",
+  "Treasury": "U.S. Department of the Treasury. Official fiscal data and interest rate information.",
+  "SEC": "Securities and Exchange Commission. U.S. government agency overseeing markets and protecting investors.",
+  "Fed": "Federal Reserve System. U.S. central bank responsible for monetary policy.",
+  "Smithsonian": "Smithsonian Magazine. Published by the Smithsonian Institution. Covers history, science, culture, and innovation.",
+  "Atlas Obscura": "The definitive guide to the world's hidden wonders. Covers curious places, unexpected history, and gastronomy.",
+};
+
 export function ArticleCard({ article }) {
   const { theme } = useTheme();
   const [hovered, setHovered] = useState(false);
@@ -44,7 +64,10 @@ export function ArticleCard({ article }) {
               fontWeight: 700,
               letterSpacing: "0.04em",
               color: color,
+              cursor: SOURCE_INFO[article.source] ? "help" : "default",
+              position: "relative",
             }}
+            title={SOURCE_INFO[article.source] || ""}
           >
             {article.source}
           </span>
@@ -59,6 +82,23 @@ export function ArticleCard({ article }) {
               }}
             >
               {article.category}
+            </span>
+          )}
+          {article.serendipity && (
+            <span
+              style={{
+                fontFamily: theme.fonts.mono,
+                fontSize: 7,
+                fontWeight: 700,
+                letterSpacing: "0.04em",
+                color: "#B8860B",
+                padding: "1px 5px",
+                border: "1px solid rgba(184,134,11,0.3)",
+                borderRadius: 3,
+                background: "rgba(184,134,11,0.08)",
+              }}
+            >
+              DISCOVER
             </span>
           )}
           {article.multiSource && (

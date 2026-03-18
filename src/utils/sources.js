@@ -23,6 +23,8 @@ export const SOURCE_COLOR_MAP = {
   "STAT News": "#00ACC1",
   "Ars Technica": "#FF7043",
   "MIT Tech Review": "#EC407A",
+  Smithsonian: "#B8860B",
+  "Atlas Obscura": "#C97E4A",
   FRED: "#607D8B",
   SEC: "#607D8B",
   BLS: "#607D8B",

@@ -21,7 +21,7 @@ export default function App() {
     mutedKeywords, addMutedKeyword, removeMutedKeyword, clearMutedKeywords,
     selectedState, selectState, clearState,
     searchQuery, setSearchQuery, refresh,
-    loadMore, hasMore,
+    loadMore, hasMore, hoursWindow, setBriefMode,
   } = useFeed();
 
   const { pulling, pullDistance, triggered } = usePullToRefresh(refresh);
@@ -113,7 +113,7 @@ export default function App() {
               color: searchQuery ? theme.colors.textMuted : theme.colors.textFaint,
               letterSpacing: "0.05em",
             }}>
-              {searchQuery ? `${articles.length} results for "${searchQuery}"` : "Today's feed"}
+              {searchQuery ? `${articles.length} results for "${searchQuery}"` : hoursWindow <= 12 ? "Brief" : "Today's feed"}
             </span>
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} style={{
@@ -124,6 +124,22 @@ export default function App() {
               }}>
                 CLEAR
               </button>
+            )}
+            {!searchQuery && (
+              <div style={{ display: "flex", gap: 4, marginLeft: "auto" }}>
+                {[12, 24].map((h) => (
+                  <button key={h} onClick={() => setBriefMode(h)} style={{
+                    fontFamily: theme.fonts.mono, fontSize: 8, padding: "2px 6px",
+                    background: hoursWindow === h ? "rgba(255,140,0,0.1)" : "transparent",
+                    border: `1px solid ${hoursWindow === h ? "rgba(255,140,0,0.3)" : theme.colors.border}`,
+                    borderRadius: theme.radii.sm,
+                    color: hoursWindow === h ? theme.colors.textStrong : theme.colors.textFaint,
+                    cursor: "pointer", letterSpacing: "0.04em",
+                  }}>
+                    {h === 12 ? "BRIEF" : "24H"}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 
