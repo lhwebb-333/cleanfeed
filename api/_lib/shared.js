@@ -286,6 +286,8 @@ const OPINION_FILTERS = [
   "author correction:", "publisher correction:", "correction:",
   "erratum:", "corrigendum:", "retraction:",
   "supplementary information", "supplementary data",
+  // Paywall indicators
+  "stat+:", "subscriber only", "members only", "premium:",
 ];
 
 // Filter Nature journal papers — keep news, skip corrections and formatted papers
