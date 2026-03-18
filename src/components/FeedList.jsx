@@ -89,6 +89,21 @@ export function FeedList({ articles, loading, error, onRetry }) {
           <ArticleCard key={article.id || i} article={article} />
         )
       )}
+      {articles.length > 0 && (
+        <div style={{
+          textAlign: "center",
+          padding: "24px 0 8px",
+        }}>
+          <p style={{
+            fontFamily: theme.fonts.mono,
+            fontSize: 9,
+            color: theme.colors.textGhost,
+            letterSpacing: "0.06em",
+          }}>
+            You're caught up.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
