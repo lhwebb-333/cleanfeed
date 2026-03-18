@@ -82,7 +82,47 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         borderBottom: `1px solid ${theme.colors.border}`,
       }}
     >
-      <div style={{ position: "relative" }}>
+      {/* Utility buttons — fixed top-right corner */}
+      <div style={{
+        position: "fixed", top: 8, right: 12, zIndex: 50,
+        display: "flex", gap: 3, alignItems: "center",
+      }}>
+        {[
+          { label: "?", onClick: onAbout },
+          { label: mode === "light" ? "\u2600" : "\u263E", onClick: onToggleTheme, color: mode === "light" ? "#FF8C00" : "#888" },
+          { label: "\u21BB", onClick: onRefresh, disabled: refreshing, spin: refreshing },
+        ].map((btn, i) => (
+          <button
+            key={i}
+            onClick={btn.onClick}
+            disabled={btn.disabled}
+            style={{
+              background: theme.colors.bg,
+              border: `1px solid ${theme.colors.border}`,
+              color: btn.color || theme.colors.textMuted,
+              fontSize: 10,
+              cursor: btn.disabled ? "default" : "pointer",
+              width: 22,
+              height: 22,
+              borderRadius: theme.radii.sm,
+              fontFamily: theme.fonts.mono,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: btn.disabled ? 0.5 : 1,
+              transition: theme.transitions.fast,
+            }}
+          >
+            <span style={{
+              display: "inline-block",
+              animation: btn.spin ? "spin 1s linear infinite" : "none",
+            }}>{btn.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Centered header */}
+      <div style={{ textAlign: "center" }}>
         <h1
           style={{
             fontFamily: theme.fonts.mono,
@@ -105,45 +145,6 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         >
           No algorithms. No rage. Just news.
         </p>
-
-        {/* Controls — absolutely positioned so they don't affect centering */}
-        <div style={{
-          position: "absolute", top: 0, right: 0,
-          display: "flex", gap: 4, alignItems: "center",
-        }}>
-          {[
-            { label: "?", onClick: onAbout },
-            { label: mode === "light" ? "\u2600" : "\u263E", onClick: onToggleTheme, color: mode === "light" ? "#FF8C00" : "#888" },
-            { label: "\u21BB", onClick: onRefresh, disabled: refreshing, spin: refreshing },
-          ].map((btn, i) => (
-            <button
-              key={i}
-              onClick={btn.onClick}
-              disabled={btn.disabled}
-              style={{
-                background: "none",
-                border: `1px solid ${theme.colors.border}`,
-                color: btn.color || theme.colors.textMuted,
-                fontSize: 10,
-                cursor: btn.disabled ? "default" : "pointer",
-                width: 22,
-                height: 22,
-                borderRadius: theme.radii.sm,
-                fontFamily: theme.fonts.mono,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                opacity: btn.disabled ? 0.5 : 1,
-                transition: theme.transitions.fast,
-              }}
-            >
-              <span style={{
-                display: "inline-block",
-                animation: btn.spin ? "spin 1s linear infinite" : "none",
-              }}>{btn.label}</span>
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Search + timestamp row */}
