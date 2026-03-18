@@ -82,7 +82,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         borderBottom: `1px solid ${theme.colors.border}`,
       }}
     >
-      <div style={{ position: "relative", textAlign: "center" }}>
+      <div style={{ position: "relative" }}>
         <h1
           style={{
             fontFamily: theme.fonts.mono,
@@ -100,7 +100,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
             fontSize: 13,
             color: theme.colors.textFaint,
             fontStyle: "italic",
-            marginTop: 4,
+            marginTop: 3,
           }}
         >
           No algorithms. No rage. Just news.
