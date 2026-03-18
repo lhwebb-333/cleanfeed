@@ -143,7 +143,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
             marginTop: 3,
           }}
         >
-          No algorithms. No rage. Just news.
+          News with nothing else.
         </p>
       </div>
 
