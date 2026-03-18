@@ -98,57 +98,55 @@ export default async function handler(req, res) {
     // Remove duplicate articles (keep the primary from each cluster)
     articles = articles.filter((_, idx) => !dupeIndices.has(idx));
 
-    // Detect running stories — topics covered across multiple days
-    // Uses 2-keyword pairs to avoid single-word false matches
-    const STOP2 = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","is","are","was","were","has","have","had","not","its","it","with","from","by","as","this","that","says","said","say","new","up","down","out","just","also","now","after","how","why","what","who","more","been","could","would","about","into","over","than","them","they","their","these","other","first","last","most","some","make","like","will","back","take","people"]);
-    function storyKeywords(title) {
-      return title.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/)
-        .filter((w) => w.length > 3 && !STOP2.has(w));
+    // Detect running stories — cluster articles about the same specific story
+    const STOP2 = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","is","are","was","were","has","have","had","not","its","it","with","from","by","as","this","that","says","said","say","new","up","down","out","just","also","now","after","how","why","what","who","more","been","could","would","about","into","over","than","them","they","their","these","other","first","last","most","some","make","like","will","back","take","people","trump","biden","administration","government","president"]);
+    function storyWords(title) {
+      return [...new Set(title.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/)
+        .filter((w) => w.length > 3 && !STOP2.has(w)))];
     }
 
-    // Build keyword-pair frequency map (2 keywords = topic)
-    const pairArticles = {}; // "word1+word2" → [article indices]
+    // Cluster articles: 3+ shared keywords AND within 5 days = same story
+    const storyClusters = [];
+    const clustered2 = new Set();
     for (let i = 0; i < articles.length; i++) {
-      const kws = [...new Set(storyKeywords(articles[i].title))].slice(0, 6); // top 6 unique keywords
-      for (let a = 0; a < kws.length; a++) {
-        for (let b = a + 1; b < kws.length; b++) {
-          const pair = [kws[a], kws[b]].sort().join("+");
-          if (!pairArticles[pair]) pairArticles[pair] = [];
-          pairArticles[pair].push(i);
+      if (clustered2.has(i)) continue;
+      const aWords = new Set(storyWords(articles[i].title));
+      if (aWords.size < 3) continue;
+      const cluster = [i];
+      for (let j = i + 1; j < articles.length; j++) {
+        if (clustered2.has(j)) continue;
+        const bWords = storyWords(articles[j].title);
+        const overlap = bWords.filter((w) => aWords.has(w)).length;
+        if (overlap >= 3) {
+          cluster.push(j);
+          clustered2.add(j);
+        }
+      }
+      if (cluster.length >= 3) {
+        const days = new Set(cluster.map((idx) => new Date(articles[idx].pubDate).toISOString().split("T")[0]));
+        if (days.size >= 2) {
+          // Build timeline — one per day, with links
+          const timeline = [];
+          const seenDays = new Set();
+          for (const idx of cluster) {
+            const day = new Date(articles[idx].pubDate).toISOString().split("T")[0];
+            if (seenDays.has(day)) continue;
+            seenDays.add(day);
+            timeline.push({ date: day, title: articles[idx].title, source: articles[idx].source, link: articles[idx].link });
+          }
+          const label = [...aWords].slice(0, 3).join(" ");
+          storyClusters.push({ label, count: cluster.length, days: days.size, timeline: timeline.slice(0, 5), indices: cluster });
         }
       }
     }
 
-    // Find keyword pairs in 4+ articles across 2+ days
-    const runningTopics = {};
-    for (const [pair, indices] of Object.entries(pairArticles)) {
-      if (indices.length < 4) continue;
-      const days = new Set(indices.map((i) => new Date(articles[i].pubDate).toISOString().split("T")[0]));
-      if (days.size < 2) continue;
-      const timeline = [];
-      const seenDays = new Set();
-      for (const idx of indices) {
-        const day = new Date(articles[idx].pubDate).toISOString().split("T")[0];
-        if (seenDays.has(day)) continue;
-        seenDays.add(day);
-        timeline.push({ date: day, title: articles[idx].title, source: articles[idx].source });
-      }
-      if (timeline.length >= 2) {
-        const label = pair.replace("+", " & ");
-        runningTopics[pair] = { keyword: label, count: indices.length, days: days.size, timeline: timeline.slice(0, 5), indices };
-      }
-    }
-
-    // Attach top 3 running stories to their articles
-    const topRunning = Object.values(runningTopics)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3);
-
-    for (const story of topRunning) {
+    // Attach top 3 running stories
+    storyClusters.sort((a, b) => b.count - a.count);
+    for (const story of storyClusters.slice(0, 3)) {
       for (const idx of story.indices) {
         if (!articles[idx].storyArc) {
           articles[idx].storyArc = {
-            keyword: story.keyword,
+            keyword: story.label,
             articleCount: story.count,
             dayCount: story.days,
             timeline: story.timeline,

@@ -40,6 +40,8 @@ export const CATEGORY_SUBSOURCES = {
   science: [
     { name: "Phys.org", color: SUB_COLOR },
     { name: "Nature", color: SUB_COLOR },
+    { name: "Smithsonian", color: SUB_COLOR },
+    { name: "Atlas Obscura", color: SUB_COLOR },
   ],
   health: [
     { name: "KFF Health", color: SUB_COLOR },

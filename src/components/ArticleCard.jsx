@@ -224,14 +224,17 @@ export function ArticleCard({ article }) {
               display: "flex", flexDirection: "column", gap: 4,
             }}>
               {article.storyArc.timeline.map((t, i) => (
-                <div key={i} style={{
-                  fontFamily: theme.fonts.mono, fontSize: 9,
-                  display: "flex", gap: 8, alignItems: "baseline",
-                }}>
+                <a key={i} href={t.link} target="_blank" rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    fontFamily: theme.fonts.mono, fontSize: 9,
+                    display: "flex", gap: 8, alignItems: "baseline",
+                    textDecoration: "none", color: "inherit",
+                  }}>
                   <span style={{ color: theme.colors.textGhost, flexShrink: 0 }}>{t.date}</span>
-                  <span style={{ color: theme.colors.textMuted }}>{t.title.slice(0, 60)}{t.title.length > 60 ? "..." : ""}</span>
+                  <span style={{ color: theme.colors.textMuted, borderBottom: `1px solid ${theme.colors.border}` }}>{t.title.slice(0, 60)}{t.title.length > 60 ? "..." : ""}</span>
                   <span style={{ color: theme.colors.textGhost, fontSize: 8 }}>{t.source}</span>
-                </div>
+                </a>
               ))}
             </div>
           )}
