@@ -470,6 +470,71 @@ export function About({ open, onClose }) {
           </p>
         </div>
 
+        <div style={{ marginBottom: 20 }}>
+          <p
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: theme.colors.textFaint,
+              textTransform: "uppercase",
+              marginBottom: 8,
+            }}
+          >
+            Transparency
+          </p>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: theme.colors.textMuted,
+              marginBottom: 10,
+            }}
+          >
+            Clean Feed has no investors, no board, and no one to answer to except you.
+            Here's exactly what it costs to run:
+          </p>
+          <div style={{
+            fontFamily: theme.fonts.mono, fontSize: 11, lineHeight: 2,
+            color: theme.colors.text,
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>Hosting (Vercel)</span><span style={{ color: theme.colors.textFaint }}>$0/mo</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>Domain</span><span style={{ color: theme.colors.textFaint }}>~$1/mo</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>APIs (weather, scores, markets)</span><span style={{ color: theme.colors.textFaint }}>$0/mo</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>Data collection / tracking</span><span style={{ color: theme.colors.textFaint }}>$0 forever</span>
+            </div>
+            <div style={{
+              display: "flex", justifyContent: "space-between",
+              borderTop: `1px solid ${theme.colors.border}`, paddingTop: 6, marginTop: 6,
+            }}>
+              <span style={{ fontWeight: 700 }}>Total</span>
+              <span style={{ fontWeight: 700, color: theme.colors.textStrong }}>~$1/mo</span>
+            </div>
+          </div>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 12,
+              lineHeight: 1.5,
+              color: theme.colors.textFaint,
+              marginTop: 10,
+              fontStyle: "italic",
+            }}
+          >
+            We chose free, open tools on purpose. Low costs mean we never need to
+            compromise the product to pay the bills.
+          </p>
+        </div>
+
         <div
           style={{
             padding: "16px",
