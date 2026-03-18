@@ -208,7 +208,19 @@ export default async function handler(req, res) {
       }
       // Sort by source count first, then recency
       digest.sort((a, b) => b.sourceCount - a.sourceCount || new Date(b.pubDate) - new Date(a.pubDate));
-      digest = digest.slice(0, 5);
+
+      // Dedup digest — remove entries that are about the same story
+      const dedupedDigest = [];
+      for (const d of digest) {
+        const dWords = new Set(getWords(d.title));
+        const isDupe = dedupedDigest.some((existing) => {
+          const eWords = getWords(existing.title);
+          const overlap = eWords.filter((w) => dWords.has(w)).length;
+          return overlap >= 3 && overlap / Math.min(dWords.size, eWords.length) >= 0.4;
+        });
+        if (!isDupe) dedupedDigest.push(d);
+      }
+      digest = dedupedDigest.slice(0, 5);
 
       // If we don't have 5, pad with most recent wire headlines from last 24h
       if (digest.length < 5) {
