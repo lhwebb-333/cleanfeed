@@ -82,108 +82,67 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         borderBottom: `1px solid ${theme.colors.border}`,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        {/* Centered title */}
-        <div style={{ flex: 1, textAlign: "center" }}>
-          <h1
-            style={{
-              fontFamily: theme.fonts.mono,
-              fontSize: 13,
-              fontWeight: 700,
-              letterSpacing: "0.2em",
-              color: theme.colors.textStrong,
-              marginBottom: 4,
-            }}
-          >
-            CLEAN FEED
-          </h1>
-          <p
-            style={{
-              fontFamily: theme.fonts.serif,
-              fontSize: 13,
-              color: theme.colors.textFaint,
-              fontStyle: "italic",
-            }}
-          >
-            No algorithms. No rage. Just news.
-          </p>
-        </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h1
+          style={{
+            fontFamily: theme.fonts.mono,
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: "0.2em",
+            color: theme.colors.textStrong,
+          }}
+        >
+          CLEAN FEED
+        </h1>
 
-        {/* Controls — stacked vertically on the right */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
-          <button
-            onClick={onAbout}
-            style={{
-              background: "none",
-              border: `1px solid ${theme.colors.border}`,
-              color: theme.colors.textMuted,
-              fontSize: 11,
-              cursor: "pointer",
-              width: 28,
-              height: 28,
-              borderRadius: theme.radii.md,
-              fontFamily: theme.fonts.mono,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: theme.transitions.fast,
-            }}
-          >
-            ?
-          </button>
-
-          <button
-            onClick={onToggleTheme}
-            aria-label="Toggle light/dark mode"
-            style={{
-              background: theme.colors.toggleBg,
-              border: `1px solid ${theme.colors.border}`,
-              borderRadius: theme.radii.md,
-              width: 28,
-              height: 28,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 12,
-              transition: theme.transitions.fast,
-              color: mode === "light" ? "#FF8C00" : "#888",
-            }}
-          >
-            {mode === "light" ? "\u2600" : "\u263E"}
-          </button>
-
-          <button
-            onClick={onRefresh}
-            disabled={refreshing}
-            style={{
-              background: "none",
-              border: `1px solid ${theme.colors.border}`,
-              color: theme.colors.textMuted,
-              fontSize: 14,
-              cursor: refreshing ? "default" : "pointer",
-              width: 28,
-              height: 28,
-              borderRadius: theme.radii.md,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              opacity: refreshing ? 0.5 : 1,
-              transition: theme.transitions.fast,
-            }}
-          >
-            <span style={{
-              display: "inline-block",
-              animation: refreshing ? "spin 1s linear infinite" : "none",
-            }}>↻</span>
-          </button>
+        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          {[
+            { label: "?", onClick: onAbout },
+            { label: mode === "light" ? "\u2600" : "\u263E", onClick: onToggleTheme, color: mode === "light" ? "#FF8C00" : "#888" },
+            { label: "\u21BB", onClick: onRefresh, disabled: refreshing, spin: refreshing },
+          ].map((btn, i) => (
+            <button
+              key={i}
+              onClick={btn.onClick}
+              disabled={btn.disabled}
+              style={{
+                background: "none",
+                border: `1px solid ${theme.colors.border}`,
+                color: btn.color || theme.colors.textMuted,
+                fontSize: 10,
+                cursor: btn.disabled ? "default" : "pointer",
+                width: 22,
+                height: 22,
+                borderRadius: theme.radii.sm,
+                fontFamily: theme.fonts.mono,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                opacity: btn.disabled ? 0.5 : 1,
+                transition: theme.transitions.fast,
+              }}
+            >
+              <span style={{
+                display: "inline-block",
+                animation: btn.spin ? "spin 1s linear infinite" : "none",
+              }}>{btn.label}</span>
+            </button>
+          ))}
         </div>
       </div>
+
+      <p
+        style={{
+          fontFamily: theme.fonts.serif,
+          fontSize: 13,
+          color: theme.colors.textFaint,
+          fontStyle: "italic",
+          textAlign: "center",
+          marginTop: 4,
+        }}
+      >
+        No algorithms. No rage. Just news.
+      </p>
 
       {/* Search + timestamp row */}
       <div
