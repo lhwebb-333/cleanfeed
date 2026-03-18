@@ -3,7 +3,7 @@
 // Without key: 25 req/day. With key: 500 req/day.
 
 import { getCached, setCache, recordError } from "./cache.js";
-import { generateHeadline, generateSummary } from "./headlines.js";
+import { generateHeadline, generateSummary, generateCardContext } from "./headlines.js";
 import { computeStreak, calendarContext } from "./context.js";
 import { fetchMarketSnapshot, formatMarketReaction } from "./alpha-vantage.js";
 
@@ -151,14 +151,15 @@ export const blsAdapter = {
           marketReaction,
         };
 
+        const cardData = {
+          ...data,
+          streak: streak?.description || null,
+          calendar: calendar || null,
+        };
+
         const title = generateHeadline(seriesConfig.type, data);
-        let summary = generateSummary(seriesConfig.type, data);
-        const extraContext = [];
-        if (streak) extraContext.push(streak.description);
-        if (calendar) extraContext.push(calendar);
-        if (extraContext.length > 0) {
-          summary = summary + " " + extraContext.join(" ");
-        }
+        const summary = generateSummary(seriesConfig.type, data);
+        const cardContext = generateCardContext(seriesConfig.type, cardData);
 
         items.push({
           id: `bls-${seriesConfig.id.toLowerCase()}-${latest.year}-${latest.period}`,
@@ -181,6 +182,7 @@ export const blsAdapter = {
           indicator: seriesConfig.label,
           tags: [seriesConfig.category, seriesConfig.id.toLowerCase()],
           context: `${seriesConfig.label}, ${period}`,
+          cardContext,
         });
       }
 

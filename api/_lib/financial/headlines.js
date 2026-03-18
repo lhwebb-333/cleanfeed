@@ -354,3 +354,86 @@ export function generateSummary(type, data) {
   const template = SUMMARY_TEMPLATES[type] || SUMMARY_TEMPLATES.generic;
   return template(data);
 }
+
+// "Why it matters" — plain English impact for each indicator type
+const WHY_IT_MATTERS = {
+  cpi: "CPI measures the price of everyday goods — groceries, gas, rent, clothing. When it rises faster than wages, your purchasing power shrinks.",
+  ppi: "PPI measures costs for producers before they reach consumers. Rising PPI often leads to rising consumer prices within 1-3 months.",
+  unemployment: "The unemployment rate reflects how many people are actively looking for work but can't find it. It's the most-watched indicator of labor market health.",
+  fed_funds: "The federal funds rate is the Fed's primary tool for controlling the economy. It directly influences mortgage rates, car loans, credit cards, and savings account yields.",
+  gdp: "GDP measures the total value of goods and services produced. It's the broadest measure of whether the economy is growing or shrinking.",
+  yield: "Treasury yields reflect what the government pays to borrow money. The 10-year yield heavily influences mortgage rates and is watched as a signal of economic expectations.",
+  payroll: "Nonfarm payrolls measure how many jobs the economy added or lost. It's the single most important monthly indicator of economic health.",
+  filing: null,
+};
+
+// Generate structured card context — sections that the frontend renders as distinct blocks
+export function generateCardContext(type, data) {
+  const sections = [];
+
+  // 1. THE NUMBER — what happened
+  if (data.actual != null) {
+    const dir = direction(data.actual, data.prior);
+    const dirWord = dir === "up" ? "rose" : dir === "down" ? "fell" : "unchanged";
+    sections.push({
+      type: "number",
+      label: "The Number",
+      text: `${data.label || data.indicator || "Value"} ${dirWord} to ${formatValue(data.actual, data.unit)} from ${formatValue(data.prior, data.unit)}${data.period ? ` in ${data.period}` : ""}.`,
+    });
+  }
+
+  // 2. EXPECTATIONS — vs consensus
+  if (data.expected != null) {
+    const diff = data.actual - data.expected;
+    const vs = Math.abs(diff) < 0.001 ? "in line with" : diff > 0 ? "above" : "below";
+    sections.push({
+      type: "expectations",
+      label: "vs. Expectations",
+      text: `Economists expected ${formatValue(data.expected, data.unit)}. Actual came in ${vs} expectations${Math.abs(diff) > 0.001 ? ` by ${formatValue(Math.abs(diff), data.unit)}` : ""}.`,
+    });
+  }
+
+  // 3. BENCHMARK — where this sits historically
+  const benchmarkFn = { cpi: cpiBenchmark, unemployment: unemploymentBenchmark, fed_funds: fedFundsBenchmark, gdp: gdpBenchmark, payroll: payrollBenchmark, ppi: ppiBenchmark };
+  const bench = benchmarkFn[type];
+  if (bench) {
+    sections.push({
+      type: "benchmark",
+      label: "Historical Context",
+      text: bench(data.actual),
+    });
+  }
+  if (type === "yield") {
+    const yb = yieldBenchmark(data.actual, data.label);
+    if (yb) sections.push({ type: "benchmark", label: "Historical Context", text: yb });
+  }
+
+  // 4. TREND — streak / YoY from extra context
+  if (data.streak) {
+    sections.push({ type: "trend", label: "Trend", text: data.streak });
+  }
+  if (data.yoy) {
+    sections.push({ type: "trend", label: "Year-over-Year", text: data.yoy });
+  }
+  if (data.historicalRange) {
+    sections.push({ type: "trend", label: "Range", text: data.historicalRange });
+  }
+
+  // 5. WHY IT MATTERS — plain English
+  const why = WHY_IT_MATTERS[type];
+  if (why) {
+    sections.push({ type: "why", label: "Why It Matters", text: why });
+  }
+
+  // 6. MARKET REACTION
+  if (data.marketReaction) {
+    sections.push({ type: "reaction", label: "Market Reaction", text: data.marketReaction });
+  }
+
+  // 7. CALENDAR — FOMC proximity
+  if (data.calendar) {
+    sections.push({ type: "calendar", label: "Calendar", text: data.calendar });
+  }
+
+  return sections;
+}

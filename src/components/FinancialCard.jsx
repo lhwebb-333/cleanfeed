@@ -22,42 +22,39 @@ function deltaColor(delta, theme) {
   return delta > 0 ? "#4CAF50" : "#EF5350";
 }
 
-// Split description into discrete factual lines
-function parseContextLines(description) {
-  if (!description) return [];
-  // Split on sentence boundaries — each fact becomes its own line
-  return description
-    .split(/(?<=\.)\s+/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
-}
+// Section label colors
+const SECTION_COLORS = {
+  number: "#607D8B",
+  expectations: "#2196F3",
+  benchmark: "#FF8C00",
+  trend: "#9C27B0",
+  why: "#4CAF50",
+  reaction: "#EF5350",
+  calendar: "#FF8C00",
+};
 
 export function FinancialCard({ item }) {
   const { theme } = useTheme();
   const [hovered, setHovered] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const color = FINANCIAL_COLOR;
   const data = item.data || {};
   const hasNumbers = data.actual != null;
-  const contextLines = parseContextLines(item.description);
+  const cardContext = item.cardContext || [];
+  const hasContext = cardContext.length > 0;
 
   return (
-    <a
-      href={item.link}
-      target="_blank"
-      rel="noopener noreferrer"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+    <div
       style={{
         display: "block",
         padding: "18px 16px 18px 20px",
         borderBottom: `1px solid ${theme.colors.border}`,
         borderLeft: `3px solid ${hovered ? color : color + "40"}`,
-        textDecoration: "none",
-        color: "inherit",
         transition: theme.transitions.normal,
         background: hovered ? theme.colors.surfaceHover : "transparent",
-        cursor: "pointer",
       }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       {/* Top row: source + indicator + time */}
       <div
@@ -106,22 +103,29 @@ export function FinancialCard({ item }) {
         </span>
       </div>
 
-      {/* Headline */}
-      <h2
-        style={{
-          fontFamily: theme.fonts.serif,
-          fontSize: 17,
-          fontWeight: 500,
-          lineHeight: 1.45,
-          color: theme.colors.textStrong,
-          marginBottom: hasNumbers ? 10 : 6,
-          letterSpacing: "-0.01em",
-        }}
+      {/* Headline — clickable to source */}
+      <a
+        href={item.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ textDecoration: "none", color: "inherit" }}
       >
-        {item.title}
-      </h2>
+        <h2
+          style={{
+            fontFamily: theme.fonts.serif,
+            fontSize: 17,
+            fontWeight: 500,
+            lineHeight: 1.45,
+            color: theme.colors.textStrong,
+            marginBottom: hasNumbers ? 10 : 6,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {item.title}
+        </h2>
+      </a>
 
-      {/* Data row — only for items with actual numbers */}
+      {/* Data row */}
       {hasNumbers && (
         <div
           style={{
@@ -144,64 +148,67 @@ export function FinancialCard({ item }) {
             {formatValue(data.actual, data.unit)}
           </span>
           {data.expected != null && (
-            <span
-              style={{
-                fontFamily: theme.fonts.mono,
-                fontSize: 11,
-                color: theme.colors.textMuted,
-              }}
-            >
+            <span style={{ fontFamily: theme.fonts.mono, fontSize: 11, color: theme.colors.textMuted }}>
               exp {formatValue(data.expected, data.unit)}
             </span>
           )}
           {data.delta != null && data.delta !== 0 && (
-            <span
-              style={{
-                fontFamily: theme.fonts.mono,
-                fontSize: 11,
-                fontWeight: 500,
-                color: deltaColor(data.delta, theme),
-              }}
-            >
+            <span style={{
+              fontFamily: theme.fonts.mono, fontSize: 11, fontWeight: 500,
+              color: deltaColor(data.delta, theme),
+            }}>
               {data.delta > 0 ? "+" : ""}{formatValue(data.delta, data.unit)}
             </span>
           )}
           {data.prior != null && (
-            <span
-              style={{
-                fontFamily: theme.fonts.mono,
-                fontSize: 11,
-                color: theme.colors.textGhost,
-              }}
-            >
+            <span style={{ fontFamily: theme.fonts.mono, fontSize: 11, color: theme.colors.textGhost }}>
               prev {formatValue(data.prior, data.unit)}
             </span>
           )}
         </div>
       )}
 
-      {/* Factual context — each fact on its own line */}
-      {contextLines.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {contextLines.map((line, i) => (
-            <p
-              key={i}
-              style={{
-                fontFamily: theme.fonts.serif,
-                fontSize: 13,
-                lineHeight: 1.5,
-                color: i === 0 ? theme.colors.textMuted : theme.colors.textFaint,
+      {/* Card context sections — always show first 2, expand for rest */}
+      {hasContext && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {cardContext.slice(0, expanded ? undefined : 2).map((section, i) => (
+            <div key={i} style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
+              <span style={{
+                fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
+                color: SECTION_COLORS[section.type] || theme.colors.textFaint,
+                letterSpacing: "0.04em", textTransform: "uppercase",
+                flexShrink: 0, minWidth: 70, textAlign: "right",
+              }}>
+                {section.label}
+              </span>
+              <p style={{
+                fontFamily: theme.fonts.serif, fontSize: 13, lineHeight: 1.5,
+                color: i === 0 ? theme.colors.text : theme.colors.textMuted,
                 margin: 0,
+              }}>
+                {section.text}
+              </p>
+            </div>
+          ))}
+          {cardContext.length > 2 && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              style={{
+                fontFamily: theme.fonts.mono, fontSize: 8,
+                color: theme.colors.textFaint, background: "none",
+                border: "none", cursor: "pointer", padding: 0,
+                textAlign: "left", marginLeft: 78,
+                letterSpacing: "0.04em",
               }}
             >
-              {line}
-            </p>
-          ))}
+              {expanded ? "LESS \u25B4" : `MORE CONTEXT \u25BE`}
+            </button>
+          )}
         </div>
       )}
 
-      {/* Source context line */}
-      {item.context && (
+      {/* Source link */}
+      {item.context && !hasContext && (
         <p
           style={{
             fontFamily: theme.fonts.mono,
@@ -214,6 +221,6 @@ export function FinancialCard({ item }) {
           {item.context}
         </p>
       )}
-    </a>
+    </div>
   );
 }

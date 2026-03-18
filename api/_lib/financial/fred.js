@@ -3,7 +3,7 @@
 // Rate limit: 120 req/min
 
 import { getCached, setCache, recordError } from "./cache.js";
-import { generateHeadline, generateSummary } from "./headlines.js";
+import { generateHeadline, generateSummary, generateCardContext } from "./headlines.js";
 import { computeYoY, computeStreak, computeHistoricalRange, calendarContext } from "./context.js";
 import { fetchMarketSnapshot, formatMarketReaction } from "./alpha-vantage.js";
 
@@ -163,22 +163,21 @@ export const fredAdapter = {
           marketReaction,
         };
 
-        const title = generateHeadline(series.type, data);
-
-        // Build rich summary
-        let summary = generateSummary(series.type, data);
-        const extraContext = [];
-        if (yoy) extraContext.push(`Year-over-year change: ${yoy.pctChange > 0 ? "+" : ""}${yoy.pctChange}% from ${yoy.period}.`);
-        if (streak) extraContext.push(streak.description);
-        if (historicalRange) extraContext.push(historicalRange.description);
-        // Cross-reference fed funds on inflation/labor data
+        // Add extra context to data for cardContext generation
+        const cardData = {
+          ...data,
+          streak: streak?.description || null,
+          yoy: yoy ? `Year-over-year change: ${yoy.pctChange > 0 ? "+" : ""}${yoy.pctChange}% from ${yoy.period}.` : null,
+          historicalRange: historicalRange?.description || null,
+          calendar: calendar || null,
+        };
         if ((series.type === "cpi" || series.type === "ppi" || series.type === "unemployment") && indicatorValues.fed_funds) {
-          extraContext.push(`Fed funds rate currently at ${indicatorValues.fed_funds.value}%.`);
+          cardData.crossRef = `Fed funds rate currently at ${indicatorValues.fed_funds.value}%.`;
         }
-        if (calendar) extraContext.push(calendar);
-        if (extraContext.length > 0) {
-          summary = summary + " " + extraContext.join(" ");
-        }
+
+        const title = generateHeadline(series.type, data);
+        const summary = generateSummary(series.type, data);
+        const cardContext = generateCardContext(series.type, cardData);
 
         items.push({
           id: `fred-${series.id.toLowerCase()}-${latest.date}`,
@@ -201,6 +200,7 @@ export const fredAdapter = {
           indicator: series.label,
           tags: [series.category, series.id.toLowerCase()],
           context: series.context,
+          cardContext,
         });
       }
 
