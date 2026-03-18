@@ -97,9 +97,9 @@ export function About({ open, onClose }) {
             marginBottom: 24,
           }}
         >
-          Everyone sees the same feed. No personalization, no recommendations,
-          no bubble. Two people can open Clean Feed and have the same
-          conversation about the same news — like a shared newspaper.
+          Everyone starts with the same feed. You can filter by topic, mute
+          keywords, or add local news — but those are your choices, not ours.
+          No algorithm is quietly deciding what you see behind the scenes.
         </p>
 
         <div style={{ marginBottom: 24 }}>
