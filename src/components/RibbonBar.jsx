@@ -47,11 +47,17 @@ export function SourceRibbon({
 }
 
 export function TopicRibbon({
+  enabledSources, toggleSource, enableAllSources, disableAllSources, sourceCounts, selectedState,
   enabledCategories, toggleCategory, categoryCounts,
   disabledSubSources, toggleSubSource,
 }) {
   const { theme } = useTheme();
   const [expandedSub, setExpandedSub] = useState(null);
+  const localName = selectedState ? `Local ${selectedState}` : null;
+  const primarySources = SOURCES.filter((s) => !SUB_SET.has(s.name));
+  const allSources = localName
+    ? [...primarySources, { key: "local", name: localName, color: getSourceColor(localName) }]
+    : primarySources;
 
   return (
     <div style={{
@@ -64,8 +70,26 @@ export function TopicRibbon({
         overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
         minHeight: 26,
       }}>
-        <span style={lblStyle(theme)}>TOPICS</span>
+        {/* Sources */}
+        {allSources.map((s) => {
+          const on = enabledSources.has(s.name);
+          return (
+            <button key={s.key} onClick={() => toggleSource(s.name)} style={{
+              ...pillBase(theme),
+              border: on ? `1px solid ${s.color}50` : `1px solid ${theme.colors.border}`,
+              background: on ? s.color + "15" : "transparent",
+              color: on ? s.color : theme.colors.textFaint,
+              opacity: on ? 1 : 0.5,
+            }}>
+              {s.name}
+            </button>
+          );
+        })}
 
+        {/* Divider */}
+        <span style={{ width: 1, height: 12, background: theme.colors.border, flexShrink: 0 }} />
+
+        {/* Topics */}
         {CATEGORIES.map((cat) => {
           const on = enabledCategories.has(cat.key);
           const count = categoryCounts[cat.key] || 0;
@@ -122,11 +146,35 @@ export function FilterRibbon({
   const { theme } = useTheme();
   const [muteInput, setMuteInput] = useState("");
   const [stateInput, setStateInput] = useState("");
+  const [showInputs, setShowInputs] = useState(false);
 
   const handleMute = (e) => { e.preventDefault(); onAddMuted(muteInput); setMuteInput(""); };
   const handleState = (e) => { e.preventDefault(); const code = resolveState(stateInput); if (code) { onSelectState(code); setStateInput(""); } };
 
-  const hasFilters = mutedKeywords.length > 0 || selectedState;
+  const hasAnything = mutedKeywords.length > 0 || selectedState || showInputs;
+
+  // Hidden until user has filters active or clicks to add
+  if (!hasAnything) {
+    return (
+      <div style={{
+        maxWidth: 960, margin: "0 auto",
+        borderBottom: `1px solid ${theme.colors.border}`,
+      }}>
+        <div style={{
+          display: "flex", alignItems: "center", gap: 6,
+          padding: `2px ${theme.spacing.lg}px`,
+          minHeight: 22,
+        }}>
+          <button onClick={() => setShowInputs(true)} style={{
+            ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
+            opacity: 0.5, padding: 0,
+          }}>
+            + LOCAL / MUTE
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -155,7 +203,6 @@ export function FilterRibbon({
           </button>
         )}
 
-        {/* Divider */}
         <span style={{ width: 1, height: 12, background: theme.colors.border, flexShrink: 0 }} />
 
         {/* MUTE */}

@@ -4,7 +4,7 @@ import { Header } from "./Header";
 import { FeedList } from "./FeedList";
 import { About } from "./About";
 import { DataBars } from "./DataBars";
-import { SourceRibbon, TopicRibbon, FilterRibbon } from "./RibbonBar";
+import { TopicRibbon, FilterRibbon } from "./RibbonBar";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
@@ -73,13 +73,10 @@ export default function App() {
       />
 
       {/* All ribbons — same visual weight, same interaction */}
-      <SourceRibbon
+      <TopicRibbon
         enabledSources={enabledSources} toggleSource={toggleSource}
         enableAllSources={enableAllSources} disableAllSources={disableAllSources}
         sourceCounts={sourceCounts} selectedState={selectedState}
-      />
-
-      <TopicRibbon
         enabledCategories={enabledCategories} toggleCategory={toggleCategory}
         categoryCounts={categoryCounts}
         disabledSubSources={disabledSubSources} toggleSubSource={toggleSubSource}
