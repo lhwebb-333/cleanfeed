@@ -427,13 +427,11 @@ export function TodayRibbon() {
 
   const { date, sun, moon, calendar, history } = data;
 
-  // Build preview snippets
-  const previews = [];
-  previews.push(date.short);
+  // Build preview — keep it short, 3 items max
+  const previews = [date.short];
   if (calendar.length > 0) previews.push(calendar[0].text);
-  if (sun) previews.push(`Sunrise ${sun.sunrise}`);
-  if (sun) previews.push(`Sunset ${sun.sunset}`);
-  if (!calendar.length && moon) previews.push(moon);
+  else if (moon) previews.push(moon);
+  if (sun) previews.push(`${sun.sunrise.replace(/:00 /," ").replace(/ AM/,"a").replace(/ PM/,"p")} / ${sun.sunset.replace(/:00 /," ").replace(/ AM/,"a").replace(/ PM/,"p")}`);
 
   return (
     <div style={{
