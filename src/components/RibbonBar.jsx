@@ -115,13 +115,12 @@ export function TopicRibbon({
     }}>
       {/* Main ribbon — labels only, slightly larger than bottom ribbons */}
       <div style={{
-        display: "flex", alignItems: "center", gap: 8,
-        padding: `3px ${theme.spacing.lg}px`,
+        display: "flex", alignItems: "center", gap: 0,
         minHeight: 28,
       }}>
         <button className="ribbon-label" onClick={() => toggle("sources")} style={{
           ...lblStyle(theme), fontSize: 10, background: "none", border: "none", cursor: "pointer",
-          padding: 0, display: "inline-flex", alignItems: "center", gap: 5,
+          padding: `3px 8px 3px ${theme.spacing.lg}px`, display: "inline-flex", alignItems: "center", gap: 5,
         }}>
           <span style={arrowStyle(openSection === "sources")}>▸</span>
           SOURCES
@@ -134,7 +133,7 @@ export function TopicRibbon({
 
         <button className="ribbon-label" onClick={() => toggle("topics")} style={{
           ...lblStyle(theme), fontSize: 10, background: "none", border: "none", cursor: "pointer",
-          padding: 0, display: "inline-flex", alignItems: "center", gap: 5,
+          padding: "3px 8px", display: "inline-flex", alignItems: "center", gap: 5,
         }}>
           <span style={arrowStyle(openSection === "topics")}>▸</span>
           TOPICS
@@ -148,7 +147,7 @@ export function TopicRibbon({
             <span style={{ width: 1, height: 14, background: theme.colors.border, flexShrink: 0 }} />
             <button className="ribbon-label" onClick={() => toggle("scores")} style={{
               ...lblStyle(theme), fontSize: 10, background: "none", border: "none", cursor: "pointer",
-              padding: 0, display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "3px 8px", display: "inline-flex", alignItems: "center", gap: 5,
             }}>
               <span style={arrowStyle(openSection === "scores")}>▸</span>
               SCORES

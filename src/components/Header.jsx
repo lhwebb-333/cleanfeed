@@ -82,7 +82,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         borderBottom: `1px solid ${theme.colors.border}`,
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ position: "relative", textAlign: "center" }}>
         <h1
           style={{
             fontFamily: theme.fonts.mono,
@@ -94,8 +94,23 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         >
           CLEAN FEED
         </h1>
+        <p
+          style={{
+            fontFamily: theme.fonts.serif,
+            fontSize: 13,
+            color: theme.colors.textFaint,
+            fontStyle: "italic",
+            marginTop: 4,
+          }}
+        >
+          No algorithms. No rage. Just news.
+        </p>
 
-        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+        {/* Controls — absolutely positioned so they don't affect centering */}
+        <div style={{
+          position: "absolute", top: 0, right: 0,
+          display: "flex", gap: 4, alignItems: "center",
+        }}>
           {[
             { label: "?", onClick: onAbout },
             { label: mode === "light" ? "\u2600" : "\u263E", onClick: onToggleTheme, color: mode === "light" ? "#FF8C00" : "#888" },
@@ -130,19 +145,6 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
           ))}
         </div>
       </div>
-
-      <p
-        style={{
-          fontFamily: theme.fonts.serif,
-          fontSize: 13,
-          color: theme.colors.textFaint,
-          fontStyle: "italic",
-          textAlign: "center",
-          marginTop: 4,
-        }}
-      >
-        No algorithms. No rage. Just news.
-      </p>
 
       {/* Search + timestamp row */}
       <div
