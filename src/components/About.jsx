@@ -424,8 +424,8 @@ export function About({ open, onClose }) {
               marginBottom: 8,
             }}
           >
-            A stripped-down, text-only view optimized for E-ink devices, Kindle browsers,
-            and distraction-free reading.{" "}
+            A clean, text-only view optimized for E-ink devices, Kindle browsers,
+            and distraction-free reading. Zero JavaScript, just articles.{" "}
             <a
               href="/api/reader"
               target="_blank"
