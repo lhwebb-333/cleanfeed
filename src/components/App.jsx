@@ -21,6 +21,7 @@ export default function App() {
     mutedKeywords, addMutedKeyword, removeMutedKeyword, clearMutedKeywords,
     selectedState, selectState, clearState,
     searchQuery, setSearchQuery, refresh,
+    loadMore, hasMore,
   } = useFeed();
 
   const { pulling, pullDistance, triggered } = usePullToRefresh(refresh);
@@ -127,6 +128,28 @@ export default function App() {
           </div>
 
           <FeedList articles={articles} loading={loading} error={error} onRetry={refresh} />
+
+          {hasMore && !loading && (
+            <div style={{ textAlign: "center", padding: `${theme.spacing.lg}px 0` }}>
+              <button
+                onClick={loadMore}
+                style={{
+                  fontFamily: theme.fonts.mono,
+                  fontSize: 9,
+                  letterSpacing: "0.06em",
+                  padding: "6px 20px",
+                  background: "transparent",
+                  border: `1px solid ${theme.colors.border}`,
+                  borderRadius: theme.radii.sm,
+                  color: theme.colors.textMuted,
+                  cursor: "pointer",
+                  transition: theme.transitions.fast,
+                }}
+              >
+                LOAD EARLIER
+              </button>
+            </div>
+          )}
         </main>
       </div>
 

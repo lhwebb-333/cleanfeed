@@ -241,11 +241,21 @@ export function useFeed() {
     return merged;
   }, [allArticles, localArticles, financialArticles]);
 
-  // Client-side filtering: sources + categories + muted keywords + search
+  // Time window — default 24h, "load more" extends
+  const [hoursWindow, setHoursWindow] = useState(24);
+
+  const loadMore = useCallback(() => {
+    setHoursWindow((prev) => prev + 24);
+  }, []);
+
+  // Client-side filtering: sources + categories + muted keywords + search + time
   const articles = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     const subSourceSet = new Set(ALL_SUBSOURCE_NAMES);
+    const cutoff = searchQuery ? 0 : Date.now() - hoursWindow * 60 * 60 * 1000;
     return combinedArticles.filter((a) => {
+      // Time window (skip when searching)
+      if (!searchQuery && new Date(a.pubDate).getTime() < cutoff) return false;
       if (subSourceSet.has(a.source)) {
         if (disabledSubSources.has(a.source)) return false;
       } else {
@@ -262,7 +272,14 @@ export function useFeed() {
       }
       return true;
     });
-  }, [combinedArticles, enabledSources, enabledCategories, disabledSubSources, mutedKeywords, searchQuery]);
+  }, [combinedArticles, enabledSources, enabledCategories, disabledSubSources, mutedKeywords, searchQuery, hoursWindow]);
+
+  // Check if there are older articles beyond the window
+  const hasMore = useMemo(() => {
+    if (searchQuery) return false;
+    const cutoff = Date.now() - hoursWindow * 60 * 60 * 1000;
+    return combinedArticles.some((a) => new Date(a.pubDate).getTime() < cutoff);
+  }, [combinedArticles, hoursWindow, searchQuery]);
 
   const categoryCounts = useMemo(() => {
     const counts = {};
@@ -311,5 +328,7 @@ export function useFeed() {
     selectState,
     clearState,
     refresh: () => fetchFeed(true),
+    loadMore,
+    hasMore,
   };
 }
