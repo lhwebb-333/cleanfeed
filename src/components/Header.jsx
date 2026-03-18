@@ -311,21 +311,21 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
       {/* 3-day forecast dropdown */}
       {forecastOpen && weather?.upcoming?.length > 0 && (
         <div style={{
-          display: "flex", gap: 16, marginTop: 8,
-          justifyContent: "flex-end",
+          display: "flex", gap: 10, marginTop: 8,
           overflowX: "auto", scrollbarWidth: "none",
+          WebkitOverflowScrolling: "touch",
         }}>
           {weather.upcoming.filter((p) => p.isDaytime).slice(0, 3).map((p, i) => (
             <div key={i} style={{
-              display: "flex", alignItems: "center", gap: 6,
+              display: "flex", alignItems: "center", gap: 4,
               fontFamily: theme.fonts.mono, flexShrink: 0,
             }}>
-              <span style={{ fontSize: 8, color: theme.colors.textFaint }}>{p.name}</span>
-              <span style={{ fontSize: 10, lineHeight: 1 }}>{wxIcon(p.short)}</span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: theme.colors.textStrong }}>
+              <span style={{ fontSize: 8, color: theme.colors.textFaint }}>{p.name?.slice(0, 3)}</span>
+              <span style={{ fontSize: 9, lineHeight: 1 }}>{wxIcon(p.short)}</span>
+              <span style={{ fontSize: 9, fontWeight: 700, color: theme.colors.textStrong }}>
                 {displayTemp(p.temp)}
               </span>
-              <span style={{ fontSize: 8, color: theme.colors.textGhost }}>{p.short}</span>
+              <span style={{ fontSize: 7, color: theme.colors.textGhost }}>{p.short}</span>
             </div>
           ))}
         </div>
