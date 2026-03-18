@@ -157,14 +157,14 @@ export function ArticleCard({ article }) {
 
       {article.sourceLinks?.length > 1 && (
         <div
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
           style={{
             display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap", alignItems: "center",
           }}
         >
           {article.sourceLinks.length >= 3 && (
             <button
-              onClick={() => article.sourceLinks.forEach((sl) => window.open(sl.link, "_blank"))}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); article.sourceLinks.forEach((sl) => window.open(sl.link, "_blank")); }}
               style={{
                 fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
                 padding: "2px 6px", borderRadius: 3, cursor: "pointer",
