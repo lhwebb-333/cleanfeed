@@ -96,6 +96,11 @@ const CATEGORY_KEYWORDS = {
     "tournament", "fixture", "playoff", "championship", "postseason",
     "preseason", "regular season", "trade deadline", "free agency",
     "draft pick", "roster", "transfer window",
+    "blockbuster trade", "traded to", "traded for",
+    "contract extension", "contract worth", "year contract", "year deal",
+    "free agent", "signs with", "signed with", "signing",
+    "wide receiver", "quarterback", "running back", "tight end",
+    "point guard", "center fielder", "shortstop", "goaltender",
     // Results & action (specific enough to avoid false positives)
     "goal scored", "batting", "stadium", "medal", "manager sacked",
     "grand prix", "game recap", "final score", "defeats ", "routs ",
