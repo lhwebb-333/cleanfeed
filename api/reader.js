@@ -129,12 +129,13 @@ export default async function handler(req, res) {
   <button class="toggle" onclick="document.body.classList.toggle('dark');document.body.classList.toggle('light');">Light / Dark</button>
   <p class="tagline">No algorithms. No rage. Just news.</p>
   <p class="date">${escapeHtml(now)} — Reader Mode</p>
+  <p class="meta" style="margin-bottom:16px">${catOrder.filter(c => categories[c]?.length > 0).map(c => `<a href="#${c}" style="color:inherit;text-decoration:underline;text-underline-offset:2px">${c}</a>`).join(" · ")}</p>
 `;
 
     for (const cat of catOrder) {
       const items = categories[cat];
       if (!items || items.length === 0) continue;
-      html += `  <h2>${escapeHtml(cat)}</h2>\n`;
+      html += `  <h2 id="${cat}">${escapeHtml(cat)}</h2>\n`;
       for (const a of items) {
         html += `  <div class="article">
     <p class="meta">${escapeHtml(a.source)} · ${timeAgo(a.pubDate)}</p>
