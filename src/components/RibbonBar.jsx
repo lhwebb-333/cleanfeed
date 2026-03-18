@@ -129,7 +129,7 @@ export function TopicRibbon({
           </span>
         </button>
 
-        <span style={{ width: 1, height: 14, background: theme.colors.border, flexShrink: 0 }} />
+        <span style={{ width: 1, height: 14, background: theme.colors.border, flexShrink: 0, margin: "0 4px" }} />
 
         <button className="ribbon-label" onClick={() => toggle("topics")} style={{
           ...lblStyle(theme), fontSize: 10, background: "none", border: "none", cursor: "pointer",
@@ -144,7 +144,7 @@ export function TopicRibbon({
 
         {hasScores && (
           <>
-            <span style={{ width: 1, height: 14, background: theme.colors.border, flexShrink: 0 }} />
+            <span style={{ width: 1, height: 14, background: theme.colors.border, flexShrink: 0, margin: "0 4px" }} />
             <button className="ribbon-label" onClick={() => toggle("scores")} style={{
               ...lblStyle(theme), fontSize: 10, background: "none", border: "none", cursor: "pointer",
               padding: "3px 12px", display: "inline-flex", alignItems: "center", gap: 5,
