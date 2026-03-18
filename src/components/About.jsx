@@ -401,6 +401,35 @@ export function About({ open, onClose }) {
           </p>
         </div>
 
+        <div style={{ marginBottom: 20 }}>
+          <p
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: theme.colors.textFaint,
+              textTransform: "uppercase",
+              marginBottom: 8,
+            }}
+          >
+            Install the App
+          </p>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: theme.colors.textMuted,
+            }}
+          >
+            Add Clean Feed to your home screen for instant access — no app store needed.
+            On <strong>iPhone</strong>: tap the share button then "Add to Home Screen."
+            On <strong>Android</strong>: tap the menu (⋮) then "Install app."
+            On <strong>Desktop</strong>: look for the install icon in your address bar.
+          </p>
+        </div>
+
         <div
           style={{
             padding: "16px",
