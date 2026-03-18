@@ -114,6 +114,9 @@ const CATEGORY_KEYWORDS = {
     "stanley cup", "all-star", "mvp", "varsity",
     // Combat sports
     "boxing", "ufc", "mma",
+    // Other sports
+    "horse racing", "racing", "jockey", "derby", "grand national",
+    "cheltenham", "kentucky derby", "preakness", "belmont",
     // Meta
     "espn", "sports", "series win", "series loss",
     // NBA teams (removed common English words: heat, magic, thunder, jazz, nets, kings, suns)
