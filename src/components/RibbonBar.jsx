@@ -52,6 +52,8 @@ export function TopicRibbon({
   disabledSubSources, toggleSubSource,
 }) {
   const { theme } = useTheme();
+  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [topicsOpen, setTopicsOpen] = useState(false);
   const [expandedSub, setExpandedSub] = useState(null);
   const localName = selectedState ? `Local ${selectedState}` : null;
   const primarySources = SOURCES.filter((s) => !SUB_SET.has(s.name));
@@ -59,19 +61,38 @@ export function TopicRibbon({
     ? [...primarySources, { key: "local", name: localName, color: getSourceColor(localName) }]
     : primarySources;
 
+  const activeSourceCount = allSources.filter((s) => enabledSources.has(s.name)).length;
+  const activeTopicCount = CATEGORIES.filter((c) => enabledCategories.has(c.key)).length;
+
   return (
     <div style={{
       maxWidth: 960, margin: "0 auto",
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
       <div style={{
-        display: "flex", alignItems: "center", gap: 5,
+        display: "flex", alignItems: "center", gap: 6,
         padding: `3px ${theme.spacing.lg}px`,
         overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
         minHeight: 26,
       }}>
-        {/* Sources */}
-        {allSources.map((s) => {
+        {/* SOURCES — collapsed or expanded */}
+        <button onClick={() => setSourcesOpen(!sourcesOpen)} style={{
+          ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
+          padding: 0, display: "inline-flex", alignItems: "center", gap: 4,
+        }}>
+          <span style={{
+            fontSize: 7, transform: sourcesOpen ? "rotate(90deg)" : "rotate(0deg)",
+            transition: theme.transitions.fast,
+          }}>▸</span>
+          SOURCES
+          {!sourcesOpen && (
+            <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
+              {activeSourceCount}/{allSources.length}
+            </span>
+          )}
+        </button>
+
+        {sourcesOpen && allSources.map((s) => {
           const on = enabledSources.has(s.name);
           return (
             <button key={s.key} onClick={() => toggleSource(s.name)} style={{
@@ -89,8 +110,24 @@ export function TopicRibbon({
         {/* Divider */}
         <span style={{ width: 1, height: 12, background: theme.colors.border, flexShrink: 0 }} />
 
-        {/* Topics */}
-        {CATEGORIES.map((cat) => {
+        {/* TOPICS — collapsed or expanded */}
+        <button onClick={() => setTopicsOpen(!topicsOpen)} style={{
+          ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
+          padding: 0, display: "inline-flex", alignItems: "center", gap: 4,
+        }}>
+          <span style={{
+            fontSize: 7, transform: topicsOpen ? "rotate(90deg)" : "rotate(0deg)",
+            transition: theme.transitions.fast,
+          }}>▸</span>
+          TOPICS
+          {!topicsOpen && (
+            <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
+              {activeTopicCount}/{CATEGORIES.length}
+            </span>
+          )}
+        </button>
+
+        {topicsOpen && CATEGORIES.map((cat) => {
           const on = enabledCategories.has(cat.key);
           const count = categoryCounts[cat.key] || 0;
           const hasSubs = !!CATEGORY_SUBSOURCES[cat.key];
