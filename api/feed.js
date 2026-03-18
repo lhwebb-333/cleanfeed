@@ -19,14 +19,26 @@ export default async function handler(req, res) {
       ...supplementalArticles,
     ];
 
-    // Dedupe by normalized title (same story from source feeds + topic feeds)
-    const seenTitles = new Set();
-    articles = articles.filter((a) => {
+    // Dedupe by normalized title — but count how many sources covered each story
+    // Articles covered by 3+ sources get a "multiSource" tag
+    const titleMap = new Map(); // normalized title → { article, sources: Set }
+    for (const a of articles) {
       const key = normalizeForDedup(a.title);
-      if (seenTitles.has(key)) return false;
-      seenTitles.add(key);
-      return true;
-    });
+      if (!titleMap.has(key)) {
+        titleMap.set(key, { article: a, sources: new Set([a.source]) });
+      } else {
+        titleMap.get(key).sources.add(a.source);
+      }
+    }
+    articles = [];
+    for (const { article, sources } of titleMap.values()) {
+      if (sources.size >= 3) {
+        article.multiSource = true;
+        article.sourceCount = sources.size;
+        article.coveredBy = [...sources];
+      }
+      articles.push(article);
+    }
 
     if (categoryFilter && categoryFilter !== "all") {
       articles = articles.filter((a) => a.category === categoryFilter);

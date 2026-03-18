@@ -60,6 +60,24 @@ export function ArticleCard({ article }) {
               {article.category}
             </span>
           )}
+          {article.multiSource && (
+            <span
+              style={{
+                fontFamily: theme.fonts.mono,
+                fontSize: 8,
+                fontWeight: 700,
+                letterSpacing: "0.04em",
+                color: "#FF8C00",
+                padding: "1px 5px",
+                border: "1px solid rgba(255,140,0,0.3)",
+                borderRadius: 3,
+                background: "rgba(255,140,0,0.08)",
+              }}
+              title={`Covered by ${article.coveredBy?.join(", ")}`}
+            >
+              {article.sourceCount}+ SOURCES
+            </span>
+          )}
         </div>
         <span
           style={{
