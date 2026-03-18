@@ -18,6 +18,9 @@
       ]
     }
   ],
+  "redirects": [
+    { "source": "/:path(.*)", "has": [{ "type": "host", "value": "www.thecleanfeed.app" }], "destination": "https://thecleanfeed.app/:path", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
