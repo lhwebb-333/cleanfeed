@@ -67,11 +67,9 @@ export function About({ open, onClose }) {
             marginBottom: 20,
           }}
         >
-          Clean Feed pulls headlines directly from wire services and displays
-          them in chronological order. No editors choose what you see. No
-          algorithm decides what's important. No one rewrites the headlines
-          in a "voice." You get the raw wire, in order, and then you close
-          the app.
+          Somewhere along the way, reading the news became an act of
+          self-harm. Every app, every feed, every notification — engineered
+          to keep you angry, anxious, and scrolling.
         </p>
 
         <p
@@ -83,9 +81,9 @@ export function About({ open, onClose }) {
             marginBottom: 12,
           }}
         >
-          Every headline links directly to the original article on the
-          publisher's website. We don't host, summarize, or editorialize
-          any content. We're the piping, not the filter.
+          Clean Feed is what's left when you strip all of that away.
+          Wire services. Chronological order. The same feed for everyone.
+          No voice. No curation. No opinion about what you should care about.
         </p>
 
         <p
@@ -97,9 +95,7 @@ export function About({ open, onClose }) {
             marginBottom: 24,
           }}
         >
-          Everyone starts with the same feed. You can filter by topic, mute
-          keywords, or add local news — but those are your choices, not ours.
-          No algorithm is quietly deciding what you see behind the scenes.
+          Just the world, as it happened, in the order it happened.
         </p>
 
         <div style={{ marginBottom: 24 }}>
