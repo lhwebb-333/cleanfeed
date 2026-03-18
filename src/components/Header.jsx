@@ -27,6 +27,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
   const { theme } = useTheme();
   const [weather, setWeather] = useState(null);
   const [unit, setUnit] = useState(getUnit);
+  const [forecastOpen, setForecastOpen] = useState(false);
 
   const fetchWeather = useCallback(async (lat, lon) => {
     try {
@@ -270,15 +271,19 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
           </button>
         )}
 
-        {/* Weather inline */}
+        {/* Weather inline — click to toggle 3-day forecast */}
         {weather && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: 5,
-            marginLeft: "auto", flexShrink: 0,
-          }}>
+          <button
+            onClick={() => setForecastOpen(!forecastOpen)}
+            style={{
+              display: "flex", alignItems: "center", gap: 5,
+              marginLeft: "auto", flexShrink: 0,
+              background: "none", border: "none", cursor: "pointer", padding: 0,
+            }}
+          >
             <span style={{ fontSize: 12, lineHeight: 1 }}>{wxIcon(weather.current.short)}</span>
             <span
-              onClick={toggleUnit}
+              onClick={(e) => { e.stopPropagation(); toggleUnit(); }}
               style={{
                 fontFamily: theme.fonts.mono, fontSize: 11, fontWeight: 700,
                 color: theme.colors.textStrong, cursor: "pointer",
@@ -294,9 +299,37 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
             }}>
               {weather.location.city}
             </span>
-          </div>
+            <span style={{
+              fontSize: 7, color: theme.colors.textGhost,
+              transform: forecastOpen ? "rotate(90deg)" : "rotate(0deg)",
+              transition: "transform 0.15s ease",
+            }}>▸</span>
+          </button>
         )}
       </div>
+
+      {/* 3-day forecast dropdown */}
+      {forecastOpen && weather?.upcoming?.length > 0 && (
+        <div style={{
+          display: "flex", gap: 16, marginTop: 8,
+          justifyContent: "flex-end",
+          overflowX: "auto", scrollbarWidth: "none",
+        }}>
+          {weather.upcoming.filter((p) => p.isDaytime).slice(0, 3).map((p, i) => (
+            <div key={i} style={{
+              display: "flex", alignItems: "center", gap: 6,
+              fontFamily: theme.fonts.mono, flexShrink: 0,
+            }}>
+              <span style={{ fontSize: 8, color: theme.colors.textFaint }}>{p.name}</span>
+              <span style={{ fontSize: 10, lineHeight: 1 }}>{wxIcon(p.short)}</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: theme.colors.textStrong }}>
+                {displayTemp(p.temp)}
+              </span>
+              <span style={{ fontSize: 8, color: theme.colors.textGhost }}>{p.short}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </header>
   );
 }

@@ -400,6 +400,136 @@ export function FilterRibbon({
   );
 }
 
+export function TodayRibbon() {
+  const { theme } = useTheme();
+  const [data, setData] = useState(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        // Get lat/lon from localStorage (shared with weather)
+        let params = "";
+        try {
+          const loc = JSON.parse(localStorage.getItem("cleanfeed-weather-loc"));
+          if (loc) params = `?lat=${loc.lat}&lon=${loc.lon}`;
+        } catch {}
+        const res = await fetch(`${API_BASE}/api/today${params}`);
+        if (!res.ok) return;
+        const d = await res.json();
+        if (d.ok) setData(d);
+      } catch {}
+    }
+    load();
+  }, []);
+
+  if (!data) return null;
+
+  const { date, sun, moon, calendar, history } = data;
+
+  // Build preview snippets
+  const previews = [];
+  previews.push(date.short);
+  if (calendar.length > 0) previews.push(calendar[0].text);
+  if (sun) previews.push(`Sunrise ${sun.sunrise}`);
+  if (sun) previews.push(`Sunset ${sun.sunset}`);
+  if (!calendar.length && moon) previews.push(moon);
+
+  return (
+    <div style={{
+      maxWidth: 960, margin: "0 auto",
+      borderBottom: `1px solid ${theme.colors.border}`,
+    }}>
+      <button onClick={() => setOpen(!open)} style={{
+        display: "flex", alignItems: "center", gap: 8, width: "100%",
+        padding: `3px ${theme.spacing.lg}px`, background: "transparent",
+        border: "none", cursor: "pointer", textAlign: "left", minHeight: 26,
+      }}>
+        <span style={{
+          fontFamily: theme.fonts.mono, fontSize: 8, fontWeight: 700,
+          color: theme.colors.textMuted, letterSpacing: "0.06em",
+          transform: open ? "rotate(90deg)" : "rotate(0deg)",
+          transition: theme.transitions.fast,
+        }}>▸</span>
+        <span style={{
+          fontFamily: theme.fonts.mono, fontSize: 8, fontWeight: 700,
+          color: theme.colors.textMuted, letterSpacing: "0.06em",
+          textTransform: "uppercase", flexShrink: 0,
+        }}>TODAY</span>
+        <span style={{
+          fontFamily: theme.fonts.mono, fontSize: 9,
+          color: theme.colors.textFaint,
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          flex: 1, minWidth: 0,
+        }}>
+          {previews.join(" \u00B7 ")}
+        </span>
+      </button>
+
+      {open && (
+        <div className="ribbon-dropdown" style={{
+          padding: `4px ${theme.spacing.lg}px 8px`,
+          borderTop: `1px solid ${theme.colors.border}`,
+          display: "flex", flexDirection: "column", gap: 6,
+        }}>
+          {/* Date + Sun + Moon */}
+          <div style={{
+            fontFamily: theme.fonts.mono, fontSize: 9,
+            display: "flex", gap: 12, flexWrap: "wrap", color: theme.colors.textMuted,
+          }}>
+            <span style={{ color: theme.colors.textStrong, fontWeight: 700 }}>{date.full}</span>
+            {sun && <span>Sunrise {sun.sunrise}</span>}
+            {sun && <span>Sunset {sun.sunset}</span>}
+            {moon && <span>{moon}</span>}
+          </div>
+
+          {/* Calendar events */}
+          {calendar.length > 0 && (
+            <div style={{
+              fontFamily: theme.fonts.mono, fontSize: 9,
+              display: "flex", gap: 8, flexWrap: "wrap",
+            }}>
+              {calendar.map((e, i) => (
+                <span key={i} style={{
+                  padding: "1px 6px", borderRadius: 3,
+                  background: e.type === "fomc" ? "rgba(255,140,0,0.08)" : "rgba(100,100,255,0.08)",
+                  border: `1px solid ${e.type === "fomc" ? "rgba(255,140,0,0.3)" : "rgba(100,100,255,0.2)"}`,
+                  color: e.type === "fomc" ? "#FF8C00" : theme.colors.textMuted,
+                  fontSize: 8, fontWeight: 600,
+                }}>
+                  {e.text}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* This Day in History */}
+          {history.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <span style={{
+                fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
+                color: theme.colors.textGhost, letterSpacing: "0.06em", textTransform: "uppercase",
+              }}>THIS DAY IN HISTORY</span>
+              {history.map((h, i) => (
+                <p key={i} style={{
+                  fontFamily: theme.fonts.serif, fontSize: 12, lineHeight: 1.4,
+                  color: i === 0 ? theme.colors.textMuted : theme.colors.textFaint,
+                  margin: 0,
+                }}>
+                  <span style={{ fontFamily: theme.fonts.mono, fontSize: 10, fontWeight: 700, color: theme.colors.textStrong, marginRight: 6 }}>
+                    {h.year}
+                  </span>
+                  {h.text}
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Shared styles
 function lblStyle(theme) {
   return {

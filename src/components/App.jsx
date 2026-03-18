@@ -4,7 +4,7 @@ import { Header } from "./Header";
 import { FeedList } from "./FeedList";
 import { About } from "./About";
 import { DataBars } from "./DataBars";
-import { TopicRibbon, FilterRibbon } from "./RibbonBar";
+import { TopicRibbon, FilterRibbon, TodayRibbon } from "./RibbonBar";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
@@ -87,6 +87,8 @@ export default function App() {
       />
 
       <DataBars />
+
+      <TodayRibbon />
 
       <FilterRibbon
         mutedKeywords={mutedKeywords} onAddMuted={addMutedKeyword}
