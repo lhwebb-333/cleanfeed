@@ -67,9 +67,25 @@ export function About({ open, onClose }) {
             marginBottom: 20,
           }}
         >
-          Clean Feed is a news reader that shows headlines from trusted wire
-          services — chronologically sorted, with no algorithmic ranking, no
-          opinions, and no engagement tricks.
+          Clean Feed pulls headlines directly from wire services and displays
+          them in chronological order. No editors choose what you see. No
+          algorithm decides what's important. No one rewrites the headlines
+          in a "voice." You get the raw wire, in order, and then you close
+          the app.
+        </p>
+
+        <p
+          style={{
+            fontFamily: theme.fonts.serif,
+            fontSize: 15,
+            lineHeight: 1.6,
+            color: theme.colors.text,
+            marginBottom: 12,
+          }}
+        >
+          Every headline links directly to the original article on the
+          publisher's website. We don't host, summarize, or editorialize
+          any content. We're the piping, not the filter.
         </p>
 
         <p
@@ -81,9 +97,9 @@ export function About({ open, onClose }) {
             marginBottom: 24,
           }}
         >
-          We don't host or republish any content. Every headline links directly
-          to the original article on the publisher's website. We're just a
-          cleaner front door.
+          Everyone sees the same feed. No personalization, no recommendations,
+          no bubble. Two people can open Clean Feed and have the same
+          conversation about the same news — like a shared newspaper.
         </p>
 
         <div style={{ marginBottom: 24 }}>
@@ -384,7 +400,35 @@ export function About({ open, onClose }) {
               marginBottom: 8,
             }}
           >
-            Our Mission
+            Why This Exists
+          </p>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: theme.colors.textMuted,
+              marginBottom: 10,
+            }}
+          >
+            Most news products are designed to keep you scrolling. They use
+            algorithms, notifications, outrage, and engagement tricks to
+            maximize your time on screen — because your attention is what
+            they sell to advertisers.
+          </p>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: theme.colors.textMuted,
+              marginBottom: 10,
+            }}
+          >
+            Clean Feed is designed to let you leave. Check the news, get
+            informed, close the app. No ads means we have no incentive to
+            keep you here. No algorithm means we can't manipulate what you
+            see. No accounts means we have no data to sell.
           </p>
           <p
             style={{
@@ -394,10 +438,7 @@ export function About({ open, onClose }) {
               color: theme.colors.textMuted,
             }}
           >
-            News should inform, not inflame. Clean Feed exists to give people a
-            calm, unbiased window into what's happening — free from algorithms,
-            outrage, and manipulation. We believe access to straight news is a
-            public good.
+            You pay us — or you don't. Nobody else does. That's the whole model.
           </p>
         </div>
 
