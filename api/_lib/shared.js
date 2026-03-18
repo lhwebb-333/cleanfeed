@@ -290,15 +290,16 @@ const OPINION_FILTERS = [
   "stat+:", "subscriber only", "members only", "premium:",
 ];
 
-// Filter Nature journal papers — keep news, skip corrections and formatted papers
-function isJournalPaper(title = "", description = "", source = "") {
+// Filter Nature journal papers — keep news (d41586-*), skip research papers (s41586-*)
+function isJournalPaper(title = "", description = "", source = "", link = "") {
   if (source !== "Nature") return false;
+  // Nature URLs: d41586 = news/editorial, s41586 = research papers
+  if (link && link.includes("/articles/s41586")) return true;
+  if (link && link.includes("/articles/s4158")) return true;
   const t = title.toLowerCase();
-  // Corrections and retractions
   if (t.startsWith("author correction") || t.startsWith("publisher correction") ||
       t.startsWith("correction:") || t.startsWith("erratum") ||
       t.startsWith("corrigendum") || t.startsWith("retraction")) return true;
-  // Titles with HTML sub/sup tags are formatted paper titles
   if (title.includes("<sub>") || title.includes("<sup>")) return true;
   return false;
 }
@@ -620,7 +621,7 @@ export async function fetchSupplementalFeeds() {
     for (const { item, name, color, category } of result.value) {
       if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
       const desc = (item.contentSnippet || item.content || "").slice(0, 250);
-      if (isJournalPaper(item.title, desc, name)) continue;
+      if (isJournalPaper(item.title, desc, name, item.link || item.guid)) continue;
       articles.push({
         id: item.guid || item.link,
         title: item.title,
