@@ -425,10 +425,10 @@ export function About({ open, onClose }) {
               marginBottom: 10,
             }}
           >
-            Clean Feed is designed to let you leave. Check the news, get
-            informed, close the app. No ads means we have no incentive to
-            keep you here. No algorithm means we can't manipulate what you
-            see. No accounts means we have no data to sell.
+            The news became a machine for producing anxiety in people
+            who wanted to be informed. The algorithm learned that outrage
+            keeps you scrolling. The business model learned that your
+            attention is the product.
           </p>
           <p
             style={{
@@ -438,7 +438,8 @@ export function About({ open, onClose }) {
               color: theme.colors.textMuted,
             }}
           >
-            You pay us — or you don't. Nobody else does. That's the whole model.
+            We refused the premise. No ads. No algorithm. No account.
+            What remains is just the news — and your freedom to stop reading it.
           </p>
         </div>
 
