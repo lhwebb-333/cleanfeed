@@ -85,11 +85,11 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
+          alignItems: "center",
         }}
       >
-        <div>
+        {/* Centered title */}
+        <div style={{ flex: 1, textAlign: "center" }}>
           <h1
             style={{
               fontFamily: theme.fonts.mono,
@@ -97,7 +97,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
               fontWeight: 700,
               letterSpacing: "0.2em",
               color: theme.colors.textStrong,
-              marginBottom: 6,
+              marginBottom: 4,
             }}
           >
             CLEAN FEED
@@ -105,7 +105,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
           <p
             style={{
               fontFamily: theme.fonts.serif,
-              fontSize: 14,
+              fontSize: 13,
               color: theme.colors.textFaint,
               fontStyle: "italic",
             }}
@@ -114,63 +114,50 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          {/* About */}
+        {/* Controls — stacked vertically on the right */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, flexShrink: 0 }}>
           <button
             onClick={onAbout}
             style={{
               background: "none",
               border: `1px solid ${theme.colors.border}`,
               color: theme.colors.textMuted,
-              fontSize: 12,
+              fontSize: 11,
               cursor: "pointer",
-              padding: "6px 10px",
+              width: 28,
+              height: 28,
               borderRadius: theme.radii.md,
               fontFamily: theme.fonts.mono,
-              letterSpacing: "0.04em",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               transition: theme.transitions.fast,
             }}
           >
             ?
           </button>
 
-          {/* Theme toggle */}
           <button
             onClick={onToggleTheme}
             aria-label="Toggle light/dark mode"
             style={{
               background: theme.colors.toggleBg,
               border: `1px solid ${theme.colors.border}`,
-              borderRadius: 20,
-              width: 44,
-              height: 24,
+              borderRadius: theme.radii.md,
+              width: 28,
+              height: 28,
               cursor: "pointer",
-              position: "relative",
-              transition: "background 0.3s ease",
-              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 12,
+              transition: theme.transitions.fast,
+              color: mode === "light" ? "#FF8C00" : "#888",
             }}
           >
-            <span
-              style={{
-                position: "absolute",
-                top: 3,
-                left: mode === "light" ? 23 : 3,
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                background: mode === "light" ? "#FF8C00" : "#888",
-                transition: "left 0.25s ease, background 0.25s ease",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 9,
-              }}
-            >
-              {mode === "light" ? "\u2600" : "\u263E"}
-            </span>
+            {mode === "light" ? "\u2600" : "\u263E"}
           </button>
 
-          {/* Refresh */}
           <button
             onClick={onRefresh}
             disabled={refreshing}
@@ -178,22 +165,22 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
               background: "none",
               border: `1px solid ${theme.colors.border}`,
               color: theme.colors.textMuted,
-              fontSize: 20,
+              fontSize: 14,
               cursor: refreshing ? "default" : "pointer",
-              padding: "6px 10px",
+              width: 28,
+              height: 28,
               borderRadius: theme.radii.md,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               opacity: refreshing ? 0.5 : 1,
               transition: theme.transitions.fast,
             }}
           >
-            <span
-              style={{
-                display: "inline-block",
-                animation: refreshing ? "spin 1s linear infinite" : "none",
-              }}
-            >
-              ↻
-            </span>
+            <span style={{
+              display: "inline-block",
+              animation: refreshing ? "spin 1s linear infinite" : "none",
+            }}>↻</span>
           </button>
         </div>
       </div>
@@ -217,7 +204,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
               width: "100%",
               fontFamily: theme.fonts.mono,
               fontSize: 10,
-              padding: searchQuery ? "5px 24px 5px 10px" : "5px 10px",
+              padding: searchQuery ? "4px 24px 4px 10px" : "4px 10px",
               background: theme.colors.surface,
               border: `1px solid ${searchQuery ? theme.colors.textMuted : theme.colors.border}`,
               borderRadius: theme.radii.sm,
