@@ -70,6 +70,10 @@ export default function App() {
         lastUpdated={lastUpdated} refreshing={refreshing} onRefresh={refresh}
         mode={mode} onToggleTheme={toggleTheme} onAbout={() => setAboutOpen(true)}
         searchQuery={searchQuery} onSearchChange={setSearchQuery}
+        onDetectState={(stateCode) => {
+          // Auto-select local state if not already set
+          if (!selectedState) selectState(stateCode);
+        }}
       />
 
       {/* All ribbons — same visual weight, same interaction */}
@@ -193,11 +197,11 @@ export default function App() {
         a { text-decoration: none; color: inherit; }
         .source-filter-row::-webkit-scrollbar { display: none; }
         @media (max-width: 700px) {
-          .ribbon-label { font-size: 10px !important; padding: 6px 0 !important; }
-          .ribbon-label span { font-size: 9px !important; }
-          .ribbon-count { font-size: 10px !important; }
-          .ribbon-dropdown button { font-size: 11px !important; padding: 4px 10px !important; }
-          .ribbon-dropdown span { font-size: 10px !important; }
+          .ribbon-label { font-size: 9px !important; padding: 5px 0 !important; }
+          .ribbon-label span { font-size: 8px !important; }
+          .ribbon-count { font-size: 9px !important; }
+          .ribbon-dropdown button { font-size: 10px !important; padding: 3px 9px !important; }
+          .ribbon-dropdown span { font-size: 9px !important; }
         }
       `}</style>
       <Analytics />

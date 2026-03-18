@@ -23,7 +23,7 @@ function wxIcon(short) {
   return "\u2600";
 }
 
-export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme, onAbout, searchQuery, onSearchChange }) {
+export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme, onAbout, searchQuery, onSearchChange, onDetectState }) {
   const { theme } = useTheme();
   const [weather, setWeather] = useState(null);
   const [unit, setUnit] = useState(getUnit);
@@ -33,7 +33,13 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
       const res = await fetch(`${API_BASE}/api/weather?lat=${lat}&lon=${lon}`);
       if (!res.ok) return;
       const data = await res.json();
-      if (data.ok) setWeather(data);
+      if (data.ok) {
+        setWeather(data);
+        // Auto-detect state from weather location
+        if (data.location?.state && data.source === "nws" && onDetectState) {
+          onDetectState(data.location.state);
+        }
+      }
     } catch {}
   }, []);
 
