@@ -111,7 +111,7 @@ export default function App() {
               color: searchQuery ? theme.colors.textMuted : theme.colors.textFaint,
               letterSpacing: "0.05em",
             }}>
-              {searchQuery ? `${articles.length} results for "${searchQuery}"` : `${articles.length} articles`}
+              {searchQuery ? `${articles.length} results for "${searchQuery}"` : "Today's feed"}
             </span>
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} style={{

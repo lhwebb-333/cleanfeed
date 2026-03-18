@@ -150,7 +150,7 @@ export function TopicRibbon({
               padding: "3px 12px", display: "inline-flex", alignItems: "center", gap: 5,
             }}>
               <span style={arrowStyle(openSection === "scores")}>▸</span>
-              SCORES
+              SPORTS
               <span className="ribbon-count" style={{ fontSize: 9, fontWeight: 400, color: theme.colors.textFaint }}>
                 {Object.keys(gamesByLeague).length}
               </span>
@@ -238,7 +238,7 @@ export function TopicRibbon({
         </div>
       )}
 
-      {/* SCORES dropdown — league pills, click one to expand games */}
+      {/* SPORTS dropdown — league pills, click one to expand games */}
       {openSection === "scores" && hasScores && (
         <div className="ribbon-dropdown" style={{
           padding: `3px ${theme.spacing.lg}px 5px`,
