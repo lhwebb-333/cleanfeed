@@ -7,7 +7,7 @@ const MONTHS = ["January", "February", "March", "April", "May", "June",
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const cache = new Map();
-const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+const CACHE_TTL = 12 * 60 * 60 * 1000; // 12 hours — updates 2x/day
 
 function getCached(key) {
   const entry = cache.get(key);
@@ -176,7 +176,10 @@ export default async function handler(req, res) {
       }
 
       const wireServices = ["Reuters", "AP News", "BBC", "NPR"];
-      const wireArticles = allArticles.filter((a) => wireServices.includes(a.source));
+      const cutoff = Date.now() - 24 * 60 * 60 * 1000; // last 24 hours only
+      const wireArticles = allArticles.filter((a) =>
+        wireServices.includes(a.source) && new Date(a.pubDate).getTime() > cutoff
+      );
 
       for (const a of wireArticles) {
         if (a._digestChecked) continue;
@@ -195,11 +198,34 @@ export default async function handler(req, res) {
         }
 
         if (sources.size >= 2) {
-          digest.push({ title: a.title, sources: [...sources], sourceCount: sources.size });
+          digest.push({
+            title: a.title,
+            sources: [...sources],
+            sourceCount: sources.size,
+            pubDate: a.pubDate,
+          });
         }
       }
-      digest.sort((a, b) => b.sourceCount - a.sourceCount);
+      // Sort by source count first, then recency
+      digest.sort((a, b) => b.sourceCount - a.sourceCount || new Date(b.pubDate) - new Date(a.pubDate));
       digest = digest.slice(0, 5);
+
+      // If we don't have 5, pad with most recent wire headlines from last 24h
+      if (digest.length < 5) {
+        const digestTitles = new Set(digest.map((d) => d.title));
+        const recent = wireArticles
+          .filter((a) => !digestTitles.has(a.title) && !a._digestChecked)
+          .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        for (const a of recent) {
+          if (digest.length >= 5) break;
+          digest.push({
+            title: a.title,
+            sources: [a.source],
+            sourceCount: 1,
+            pubDate: a.pubDate,
+          });
+        }
+      }
     } catch (err) {
       console.warn("[Today] Digest error:", err.message);
     }
