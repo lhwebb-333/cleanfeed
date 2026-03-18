@@ -6,7 +6,7 @@ import { getSourceColor } from "../utils/sources";
 export function ArticleCard({ article }) {
   const { theme } = useTheme();
   const [hovered, setHovered] = useState(false);
-  const [sourcesOpen, setSourcesOpen] = useState(false);
+  // source links always visible for multi-source articles
   const color = getSourceColor(article.source) || article.color || "#888";
 
   return (
@@ -63,25 +63,15 @@ export function ArticleCard({ article }) {
           )}
           {article.multiSource && (
             <span
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setSourcesOpen(!sourcesOpen);
-              }}
               style={{
                 fontFamily: theme.fonts.mono,
                 fontSize: 8,
                 fontWeight: 700,
                 letterSpacing: "0.04em",
                 color: "#FF8C00",
-                padding: "1px 5px",
-                border: "1px solid rgba(255,140,0,0.3)",
-                borderRadius: 3,
-                background: "rgba(255,140,0,0.08)",
-                cursor: "pointer",
               }}
             >
-              Also: {article.coveredBy?.filter(s => s !== article.source).join(", ")} {sourcesOpen ? "▾" : "▸"}
+              {article.sourceCount}+ sources
             </span>
           )}
         </div>
@@ -125,7 +115,7 @@ export function ArticleCard({ article }) {
         </p>
       )}
 
-      {sourcesOpen && article.sourceLinks?.length > 0 && (
+      {article.sourceLinks?.length > 1 && (
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
