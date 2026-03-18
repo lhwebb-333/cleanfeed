@@ -413,6 +413,46 @@ export function About({ open, onClose }) {
               marginBottom: 8,
             }}
           >
+            Reader Mode
+          </p>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: theme.colors.textMuted,
+              marginBottom: 8,
+            }}
+          >
+            A stripped-down, text-only view optimized for E-ink devices, Kindle browsers,
+            and distraction-free reading.{" "}
+            <a
+              href="/api/reader"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: theme.colors.textStrong,
+                textDecoration: "underline",
+                textUnderlineOffset: 2,
+              }}
+            >
+              Open Reader Mode
+            </a>
+          </p>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <p
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: theme.colors.textFaint,
+              textTransform: "uppercase",
+              marginBottom: 8,
+            }}
+          >
             Install the App
           </p>
           <p
