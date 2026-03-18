@@ -164,7 +164,7 @@ export function TopicRibbon({
       {openSection === "sources" && (
         <div className="ribbon-dropdown" style={{
           display: "flex", alignItems: "center", gap: 5,
-          padding: `3px ${theme.spacing.lg}px 5px`,
+          padding: `3px ${theme.spacing.lg}px 5px ${theme.spacing.lg + 16}px`,
           borderTop: `1px solid ${theme.colors.border}`,
           overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
         }}>
@@ -185,14 +185,13 @@ export function TopicRibbon({
         </div>
       )}
 
-      {/* TOPICS dropdown */}
+      {/* TOPICS dropdown — horizontal scroll */}
       {openSection === "topics" && (
         <div className="ribbon-dropdown" style={{
           display: "flex", alignItems: "center", gap: 5,
           padding: `3px ${theme.spacing.lg}px 5px`,
           borderTop: `1px solid ${theme.colors.border}`,
           overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
-          flexWrap: "wrap",
         }}>
           {CATEGORIES.map((cat) => {
             const on = enabledCategories.has(cat.key);
@@ -432,7 +431,11 @@ export function TodayRibbon() {
   const previews = [date.short];
   if (calendar.length > 0) previews.push(calendar[0].text);
   else if (moon) previews.push(moon);
-  if (sun) previews.push(`${sun.sunrise.replace(/:00 /," ").replace(/ AM/,"a").replace(/ PM/,"p")} / ${sun.sunset.replace(/:00 /," ").replace(/ AM/,"a").replace(/ PM/,"p")}`);
+  if (sun) {
+    const sr = sun.sunrise.replace(/:00 /," ").replace(/ AM/,"a").replace(/ PM/,"p");
+    const ss = sun.sunset.replace(/:00 /," ").replace(/ AM/,"a").replace(/ PM/,"p");
+    previews.push(`\u2600\uFE0E ${sr}  \u263E ${ss}`);
+  }
 
   return (
     <div style={{
@@ -472,8 +475,8 @@ export function TodayRibbon() {
             display: "flex", gap: 12, flexWrap: "wrap", color: theme.colors.textMuted,
           }}>
             <span style={{ color: theme.colors.textStrong, fontWeight: 700 }}>{date.full}</span>
-            {sun && <span>Sunrise {sun.sunrise}</span>}
-            {sun && <span>Sunset {sun.sunset}</span>}
+            {sun && <span>{"\u2600\uFE0E"} Sunrise {sun.sunrise}</span>}
+            {sun && <span>{"\u263E"} Sunset {sun.sunset}</span>}
             {moon && <span>{moon}</span>}
           </div>
 
@@ -505,17 +508,19 @@ export function TodayRibbon() {
                 color: theme.colors.textGhost, letterSpacing: "0.06em", textTransform: "uppercase",
               }}>TODAY'S TOP STORIES</span>
               {data.digest.map((d, i) => (
-                <p key={i} style={{
-                  fontFamily: theme.fonts.serif, fontSize: 12, lineHeight: 1.4,
-                  color: theme.colors.text, margin: 0,
-                  display: "flex", alignItems: "baseline", gap: 6,
-                }}>
+                <a key={i} href={`https://news.google.com/search?q=${encodeURIComponent(d.title.slice(0, 60))}`}
+                  target="_blank" rel="noopener noreferrer"
+                  style={{
+                    fontFamily: theme.fonts.serif, fontSize: 12, lineHeight: 1.4,
+                    color: theme.colors.text, margin: 0, textDecoration: "none",
+                    display: "flex", alignItems: "baseline", gap: 6,
+                  }}>
                   <span style={{
                     fontFamily: theme.fonts.mono, fontSize: 8, color: "#FF8C00",
                     fontWeight: 700, flexShrink: 0,
                   }}>{d.sourceCount}+</span>
-                  {d.title}
-                </p>
+                  <span style={{ borderBottom: `1px solid ${theme.colors.border}` }}>{d.title}</span>
+                </a>
               ))}
             </div>
           )}

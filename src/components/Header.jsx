@@ -207,7 +207,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
           marginTop: 12,
         }}
       >
-        <div style={{ position: "relative", flex: 1, maxWidth: 300 }}>
+        <div style={{ position: "relative", flex: 1, maxWidth: 240 }}>
           <input
             type="text"
             value={searchQuery}
@@ -216,9 +216,9 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
             style={{
               width: "100%",
               fontFamily: theme.fonts.mono,
-              fontSize: 11,
-              padding: searchQuery ? "7px 28px 7px 12px" : "7px 12px",
-              background: searchQuery ? theme.colors.surface : theme.colors.surface,
+              fontSize: 10,
+              padding: searchQuery ? "5px 24px 5px 10px" : "5px 10px",
+              background: theme.colors.surface,
               border: `1px solid ${searchQuery ? theme.colors.textMuted : theme.colors.border}`,
               borderRadius: theme.radii.sm,
               color: theme.colors.text,
@@ -281,11 +281,11 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
               background: "none", border: "none", cursor: "pointer", padding: 0,
             }}
           >
-            <span style={{ fontSize: 12, lineHeight: 1 }}>{wxIcon(weather.current.short)}</span>
+            <span style={{ fontSize: 13, lineHeight: 1 }}>{wxIcon(weather.current.short)}</span>
             <span
               onClick={(e) => { e.stopPropagation(); toggleUnit(); }}
               style={{
-                fontFamily: theme.fonts.mono, fontSize: 11, fontWeight: 700,
+                fontFamily: theme.fonts.mono, fontSize: 12, fontWeight: 700,
                 color: theme.colors.textStrong, cursor: "pointer",
                 letterSpacing: "-0.02em",
               }}
@@ -295,7 +295,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
             </span>
             <span style={{
               fontFamily: theme.fonts.mono, fontSize: 9,
-              color: theme.colors.textFaint,
+              color: theme.colors.textMuted,
             }}>
               {weather.location.city}
             </span>
