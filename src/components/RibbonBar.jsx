@@ -314,87 +314,92 @@ export function FilterRibbon({
   selectedState, onSelectState, onClearState,
 }) {
   const { theme } = useTheme();
+  const [open, setOpen] = useState(false);
   const [muteInput, setMuteInput] = useState("");
   const [stateInput, setStateInput] = useState("");
-  const [showInputs, setShowInputs] = useState(false);
 
   const handleMute = (e) => { e.preventDefault(); onAddMuted(muteInput); setMuteInput(""); };
   const handleState = (e) => { e.preventDefault(); const code = resolveState(stateInput); if (code) { onSelectState(code); setStateInput(""); } };
 
-  const hasAnything = mutedKeywords.length > 0 || selectedState || showInputs;
-
-  // Hidden until user has filters active or clicks to add
-  if (!hasAnything) {
-    return (
-      <div style={{
-        maxWidth: 960, margin: "0 auto",
-        borderBottom: `1px solid ${theme.colors.border}`,
-      }}>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 6,
-          padding: `2px ${theme.spacing.lg}px`,
-          minHeight: 22,
-        }}>
-          <button onClick={() => setShowInputs(true)} style={{
-            ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
-            opacity: 0.5, padding: 0,
-          }}>
-            + LOCAL / MUTE
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Build compact summary
+  const parts = [];
+  if (selectedState) parts.push(selectedState);
+  if (mutedKeywords.length > 0) parts.push(`${mutedKeywords.length} muted`);
+  const summary = parts.length > 0 ? parts.join(" · ") : "none";
 
   return (
     <div style={{
       maxWidth: 960, margin: "0 auto",
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
-      <div style={{
-        display: "flex", alignItems: "center", gap: 6,
-        padding: `3px ${theme.spacing.lg}px`,
-        overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
-        minHeight: 26,
+      {/* Collapsed bar */}
+      <button onClick={() => setOpen(!open)} style={{
+        display: "flex", alignItems: "center", gap: 6, width: "100%",
+        padding: `3px ${theme.spacing.lg}px`, background: "transparent",
+        border: "none", cursor: "pointer", textAlign: "left", minHeight: 26,
       }}>
-        {/* LOCAL */}
-        <span style={{ ...lblStyle(theme), color: LOCAL_COLOR }}>LOCAL</span>
-        {!selectedState ? (
-          <form onSubmit={handleState} style={{ flexShrink: 0 }}>
-            <input type="text" value={stateInput} onChange={(e) => setStateInput(e.target.value)}
-              placeholder="+ state" style={inputStyle(theme, LOCAL_COLOR + "30")} />
+        <span style={{
+          fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
+          color: theme.colors.textMuted,
+          transform: open ? "rotate(90deg)" : "rotate(0deg)",
+          transition: theme.transitions.fast,
+        }}>▸</span>
+        <span style={{
+          ...lblStyle(theme), display: "inline-flex", alignItems: "center", gap: 6,
+        }}>
+          FILTERS
+          <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
+            {summary}
+          </span>
+        </span>
+      </button>
+
+      {/* Expanded */}
+      {open && (
+        <div className="ribbon-dropdown" style={{
+          display: "flex", alignItems: "center", gap: 6,
+          padding: `3px ${theme.spacing.lg}px 5px`,
+          borderTop: `1px solid ${theme.colors.border}`,
+          overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
+        }}>
+          {/* LOCAL */}
+          <span style={{ ...lblStyle(theme), color: LOCAL_COLOR }}>LOCAL</span>
+          {!selectedState ? (
+            <form onSubmit={handleState} style={{ flexShrink: 0 }}>
+              <input type="text" value={stateInput} onChange={(e) => setStateInput(e.target.value)}
+                placeholder="+ state" style={inputStyle(theme, LOCAL_COLOR + "30")} />
+            </form>
+          ) : (
+            <button onClick={onClearState} title="Remove" style={{
+              ...pillBase(theme), fontSize: 8, padding: "2px 6px",
+              background: LOCAL_COLOR + "12", border: `1px solid ${LOCAL_COLOR}40`, color: LOCAL_COLOR,
+            }}>
+              {US_STATES[selectedState]} ({selectedState}) <span style={{ opacity: 0.5, marginLeft: 2 }}>×</span>
+            </button>
+          )}
+
+          <span style={{ width: 1, height: 12, background: theme.colors.border, flexShrink: 0 }} />
+
+          {/* MUTE */}
+          <span style={lblStyle(theme)}>MUTE</span>
+          <form onSubmit={handleMute} style={{ flexShrink: 0 }}>
+            <input type="text" value={muteInput} onChange={(e) => setMuteInput(e.target.value)}
+              placeholder="+ keyword" style={inputStyle(theme)} />
           </form>
-        ) : (
-          <button onClick={onClearState} title="Remove" style={{
-            ...pillBase(theme), fontSize: 8, padding: "2px 6px",
-            background: LOCAL_COLOR + "12", border: `1px solid ${LOCAL_COLOR}40`, color: LOCAL_COLOR,
-          }}>
-            {US_STATES[selectedState]} ({selectedState}) <span style={{ opacity: 0.5, marginLeft: 2 }}>×</span>
-          </button>
-        )}
-
-        <span style={{ width: 1, height: 12, background: theme.colors.border, flexShrink: 0 }} />
-
-        {/* MUTE */}
-        <span style={lblStyle(theme)}>MUTE</span>
-        <form onSubmit={handleMute} style={{ flexShrink: 0 }}>
-          <input type="text" value={muteInput} onChange={(e) => setMuteInput(e.target.value)}
-            placeholder="+ keyword" style={inputStyle(theme)} />
-        </form>
-        {mutedKeywords.map((kw) => (
-          <button key={kw} onClick={() => onRemoveMuted(kw)} title="Unmute" style={{
-            ...pillBase(theme), fontSize: 8, padding: "2px 6px",
-            background: theme.colors.error + "12", border: `1px solid ${theme.colors.error}40`, color: theme.colors.error,
-          }}>
-            {kw} <span style={{ opacity: 0.5, marginLeft: 2 }}>×</span>
-          </button>
-        ))}
-        {mutedKeywords.length > 0 && (
-          <button onClick={onClearMuted} style={{
-            ...pillBase(theme), fontSize: 7, padding: "2px 6px",
-            background: "transparent", border: `1px solid ${theme.colors.border}`, color: theme.colors.textGhost,
-          }}>CLEAR</button>
-        )}
+          {mutedKeywords.map((kw) => (
+            <button key={kw} onClick={() => onRemoveMuted(kw)} title="Unmute" style={{
+              ...pillBase(theme), fontSize: 8, padding: "2px 6px",
+              background: theme.colors.error + "12", border: `1px solid ${theme.colors.error}40`, color: theme.colors.error,
+            }}>
+              {kw} <span style={{ opacity: 0.5, marginLeft: 2 }}>×</span>
+            </button>
+          ))}
+          {mutedKeywords.length > 0 && (
+            <button onClick={onClearMuted} style={{
+              ...pillBase(theme), fontSize: 7, padding: "2px 6px",
+              background: "transparent", border: `1px solid ${theme.colors.border}`, color: theme.colors.textGhost,
+            }}>CLEAR</button>
+          )}
       </div>
     </div>
   );
