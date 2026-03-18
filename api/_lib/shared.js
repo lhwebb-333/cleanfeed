@@ -343,9 +343,16 @@ function classifyArticle(title = "", description = "", feedCategory = "world", t
   return bestCat;
 }
 
+// Common Spanish words that don't appear in English news headlines
+const SPANISH_INDICATORS = ["recortes", "clínicas", "impuesto", "alertan", "sobre una", "asociada", "mortal", "según", "también", "después", "complicación", "gobierno", "salud", "médicos", "hospitales"];
+
 function isOpinion(title = "", description = "") {
   const text = `${title} ${description}`.toLowerCase();
-  return OPINION_FILTERS.some((f) => text.includes(f));
+  if (OPINION_FILTERS.some((f) => text.includes(f))) return true;
+  // Filter non-English articles (Spanish from KFF, etc.)
+  const spanishHits = SPANISH_INDICATORS.filter((w) => text.includes(w)).length;
+  if (spanishHits >= 2) return true;
+  return false;
 }
 
 // Aggressive title normalization for dedup — handles invisible char differences,
