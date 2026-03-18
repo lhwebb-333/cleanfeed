@@ -98,6 +98,62 @@ export default async function handler(req, res) {
     // Remove duplicate articles (keep the primary from each cluster)
     articles = articles.filter((_, idx) => !dupeIndices.has(idx));
 
+    // Detect running stories — topics covered by 5+ articles across 2+ days
+    const STOP2 = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","is","are","was","were","has","have","had","not","its","it","with","from","by","as","this","that","says","said","say","new","up","down","out","just","also","now","after","how","why","what","who","more","been"]);
+    function storyKeywords(title) {
+      return title.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/)
+        .filter((w) => w.length > 3 && !STOP2.has(w));
+    }
+
+    // Build keyword frequency map
+    const kwArticles = {}; // keyword → [article indices]
+    for (let i = 0; i < articles.length; i++) {
+      const kws = storyKeywords(articles[i].title);
+      for (const kw of kws) {
+        if (!kwArticles[kw]) kwArticles[kw] = [];
+        kwArticles[kw].push(i);
+      }
+    }
+
+    // Find keywords that appear in 5+ articles across 2+ different days
+    const runningTopics = {};
+    for (const [kw, indices] of Object.entries(kwArticles)) {
+      if (indices.length < 5) continue;
+      const days = new Set(indices.map((i) => new Date(articles[i].pubDate).toISOString().split("T")[0]));
+      if (days.size < 2) continue;
+      // Group by day, pick the first article per day as a timeline entry
+      const timeline = [];
+      const seenDays = new Set();
+      for (const idx of indices) {
+        const day = new Date(articles[idx].pubDate).toISOString().split("T")[0];
+        if (seenDays.has(day)) continue;
+        seenDays.add(day);
+        timeline.push({ date: day, title: articles[idx].title, source: articles[idx].source });
+      }
+      if (timeline.length >= 2) {
+        runningTopics[kw] = { keyword: kw, count: indices.length, days: days.size, timeline: timeline.slice(0, 5) };
+      }
+    }
+
+    // Attach running story context to articles that are part of major running stories
+    const topRunning = Object.values(runningTopics)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5); // top 5 running stories
+
+    for (const story of topRunning) {
+      const indices = kwArticles[story.keyword];
+      for (const idx of indices) {
+        if (!articles[idx].storyArc) {
+          articles[idx].storyArc = {
+            keyword: story.keyword,
+            articleCount: story.count,
+            dayCount: story.days,
+            timeline: story.timeline,
+          };
+        }
+      }
+    }
+
     if (categoryFilter && categoryFilter !== "all") {
       articles = articles.filter((a) => a.category === categoryFilter);
     }

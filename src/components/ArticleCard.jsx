@@ -26,7 +26,7 @@ const SOURCE_INFO = {
 export function ArticleCard({ article }) {
   const { theme } = useTheme();
   const [hovered, setHovered] = useState(false);
-  // source links always visible for multi-source articles
+  const [arcOpen, setArcOpen] = useState(false);
   const color = getSourceColor(article.source) || article.color || "#888";
 
   return (
@@ -159,9 +159,22 @@ export function ArticleCard({ article }) {
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
-            display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap",
+            display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap", alignItems: "center",
           }}
         >
+          {article.sourceLinks.length >= 3 && (
+            <button
+              onClick={() => article.sourceLinks.forEach((sl) => window.open(sl.link, "_blank"))}
+              style={{
+                fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
+                padding: "2px 6px", borderRadius: 3, cursor: "pointer",
+                background: "rgba(255,140,0,0.08)", border: "1px solid rgba(255,140,0,0.3)",
+                color: "#FF8C00", letterSpacing: "0.04em",
+              }}
+            >
+              COMPARE ALL
+            </button>
+          )}
           {article.sourceLinks.map((sl) => (
             <a
               key={sl.source}
@@ -182,6 +195,40 @@ export function ArticleCard({ article }) {
               {sl.source} →
             </a>
           ))}
+        </div>
+      )}
+      {/* Running story arc */}
+      {article.storyArc && (
+        <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 6 }}>
+          <button
+            onClick={() => setArcOpen(!arcOpen)}
+            style={{
+              fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
+              color: "#9C27B0", background: "rgba(156,39,176,0.06)",
+              border: "1px solid rgba(156,39,176,0.2)", borderRadius: 3,
+              padding: "2px 6px", cursor: "pointer", letterSpacing: "0.04em",
+            }}
+          >
+            RUNNING STORY · {article.storyArc.dayCount} days · {article.storyArc.articleCount} articles {arcOpen ? "▴" : "▾"}
+          </button>
+          {arcOpen && (
+            <div style={{
+              marginTop: 6, paddingLeft: 8,
+              borderLeft: `2px solid rgba(156,39,176,0.2)`,
+              display: "flex", flexDirection: "column", gap: 4,
+            }}>
+              {article.storyArc.timeline.map((t, i) => (
+                <div key={i} style={{
+                  fontFamily: theme.fonts.mono, fontSize: 9,
+                  display: "flex", gap: 8, alignItems: "baseline",
+                }}>
+                  <span style={{ color: theme.colors.textGhost, flexShrink: 0 }}>{t.date}</span>
+                  <span style={{ color: theme.colors.textMuted }}>{t.title.slice(0, 60)}{t.title.length > 60 ? "..." : ""}</span>
+                  <span style={{ color: theme.colors.textGhost, fontSize: 8 }}>{t.source}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </a>

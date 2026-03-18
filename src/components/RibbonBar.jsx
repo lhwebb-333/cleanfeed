@@ -379,6 +379,30 @@ export function FilterRibbon({
             <input type="text" value={muteInput} onChange={(e) => setMuteInput(e.target.value)}
               placeholder="+ keyword" style={inputStyle(theme)} />
           </form>
+          {/* Quick presets */}
+          {/* Quick presets */}
+          {!mutedKeywords.some((kw) => ["trump", "biden", "election"].includes(kw)) && (
+            <button onClick={() => {
+              ["trump", "biden", "election", "democrat", "republican", "congress", "senate", "partisan", "gop", "liberal", "conservative"].forEach((kw) => onAddMuted(kw));
+            }} style={{
+              ...pillBase(theme), fontSize: 7, padding: "2px 6px",
+              background: "transparent", border: `1px solid ${theme.colors.border}`,
+              color: theme.colors.textFaint, letterSpacing: "0.04em",
+            }}>
+              MUTE POLITICS
+            </button>
+          )}
+          {!mutedKeywords.some((kw) => ["killed", "murder", "shooting"].includes(kw)) && (
+            <button onClick={() => {
+              ["killed", "murder", "shooting", "stabbing", "assault", "rape", "abuse", "gunman", "massacre", "execution", "torture", "fentanyl", "overdose", "suicide", "bomb", "bombing", "terrorist", "hostage", "graphic", "explicit", "violence"].forEach((kw) => onAddMuted(kw));
+            }} style={{
+              ...pillBase(theme), fontSize: 7, padding: "2px 6px",
+              background: "transparent", border: `1px solid ${theme.colors.border}`,
+              color: theme.colors.textFaint, letterSpacing: "0.04em",
+            }}>
+              FAMILY MODE
+            </button>
+          )}
           {mutedKeywords.map((kw) => (
             <button key={kw} onClick={() => onRemoveMuted(kw)} title="Unmute" style={{
               ...pillBase(theme), fontSize: 8, padding: "2px 6px",
