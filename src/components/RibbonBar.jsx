@@ -513,7 +513,7 @@ export function TodayRibbon() {
               {history.map((h, i) => (
                 <p key={i} style={{
                   fontFamily: theme.fonts.serif, fontSize: 12, lineHeight: 1.4,
-                  color: i === 0 ? theme.colors.textMuted : theme.colors.textFaint,
+                  color: i === 0 ? theme.colors.text : theme.colors.textMuted,
                   margin: 0,
                 }}>
                   <span style={{ fontFamily: theme.fonts.mono, fontSize: 10, fontWeight: 700, color: theme.colors.textStrong, marginRight: 6 }}>
