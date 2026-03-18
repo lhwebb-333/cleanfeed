@@ -246,11 +246,11 @@ const CATEGORY_KEYWORDS = {
     "esports", "e-sports",
   ],
   science: [
-    "nasa", "space", "planet", "asteroid", "climate", "fossil",
+    "nasa", "outer space", "planet", "asteroid", "climate change", "fossil",
     "species", "evolution", "genome", "dna", "physics", "ocean",
     "earthquake", "volcano", "research finds", "study finds",
     "scientists", "researchers", "experiment", "telescope", "mars",
-    "satellite", "rover", "comet", "solar system", "galaxy",
+    "satellite launch", "rover", "comet", "solar system", "galaxy",
     "black hole", "supernova", "exoplanet", "habitat", "coral reef",
     "glacier", "carbon", "emissions", "renewable", "biodiversity",
     "extinction", "paleontology", "archaeology", "neuroscience",
@@ -271,6 +271,7 @@ const CATEGORY_KEYWORDS = {
     "synagogue", "mosque", "church", "temple",
     "evacuate", "explosion", "hostage", "kidnap", "terror",
     "suspect", "investigation", "lawsuit", "indict",
+    "satellite images", "satellite imagery", "air strike", "airspace",
     "influencer", "celebrity", "dinner", "lgbtq", "muslim",
     // REMOVED: "tariff" and "trade war" (kept in financial only — they're economic concepts;
     // world articles about tariffs still match via "president", "government", etc.)
