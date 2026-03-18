@@ -335,9 +335,8 @@ export function FilterRibbon({
       {/* Collapsed bar */}
       <button className="ribbon-label" onClick={() => setOpen(!open)} style={{
         ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
-        padding: "4px 0", display: "inline-flex", alignItems: "center", gap: 4,
-        width: "100%", paddingLeft: theme.spacing.lg, paddingRight: theme.spacing.lg,
-        minHeight: 26,
+        display: "flex", alignItems: "center", gap: 6, width: "100%",
+        padding: `3px ${theme.spacing.lg}px`, textAlign: "left", minHeight: 26,
       }}>
         <span style={{
           fontSize: 7,
@@ -440,22 +439,17 @@ export function TodayRibbon() {
       maxWidth: 960, margin: "0 auto",
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
-      <button onClick={() => setOpen(!open)} style={{
-        display: "flex", alignItems: "center", gap: 8, width: "100%",
-        padding: `3px ${theme.spacing.lg}px`, background: "transparent",
-        border: "none", cursor: "pointer", textAlign: "left", minHeight: 26,
+      <button className="ribbon-label" onClick={() => setOpen(!open)} style={{
+        ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
+        display: "flex", alignItems: "center", gap: 6, width: "100%",
+        padding: `3px ${theme.spacing.lg}px`, textAlign: "left", minHeight: 26,
       }}>
         <span style={{
-          fontFamily: theme.fonts.mono, fontSize: 8, fontWeight: 700,
-          color: theme.colors.textMuted, letterSpacing: "0.06em",
+          fontSize: 7,
           transform: open ? "rotate(90deg)" : "rotate(0deg)",
           transition: theme.transitions.fast,
         }}>▸</span>
-        <span style={{
-          fontFamily: theme.fonts.mono, fontSize: 8, fontWeight: 700,
-          color: theme.colors.textMuted, letterSpacing: "0.06em",
-          textTransform: "uppercase", flexShrink: 0,
-        }}>TODAY</span>
+        TODAY
         <span style={{
           fontFamily: theme.fonts.mono, fontSize: 9,
           color: theme.colors.textFaint,

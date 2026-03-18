@@ -75,7 +75,7 @@ export function DataBars() {
   const labelStyle = {
     fontFamily: theme.fonts.mono, fontSize: 8, fontWeight: 700,
     color: theme.colors.textMuted, letterSpacing: "0.06em",
-    textTransform: "uppercase", flexShrink: 0,
+    textTransform: "uppercase", flexShrink: 0, padding: 0,
   };
 
   return (
@@ -85,20 +85,22 @@ export function DataBars() {
     }}>
       {/* MARKETS bar */}
       <button
+        className="ribbon-label"
         onClick={() => setMarketsOpen(!marketsOpen)}
         style={{
-          display: "flex", alignItems: "center", gap: 8, width: "100%",
+          ...labelStyle,
+          display: "flex", alignItems: "center", gap: 6, width: "100%",
           padding: `3px ${theme.spacing.lg}px`, background: "transparent",
           border: "none", cursor: "pointer", textAlign: "left",
           overflow: "hidden", minHeight: 26,
         }}
       >
         <span style={{
-          ...labelStyle, fontSize: 7,
+          fontSize: 7,
           transform: marketsOpen ? "rotate(90deg)" : "rotate(0deg)",
           transition: theme.transitions.fast,
         }}>▸</span>
-        <span style={labelStyle}>MARKETS</span>
+        MARKETS
         {hasMarkets && markets.indices.slice(0, 3).map((idx) => (
           <span key={idx.symbol} style={{
             fontFamily: theme.fonts.mono, fontSize: 9, color: theme.colors.textStrong,
