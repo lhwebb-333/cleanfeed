@@ -69,10 +69,10 @@ export function getSourceColor(name) {
 
 export const CATEGORIES = [
   { key: "world", label: "World" },
-  { key: "financial", label: "Financial" },
-  { key: "tech", label: "Tech" },
   { key: "sports", label: "Sports" },
   { key: "entertainment", label: "Entertainment" },
+  { key: "financial", label: "Financial" },
+  { key: "tech", label: "Tech" },
   { key: "science", label: "Science" },
   { key: "health", label: "Health" },
 ];
