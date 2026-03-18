@@ -1,8 +1,70 @@
+import { useState, useEffect, useCallback } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { timeAgo } from "../utils/time";
 
+const API_BASE = import.meta.env.VITE_API_URL || "";
+const LOC_KEY = "cleanfeed-weather-loc";
+const UNIT_KEY = "cleanfeed-weather-unit";
+
+function loadLoc() { try { return JSON.parse(localStorage.getItem(LOC_KEY)); } catch { return null; } }
+function saveLoc(c) { try { localStorage.setItem(LOC_KEY, JSON.stringify(c)); } catch {} }
+function getUnit() { try { return localStorage.getItem(UNIT_KEY) || "F"; } catch { return "F"; } }
+function toC(f) { return Math.round((f - 32) * 5 / 9); }
+function wxIcon(short) {
+  if (!short) return "";
+  const s = short.toLowerCase();
+  if (s.includes("snow") || s.includes("blizzard")) return "\u2744";
+  if (s.includes("thunder") || s.includes("storm")) return "\u26A1";
+  if (s.includes("rain") || s.includes("shower") || s.includes("drizzle")) return "\u2602";
+  if (s.includes("fog") || s.includes("haze") || s.includes("mist")) return "\u2601";
+  if (s.includes("cloud") || s.includes("overcast")) return "\u2601";
+  if (s.includes("partly")) return "\u26C5";
+  if (s.includes("sunny") || s.includes("clear")) return "\u2600";
+  return "\u2600";
+}
+
 export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme, onAbout, searchQuery, onSearchChange }) {
   const { theme } = useTheme();
+  const [weather, setWeather] = useState(null);
+  const [unit, setUnit] = useState(getUnit);
+
+  const fetchWeather = useCallback(async (lat, lon) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/weather?lat=${lat}&lon=${lon}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.ok) setWeather(data);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    const saved = loadLoc();
+    if (saved) { fetchWeather(saved.lat, saved.lon); return; }
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { const c = { lat: pos.coords.latitude, lon: pos.coords.longitude }; saveLoc(c); fetchWeather(c.lat, c.lon); },
+      () => {},
+      { timeout: 10000, maximumAge: 300000 }
+    );
+  }, [fetchWeather]);
+
+  useEffect(() => {
+    const saved = loadLoc();
+    if (!saved) return;
+    const i = setInterval(() => fetchWeather(saved.lat, saved.lon), 15 * 60 * 1000);
+    return () => clearInterval(i);
+  }, [fetchWeather]);
+
+  function toggleUnit() {
+    const next = unit === "F" ? "C" : "F";
+    setUnit(next);
+    try { localStorage.setItem(UNIT_KEY, next); } catch {}
+  }
+
+  function displayTemp(f) {
+    if (f == null) return "";
+    return unit === "C" ? `${toC(f)}\u00B0C` : `${f}\u00B0F`;
+  }
 
   return (
     <header
@@ -200,6 +262,33 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
           >
             Updated {timeAgo(lastUpdated.toISOString())} ↻
           </button>
+        )}
+
+        {/* Weather inline */}
+        {weather && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 5,
+            marginLeft: "auto", flexShrink: 0,
+          }}>
+            <span style={{ fontSize: 12, lineHeight: 1 }}>{wxIcon(weather.current.short)}</span>
+            <span
+              onClick={toggleUnit}
+              style={{
+                fontFamily: theme.fonts.mono, fontSize: 11, fontWeight: 700,
+                color: theme.colors.textStrong, cursor: "pointer",
+                letterSpacing: "-0.02em",
+              }}
+              title="Toggle F/C"
+            >
+              {displayTemp(weather.current.temp)}
+            </span>
+            <span style={{
+              fontFamily: theme.fonts.mono, fontSize: 9,
+              color: theme.colors.textFaint,
+            }}>
+              {weather.location.city}
+            </span>
+          </div>
         )}
       </div>
     </header>

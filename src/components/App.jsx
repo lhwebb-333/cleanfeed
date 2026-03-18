@@ -3,7 +3,6 @@ import { Analytics } from "@vercel/analytics/react";
 import { Header } from "./Header";
 import { FeedList } from "./FeedList";
 import { About } from "./About";
-import { InfoStrip } from "./InfoStrip";
 import { DataBars } from "./DataBars";
 import { SourceRibbon, TopicRibbon, FilterRibbon } from "./RibbonBar";
 import { useFeed } from "../hooks/useFeed";
@@ -74,8 +73,6 @@ export default function App() {
       />
 
       {/* All ribbons — same visual weight, same interaction */}
-      <InfoStrip />
-
       <SourceRibbon
         enabledSources={enabledSources} toggleSource={toggleSource}
         enableAllSources={enableAllSources} disableAllSources={disableAllSources}
