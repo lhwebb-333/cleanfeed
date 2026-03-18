@@ -19,17 +19,17 @@ function setCache(key, data) {
   cache.set(key, { data, ts: Date.now() });
 }
 
-// Sunrise/sunset from sunrise-sunset.org (free, no key)
+// Sunrise/sunset from sunrisesunset.io (free, no key)
 async function fetchSunTimes(lat, lon) {
   try {
-    const res = await fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0`);
+    const res = await fetch(`https://api.sunrisesunset.io/json?lat=${lat}&lng=${lon}`);
     if (!res.ok) return null;
     const data = await res.json();
     if (data.status !== "OK") return null;
     const r = data.results;
     return {
-      sunrise: new Date(r.sunrise).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }),
-      sunset: new Date(r.sunset).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }),
+      sunrise: r.sunrise,
+      sunset: r.sunset,
       dayLength: r.day_length,
     };
   } catch { return null; }
@@ -160,18 +160,6 @@ export default async function handler(req, res) {
     const moonPhase = getMoonPhase(now);
     const calendar = getCalendarEvents(dateStr);
 
-    // Fetch gas prices from AAA (national average)
-    let gas = null;
-    try {
-      const gasRes = await fetch("https://gasprices.aaa.com/wp-json/fuel/v1/national-averages", {
-        headers: { "User-Agent": "CleanFeed/1.0" },
-      });
-      if (gasRes.ok) {
-        const gasData = await gasRes.json();
-        if (gasData?.regular) gas = { regular: gasData.regular, diesel: gasData.diesel || null };
-      }
-    } catch {}
-
     // Daily digest — top multi-source stories (fetched from our own feed)
     let digest = [];
     try {
@@ -227,7 +215,6 @@ export default async function handler(req, res) {
       moon: moonPhase,
       calendar,
       history,
-      gas,
       digest,
     };
 

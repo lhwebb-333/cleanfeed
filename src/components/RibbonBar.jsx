@@ -526,19 +526,6 @@ export function TodayRibbon() {
             </div>
           )}
 
-          {/* Gas prices */}
-          {data.gas && (
-            <div style={{
-              fontFamily: theme.fonts.mono, fontSize: 9,
-              display: "flex", gap: 12, color: theme.colors.textMuted,
-            }}>
-              <span style={{ color: theme.colors.textGhost, fontSize: 8, fontWeight: 700 }}>GAS</span>
-              <span>Regular: <span style={{ fontWeight: 700, color: theme.colors.textStrong }}>${data.gas.regular}</span></span>
-              {data.gas.diesel && <span>Diesel: <span style={{ fontWeight: 700, color: theme.colors.textStrong }}>${data.gas.diesel}</span></span>}
-              <span style={{ fontSize: 7, color: theme.colors.textGhost }}>national avg</span>
-            </div>
-          )}
-
           {/* This Day in History */}
           {history.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
