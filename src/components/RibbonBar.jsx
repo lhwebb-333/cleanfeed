@@ -333,24 +333,20 @@ export function FilterRibbon({
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
       {/* Collapsed bar */}
-      <button onClick={() => setOpen(!open)} style={{
-        display: "flex", alignItems: "center", gap: 6, width: "100%",
-        padding: `3px ${theme.spacing.lg}px`, background: "transparent",
-        border: "none", cursor: "pointer", textAlign: "left", minHeight: 26,
+      <button className="ribbon-label" onClick={() => setOpen(!open)} style={{
+        ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
+        padding: "4px 0", display: "inline-flex", alignItems: "center", gap: 4,
+        width: "100%", paddingLeft: theme.spacing.lg, paddingRight: theme.spacing.lg,
+        minHeight: 26,
       }}>
         <span style={{
-          fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
-          color: theme.colors.textMuted,
+          fontSize: 7,
           transform: open ? "rotate(90deg)" : "rotate(0deg)",
           transition: theme.transitions.fast,
         }}>▸</span>
-        <span style={{
-          ...lblStyle(theme), display: "inline-flex", alignItems: "center", gap: 6,
-        }}>
-          FILTERS
-          <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
-            {summary}
-          </span>
+        FILTERS
+        <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
+          {summary}
         </span>
       </button>
 
