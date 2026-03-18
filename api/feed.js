@@ -29,8 +29,7 @@ export default async function handler(req, res) {
       return true;
     });
 
-    // Step 2: Detect multi-source stories via significant keyword overlap
-    // Extract meaningful words from titles (skip common words)
+    // Step 2: Detect multi-source stories + collapse duplicates
     const STOP_WORDS = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","is","are","was","were","be","been","being","has","have","had","do","does","did","will","would","could","should","may","might","can","shall","not","no","its","it","he","she","they","we","you","i","my","your","his","her","their","our","this","that","these","those","with","from","by","as","into","about","over","after","before","between","under","during","up","down","out","off","than","too","very","just","also","now","new","says","said","say"]);
 
     function getKeywords(title) {
@@ -38,45 +37,61 @@ export default async function handler(req, res) {
         .filter((w) => w.length > 2 && !STOP_WORDS.has(w));
     }
 
-    // Group articles by time window (within 24 hours) and check keyword overlap
+    // Build story clusters — group articles about the same event
     const wireServices = new Set(["Reuters", "AP News", "BBC", "NPR"]);
-    for (let i = 0; i < articles.length; i++) {
-      const a = articles[i];
-      if (!wireServices.has(a.source)) continue;
-      if (a.multiSource) continue;
+    const clusters = []; // each cluster: { primary, sources: Set, dupeIndices: Set }
+    const clustered = new Set(); // indices already assigned to a cluster
 
+    for (let i = 0; i < articles.length; i++) {
+      if (clustered.has(i)) continue;
+      const a = articles[i];
       const aWords = new Set(getKeywords(a.title));
       if (aWords.size < 3) continue;
 
       const aTime = new Date(a.pubDate).getTime();
-      const matchingSources = new Set([a.source]);
+      const cluster = { primary: i, sources: new Set([a.source]), dupeIndices: new Set() };
 
-      for (let j = 0; j < articles.length; j++) {
-        if (i === j) continue;
+      for (let j = i + 1; j < articles.length; j++) {
+        if (clustered.has(j)) continue;
         const b = articles[j];
-        if (!wireServices.has(b.source)) continue;
-        if (matchingSources.has(b.source)) continue;
 
         // Within 24 hours
         const bTime = new Date(b.pubDate).getTime();
         if (Math.abs(aTime - bTime) > 24 * 60 * 60 * 1000) continue;
 
         const bWords = getKeywords(b.title);
+        if (bWords.length < 3) continue;
         const overlap = bWords.filter((w) => aWords.has(w)).length;
         const overlapRatio = overlap / Math.min(aWords.size, bWords.length);
 
-        // 40%+ keyword overlap = same story
         if (overlapRatio >= 0.4 && overlap >= 3) {
-          matchingSources.add(b.source);
+          cluster.sources.add(b.source);
+          cluster.dupeIndices.add(j);
+          clustered.add(j);
         }
       }
 
-      if (matchingSources.size >= 3) {
-        a.multiSource = true;
-        a.sourceCount = matchingSources.size;
-        a.coveredBy = [...matchingSources];
+      if (cluster.sources.size >= 2) {
+        clusters.push(cluster);
+        clustered.add(i); // mark primary as clustered too
       }
     }
+
+    // Apply cluster info to primary articles, remove dupes
+    const dupeIndices = new Set();
+    for (const cluster of clusters) {
+      const primary = articles[cluster.primary];
+      primary.multiSource = true;
+      primary.sourceCount = cluster.sources.size;
+      primary.coveredBy = [...cluster.sources];
+      // Collect all non-primary articles in the cluster for removal
+      for (const idx of cluster.dupeIndices) {
+        dupeIndices.add(idx);
+      }
+    }
+
+    // Remove duplicate articles (keep the primary from each cluster)
+    articles = articles.filter((_, idx) => !dupeIndices.has(idx));
 
     if (categoryFilter && categoryFilter !== "all") {
       articles = articles.filter((a) => a.category === categoryFilter);

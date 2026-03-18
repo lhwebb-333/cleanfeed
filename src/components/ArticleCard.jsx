@@ -75,7 +75,7 @@ export function ArticleCard({ article }) {
               }}
               title={`Covered by ${article.coveredBy?.join(", ")}`}
             >
-              {article.sourceCount}+ SOURCES
+              Also: {article.coveredBy?.filter(s => s !== article.source).join(", ")}
             </span>
           )}
         </div>

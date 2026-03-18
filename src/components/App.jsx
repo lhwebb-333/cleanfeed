@@ -5,6 +5,7 @@ import { FeedList } from "./FeedList";
 import { About } from "./About";
 import { DataBars } from "./DataBars";
 import { TopicRibbon, FilterRibbon, TodayRibbon } from "./RibbonBar";
+import { InstallPrompt } from "./InstallPrompt";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
@@ -206,6 +207,7 @@ export default function App() {
           .ribbon-dropdown span { font-size: 8px !important; }
         }
       `}</style>
+      <InstallPrompt />
       <Analytics />
     </div>
   );
