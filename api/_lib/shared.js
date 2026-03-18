@@ -281,7 +281,22 @@ const OPINION_FILTERS = [
   "opinion", "editorial", "commentary", "column", "op-ed", "oped",
   "analysis:", "perspective", "letters to", "review:", "podcast",
   "newsletter", "quiz", "crossword", "horoscope", "cartoon", "satire",
+  // Journal/academic content (Nature, etc.) — not news articles
+  "author correction:", "publisher correction:", "correction:",
+  "erratum:", "corrigendum:", "retraction:",
+  "supplementary information", "supplementary data",
 ];
+
+// Additional filter: Nature/academic articles with no description and
+// highly technical titles (no common English words) are likely papers, not news
+function isJournalPaper(title = "", description = "", source = "") {
+  if (source !== "Nature") return false;
+  // No description = likely a paper listing, not a news article
+  if (!description || description.trim().length < 20) return true;
+  // Titles with sub/sup tags are formatted paper titles
+  if (title.includes("<sub>") || title.includes("<sup>")) return true;
+  return false;
+}
 
 function classifyArticle(title = "", description = "", feedCategory = "world", trustFeed = true) {
   const text = `${title} ${description}`.toLowerCase();
@@ -593,6 +608,7 @@ export async function fetchSupplementalFeeds() {
     for (const { item, name, color, category } of result.value) {
       if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
       const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+      if (isJournalPaper(item.title, desc, name)) continue;
       articles.push({
         id: item.guid || item.link,
         title: item.title,
