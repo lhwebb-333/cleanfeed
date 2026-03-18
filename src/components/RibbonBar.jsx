@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "../hooks/useTheme";
-import { SOURCES, CATEGORIES, CATEGORY_SUBSOURCES, ALL_SUBSOURCE_NAMES, getSourceColor } from "../utils/sources";
+import { SOURCES, CATEGORIES, CATEGORY_SUBSOURCES, ALL_SUBSOURCE_NAMES, getSourceColor, SOURCE_COLOR_MAP } from "../utils/sources";
 import { resolveState, US_STATES, LOCAL_COLOR } from "../utils/stateSources";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
@@ -524,18 +524,21 @@ export function TodayRibbon() {
                   </a>
                   {d.sourceLinks?.length > 1 && (
                     <div style={{ display: "flex", gap: 6, paddingLeft: 20 }}>
-                      {d.sourceLinks.map((sl) => (
-                        <a key={sl.source} href={sl.link} target="_blank" rel="noopener noreferrer"
-                          style={{
-                            fontFamily: theme.fonts.mono, fontSize: 8,
-                            color: theme.colors.textMuted, textDecoration: "none",
-                            padding: "1px 5px",
-                            border: `1px solid ${theme.colors.border}`,
-                            borderRadius: 3,
-                          }}>
-                          {sl.source} →
-                        </a>
-                      ))}
+                      {d.sourceLinks.map((sl) => {
+                        const sc = SOURCE_COLOR_MAP[sl.source] || theme.colors.textMuted;
+                        return (
+                          <a key={sl.source} href={sl.link} target="_blank" rel="noopener noreferrer"
+                            style={{
+                              fontFamily: theme.fonts.mono, fontSize: 8,
+                              color: sc, textDecoration: "none",
+                              padding: "1px 5px",
+                              border: `1px solid ${sc}40`,
+                              borderRadius: 3,
+                            }}>
+                            {sl.source} →
+                          </a>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
