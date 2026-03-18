@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "../hooks/useTheme";
 
 const DISMISSED_KEY = "cleanfeed-install-dismissed";
@@ -12,26 +12,27 @@ function isIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 }
 
-function getDismissed() {
-  try { return localStorage.getItem(DISMISSED_KEY) === "1"; } catch { return false; }
-}
-
 export function InstallPrompt() {
   const { theme } = useTheme();
-  const [dismissed, setDismissed] = useState(getDismissed);
+  const [visible, setVisible] = useState(false);
   const [nativePrompt, setNativePrompt] = useState(null);
 
-  // Try to catch Chrome's native prompt
-  useState(() => {
+  useEffect(() => {
+    // Already installed — never show
+    if (isStandalone()) return;
+    // Already dismissed
+    try { if (localStorage.getItem(DISMISSED_KEY) === "1") return; } catch {}
+    setVisible(true);
+
     const handler = (e) => { e.preventDefault(); setNativePrompt(e); };
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
-  });
+  }, []);
 
-  if (dismissed || isStandalone()) return null;
+  if (!visible) return null;
 
   function handleDismiss() {
-    setDismissed(true);
+    setVisible(false);
     try { localStorage.setItem(DISMISSED_KEY, "1"); } catch {}
   }
 
@@ -39,10 +40,8 @@ export function InstallPrompt() {
     if (!nativePrompt) return;
     nativePrompt.prompt();
     const result = await nativePrompt.userChoice;
-    if (result.outcome === "accepted") setDismissed(true);
+    if (result.outcome === "accepted") handleDismiss();
   }
-
-  const ios = isIOS();
 
   return (
     <div style={{
@@ -76,9 +75,9 @@ export function InstallPrompt() {
             fontFamily: theme.fonts.mono, fontSize: 9,
             color: theme.colors.textMuted, lineHeight: 1.4,
           }}>
-            {ios
-              ? "Tap the share button ⎋ then \"Add to Home Screen\""
-              : "Tap ⋮ menu → \"Install app\" or \"Add to Home Screen\""
+            {isIOS()
+              ? "Tap the share button \u23CE then \"Add to Home Screen\""
+              : "Tap \u22EE menu \u2192 \"Install app\" or \"Add to Home Screen\""
             }
           </p>
         )}
@@ -88,7 +87,7 @@ export function InstallPrompt() {
         cursor: "pointer", fontSize: 16, padding: "4px", lineHeight: 1,
         flexShrink: 0,
       }}>
-        ×
+        \u00D7
       </button>
     </div>
   );
