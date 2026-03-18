@@ -198,11 +198,21 @@ export default async function handler(req, res) {
         }
 
         if (sources.size >= 2) {
+          // Collect direct links from all matching articles
+          const sourceLinks = [{ source: a.source, link: a.link }];
+          for (const b of wireArticles) {
+            if (b === a) continue;
+            if (sources.has(b.source) && b.link && !sourceLinks.find((sl) => sl.source === b.source)) {
+              sourceLinks.push({ source: b.source, link: b.link });
+            }
+          }
           digest.push({
             title: a.title,
             sources: [...sources],
             sourceCount: sources.size,
             pubDate: a.pubDate,
+            link: a.link,
+            sourceLinks,
           });
         }
       }

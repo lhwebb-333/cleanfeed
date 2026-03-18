@@ -507,19 +507,38 @@ export function TodayRibbon() {
                 color: theme.colors.textGhost, letterSpacing: "0.06em", textTransform: "uppercase",
               }}>TODAY'S TOP STORIES</span>
               {data.digest.map((d, i) => (
-                <a key={i} href={`https://news.google.com/search?q=${encodeURIComponent(d.title.slice(0, 60))}`}
-                  target="_blank" rel="noopener noreferrer"
-                  style={{
-                    fontFamily: theme.fonts.serif, fontSize: 12, lineHeight: 1.4,
-                    color: theme.colors.text, margin: 0, textDecoration: "none",
-                    display: "flex", alignItems: "baseline", gap: 6,
-                  }}>
-                  <span style={{
-                    fontFamily: theme.fonts.mono, fontSize: 8, color: "#FF8C00",
-                    fontWeight: 700, flexShrink: 0,
-                  }}>{d.sourceCount}+</span>
-                  <span style={{ borderBottom: `1px solid ${theme.colors.border}` }}>{d.title}</span>
-                </a>
+                <div key={i} style={{
+                  display: "flex", flexDirection: "column", gap: 3,
+                }}>
+                  <a href={d.link} target="_blank" rel="noopener noreferrer"
+                    style={{
+                      fontFamily: theme.fonts.serif, fontSize: 12, lineHeight: 1.4,
+                      color: theme.colors.text, textDecoration: "none",
+                      display: "flex", alignItems: "baseline", gap: 6,
+                    }}>
+                    <span style={{
+                      fontFamily: theme.fonts.mono, fontSize: 8, color: "#FF8C00",
+                      fontWeight: 700, flexShrink: 0,
+                    }}>{d.sourceCount}+</span>
+                    <span style={{ borderBottom: `1px solid ${theme.colors.border}` }}>{d.title}</span>
+                  </a>
+                  {d.sourceLinks?.length > 1 && (
+                    <div style={{ display: "flex", gap: 6, paddingLeft: 20 }}>
+                      {d.sourceLinks.map((sl) => (
+                        <a key={sl.source} href={sl.link} target="_blank" rel="noopener noreferrer"
+                          style={{
+                            fontFamily: theme.fonts.mono, fontSize: 8,
+                            color: theme.colors.textMuted, textDecoration: "none",
+                            padding: "1px 5px",
+                            border: `1px solid ${theme.colors.border}`,
+                            borderRadius: 3,
+                          }}>
+                          {sl.source} →
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}
