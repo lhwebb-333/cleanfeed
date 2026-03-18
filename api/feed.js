@@ -84,8 +84,13 @@ export default async function handler(req, res) {
       primary.multiSource = true;
       primary.sourceCount = cluster.sources.size;
       primary.coveredBy = [...cluster.sources];
-      // Collect all non-primary articles in the cluster for removal
+      // Collect links from all versions so user can pick
+      primary.sourceLinks = [{ source: primary.source, link: primary.link }];
       for (const idx of cluster.dupeIndices) {
+        const dupe = articles[idx];
+        if (dupe.link && dupe.source !== primary.source) {
+          primary.sourceLinks.push({ source: dupe.source, link: dupe.link });
+        }
         dupeIndices.add(idx);
       }
     }

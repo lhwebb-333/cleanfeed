@@ -6,6 +6,7 @@ import { getSourceColor } from "../utils/sources";
 export function ArticleCard({ article }) {
   const { theme } = useTheme();
   const [hovered, setHovered] = useState(false);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
   const color = getSourceColor(article.source) || article.color || "#888";
 
   return (
@@ -62,6 +63,11 @@ export function ArticleCard({ article }) {
           )}
           {article.multiSource && (
             <span
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setSourcesOpen(!sourcesOpen);
+              }}
               style={{
                 fontFamily: theme.fonts.mono,
                 fontSize: 8,
@@ -72,10 +78,10 @@ export function ArticleCard({ article }) {
                 border: "1px solid rgba(255,140,0,0.3)",
                 borderRadius: 3,
                 background: "rgba(255,140,0,0.08)",
+                cursor: "pointer",
               }}
-              title={`Covered by ${article.coveredBy?.join(", ")}`}
             >
-              Also: {article.coveredBy?.filter(s => s !== article.source).join(", ")}
+              Also: {article.coveredBy?.filter(s => s !== article.source).join(", ")} {sourcesOpen ? "▾" : "▸"}
             </span>
           )}
         </div>
@@ -117,6 +123,36 @@ export function ArticleCard({ article }) {
           {article.description}
           {article.description.length >= 240 ? "\u2026" : ""}
         </p>
+      )}
+
+      {sourcesOpen && article.sourceLinks?.length > 0 && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap",
+          }}
+        >
+          {article.sourceLinks.map((sl) => (
+            <a
+              key={sl.source}
+              href={sl.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontFamily: theme.fonts.mono,
+                fontSize: 8,
+                color: getSourceColor(sl.source),
+                padding: "2px 6px",
+                border: `1px solid ${getSourceColor(sl.source)}40`,
+                borderRadius: 3,
+                textDecoration: "none",
+                letterSpacing: "0.03em",
+              }}
+            >
+              {sl.source} →
+            </a>
+          ))}
+        </div>
       )}
     </a>
   );
