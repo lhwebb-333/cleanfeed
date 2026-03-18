@@ -288,13 +288,15 @@ const OPINION_FILTERS = [
   "supplementary information", "supplementary data",
 ];
 
-// Additional filter: Nature/academic articles with no description and
-// highly technical titles (no common English words) are likely papers, not news
+// Filter Nature journal papers — keep news, skip corrections and formatted papers
 function isJournalPaper(title = "", description = "", source = "") {
   if (source !== "Nature") return false;
-  // No description = likely a paper listing, not a news article
-  if (!description || description.trim().length < 20) return true;
-  // Titles with sub/sup tags are formatted paper titles
+  const t = title.toLowerCase();
+  // Corrections and retractions
+  if (t.startsWith("author correction") || t.startsWith("publisher correction") ||
+      t.startsWith("correction:") || t.startsWith("erratum") ||
+      t.startsWith("corrigendum") || t.startsWith("retraction")) return true;
+  // Titles with HTML sub/sup tags are formatted paper titles
   if (title.includes("<sub>") || title.includes("<sup>")) return true;
   return false;
 }
