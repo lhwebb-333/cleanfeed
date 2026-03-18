@@ -165,7 +165,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
               width: "100%",
               fontFamily: theme.fonts.mono,
               fontSize: 10,
-              padding: searchQuery ? "4px 24px 4px 10px" : "4px 10px",
+              padding: searchQuery ? "3px 22px 3px 8px" : "3px 8px",
               background: theme.colors.surface,
               border: `1px solid ${searchQuery ? theme.colors.textMuted : theme.colors.border}`,
               borderRadius: theme.radii.sm,
