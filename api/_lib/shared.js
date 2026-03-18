@@ -176,12 +176,14 @@ const CATEGORY_KEYWORDS = {
     "dow ", "index fund", "etf ", "mutual fund",
     "stock market", "stock price",
     "price target", "analyst", "downgrade", "upgrade",
+    "tax ", "taxes", "tax advice", "tax return", "irs ", "income tax",
+    "capital gains", "deduction", "write off", "write-off",
     "nifty", "sensex", "hang seng", "nikkei", "dax ", "cac ",
     "market volatility", "volatility", "equity", "equities",
     // REMOVED: standalone "rally" (matches "political rally")
   ],
   tech: [
-    "ai ", " ai,", "artificial intelligence", "openai", "google", "apple",
+    " ai ", " ai,", " ai.", "artificial intelligence", "openai", "google", "apple",
     "microsoft", "amazon prime", "amazon web", "amazon.com", "aws ", "meta", "nvidia", "semiconductor",
     "software", "startup", "cyber", "hack", "data breach", "app ",
     "smartphone", "robot", "autonomous", "blockchain",
