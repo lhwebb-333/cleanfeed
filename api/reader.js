@@ -97,20 +97,36 @@ export default async function handler(req, res) {
     .desc { font-size: 13px; color: #555; line-height: 1.5; }
     .footer { font-family: monospace; font-size: 9px; color: #aaa; margin-top: 32px; padding-top: 16px; border-top: 1px solid #ddd; }
     .footer a { color: #888; }
+    body.dark { background: #111; color: #ddd; }
+    body.dark .title a { color: #ddd; }
+    body.dark .desc { color: #aaa; }
+    body.dark .meta { color: #777; }
+    body.dark h2 { color: #666; border-color: #333; }
+    body.dark .article { border-color: #222; }
+    body.dark .footer { border-color: #333; color: #555; }
+    body.dark .footer a { color: #666; }
+    body.dark .toggle { color: #666; border-color: #333; }
+    .toggle {
+      font-family: monospace; font-size: 10px; padding: 4px 10px;
+      background: none; border: 1px solid #ddd; border-radius: 3px;
+      cursor: pointer; color: #888; float: right; margin-top: -20px;
+    }
     @media (prefers-color-scheme: dark) {
-      body { background: #111; color: #ddd; }
-      .title a { color: #ddd; }
-      .desc { color: #aaa; }
-      .meta { color: #777; }
-      h2 { color: #666; border-color: #333; }
-      .article { border-color: #222; }
-      .footer { border-color: #333; color: #555; }
-      .footer a { color: #666; }
+      body:not(.light) { background: #111; color: #ddd; }
+      body:not(.light) .title a { color: #ddd; }
+      body:not(.light) .desc { color: #aaa; }
+      body:not(.light) .meta { color: #777; }
+      body:not(.light) h2 { color: #666; border-color: #333; }
+      body:not(.light) .article { border-color: #222; }
+      body:not(.light) .footer { border-color: #333; color: #555; }
+      body:not(.light) .footer a { color: #666; }
+      body:not(.light) .toggle { color: #666; border-color: #333; }
     }
   </style>
 </head>
 <body>
   <h1>CLEAN FEED</h1>
+  <button class="toggle" onclick="document.body.classList.toggle('dark');document.body.classList.toggle('light');">Light / Dark</button>
   <p class="tagline">No algorithms. No rage. Just news.</p>
   <p class="date">${escapeHtml(now)} — Reader Mode</p>
 `;
