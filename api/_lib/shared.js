@@ -88,7 +88,7 @@ const CATEGORY_KEYWORDS = {
   sports: [
     // Sports & leagues
     "football", "soccer", "rugby", "cricket", "tennis", "golf", "f1",
-    "formula 1", "nba", "nfl", "nhl", "mlb", "mls", "premier league",
+    "formula 1", "nba", " nfl ", " nfl,", "nhl", "mlb", "mls", "premier league",
     "champions league", "world cup", "olympics", "major league",
     // Roles
     "athlete", "coach", "referee", "quarterback", "pitcher", "rookie",
@@ -101,6 +101,12 @@ const CATEGORY_KEYWORDS = {
     "free agent", "signs with", "signed with", "signing",
     "wide receiver", "quarterback", "running back", "tight end",
     "point guard", "center fielder", "shortstop", "goaltender",
+    "paralympic", "paralympics",
+    "pga tour", "lpga", "golf tour",
+    "scorer", "rebound", " draft ", "draft pick", "draft class",
+    "edge rusher", "defensive end", "linebacker", "cornerback",
+    "safety ", "offensive line", "punter", "kicker",
+    "cycling", "cyclist", "tour de france", "giro",
     // Results & action (specific enough to avoid false positives)
     "goal scored", "batting", "stadium", "medal", "manager sacked",
     "grand prix", "game recap", "final score", "defeats ", "routs ",
@@ -174,6 +180,7 @@ const CATEGORY_KEYWORDS = {
     "treasury", "central bank", "rate hike", "rate cut",
     "market cap", "investor", "investment", "portfolio",
     "commodity", "gold price", "silver price", "copper",
+    "crypto", "crypto exchange",
     "supply chain", "cpi ", "ppi ", "economic growth",
     "bull market", "bear market", "selloff", "sell-off",
     "dow ", "index fund", "etf ", "mutual fund",
@@ -275,6 +282,8 @@ const CATEGORY_KEYWORDS = {
     "evacuate", "explosion", "hostage", "kidnap", "terror",
     "suspect", "investigation", "lawsuit", "indict",
     "satellite images", "satellite imagery", "air strike", "airspace",
+    "oil port", "strikes", "struck", "iran ", "iraq ", "ukraine ", "gaza",
+    "ceasefire", "bombing", "shelling", "retaliation",
     "influencer", "celebrity", "dinner", "lgbtq", "muslim",
     // REMOVED: "tariff" and "trade war" (kept in financial only — they're economic concepts;
     // world articles about tariffs still match via "president", "government", etc.)
