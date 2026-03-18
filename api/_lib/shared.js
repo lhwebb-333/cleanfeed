@@ -647,6 +647,28 @@ export async function fetchSupplementalFeeds() {
     }
   }
 
+  // Fetch meta descriptions for articles missing them (Nature)
+  const needDesc = articles.filter((a) => !a.description && a.link);
+  if (needDesc.length > 0) {
+    await Promise.allSettled(
+      needDesc.map(async (a) => {
+        try {
+          const res = await fetch(a.link, {
+            headers: { "User-Agent": "CleanFeed/1.0 (RSS Reader)" },
+            redirect: "follow",
+          });
+          if (!res.ok) return;
+          const html = await res.text();
+          const match = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i)
+            || html.match(/<meta\s+content=["']([^"']+)["']\s+name=["']description["']/i);
+          if (match?.[1]) {
+            a.description = match[1].slice(0, 250);
+          }
+        } catch {}
+      })
+    );
+  }
+
   const seenLinks = new Set();
   const seenTitles = new Set();
   const deduped = articles.filter((a) => {
