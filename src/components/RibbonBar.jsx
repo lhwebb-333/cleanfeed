@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { SOURCES, CATEGORIES, CATEGORY_SUBSOURCES, ALL_SUBSOURCE_NAMES, getSourceColor } from "../utils/sources";
 import { resolveState, US_STATES, LOCAL_COLOR } from "../utils/stateSources";
+
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
+const LEAGUE_COLORS = {
+  NFL: "#013369", NBA: "#C9082A", MLB: "#002D72", NHL: "#A2AAAD",
+  NCAAM: "#FF6B00", NCAAF: "#FF6B00", EPL: "#3D195B", F1: "#E10600", PGA: "#00543E",
+};
+function leagueColor(league, fallback) { return LEAGUE_COLORS[league] || fallback; }
 
 const SUB_SET = new Set(ALL_SUBSOURCE_NAMES);
 
@@ -52,9 +60,11 @@ export function TopicRibbon({
   disabledSubSources, toggleSubSource,
 }) {
   const { theme } = useTheme();
-  const [sourcesOpen, setSourcesOpen] = useState(false);
-  const [topicsOpen, setTopicsOpen] = useState(false);
+  const [openSection, setOpenSection] = useState(null); // "sources" | "topics" | "scores" | null
   const [expandedSub, setExpandedSub] = useState(null);
+  const [expandedLeague, setExpandedLeague] = useState(null);
+  const [scores, setScores] = useState(null);
+
   const localName = selectedState ? `Local ${selectedState}` : null;
   const primarySources = SOURCES.filter((s) => !SUB_SET.has(s.name));
   const allSources = localName
@@ -64,114 +74,237 @@ export function TopicRibbon({
   const activeSourceCount = allSources.filter((s) => enabledSources.has(s.name)).length;
   const activeTopicCount = CATEGORIES.filter((c) => enabledCategories.has(c.key)).length;
 
+  // Fetch scores
+  useEffect(() => {
+    let c = false;
+    async function load() {
+      try {
+        const res = await fetch(`${API_BASE}/api/scores`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.ok && !c) setScores(data);
+      } catch {}
+    }
+    load();
+    const i = setInterval(load, 2 * 60 * 1000);
+    return () => { c = true; clearInterval(i); };
+  }, []);
+
+  const gamesByLeague = {};
+  for (const g of (scores?.games || [])) {
+    if (!gamesByLeague[g.league]) gamesByLeague[g.league] = [];
+    gamesByLeague[g.league].push(g);
+  }
+  const hasScores = scores?.games?.length > 0;
+
+  function toggle(section) {
+    setOpenSection(openSection === section ? null : section);
+    if (section !== "scores") setExpandedLeague(null);
+  }
+
+  const arrowStyle = (isOpen) => ({
+    fontSize: 7,
+    transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
+    transition: theme.transitions.fast,
+  });
+
   return (
     <div style={{
       maxWidth: 960, margin: "0 auto",
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
+      {/* Main ribbon — labels only */}
       <div style={{
-        display: "flex", alignItems: "center", gap: 6,
+        display: "flex", alignItems: "center", gap: 8,
         padding: `3px ${theme.spacing.lg}px`,
-        overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
         minHeight: 26,
       }}>
-        {/* SOURCES — collapsed or expanded */}
-        <button onClick={() => setSourcesOpen(!sourcesOpen)} style={{
+        <button onClick={() => toggle("sources")} style={{
           ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
           padding: 0, display: "inline-flex", alignItems: "center", gap: 4,
         }}>
-          <span style={{
-            fontSize: 7, transform: sourcesOpen ? "rotate(90deg)" : "rotate(0deg)",
-            transition: theme.transitions.fast,
-          }}>▸</span>
+          <span style={arrowStyle(openSection === "sources")}>▸</span>
           SOURCES
-          {!sourcesOpen && (
-            <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
-              {activeSourceCount}/{allSources.length}
-            </span>
-          )}
+          <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
+            {activeSourceCount}/{allSources.length}
+          </span>
         </button>
 
-        {sourcesOpen && allSources.map((s) => {
-          const on = enabledSources.has(s.name);
-          return (
-            <button key={s.key} onClick={() => toggleSource(s.name)} style={{
-              ...pillBase(theme),
-              border: on ? `1px solid ${s.color}50` : `1px solid ${theme.colors.border}`,
-              background: on ? s.color + "15" : "transparent",
-              color: on ? s.color : theme.colors.textFaint,
-              opacity: on ? 1 : 0.5,
-            }}>
-              {s.name}
-            </button>
-          );
-        })}
-
-        {/* Divider */}
         <span style={{ width: 1, height: 12, background: theme.colors.border, flexShrink: 0 }} />
 
-        {/* TOPICS — collapsed or expanded */}
-        <button onClick={() => setTopicsOpen(!topicsOpen)} style={{
+        <button onClick={() => toggle("topics")} style={{
           ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
           padding: 0, display: "inline-flex", alignItems: "center", gap: 4,
         }}>
-          <span style={{
-            fontSize: 7, transform: topicsOpen ? "rotate(90deg)" : "rotate(0deg)",
-            transition: theme.transitions.fast,
-          }}>▸</span>
+          <span style={arrowStyle(openSection === "topics")}>▸</span>
           TOPICS
-          {!topicsOpen && (
-            <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
-              {activeTopicCount}/{CATEGORIES.length}
-            </span>
-          )}
+          <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
+            {activeTopicCount}/{CATEGORIES.length}
+          </span>
         </button>
 
-        {topicsOpen && CATEGORIES.map((cat) => {
-          const on = enabledCategories.has(cat.key);
-          const count = categoryCounts[cat.key] || 0;
-          const hasSubs = !!CATEGORY_SUBSOURCES[cat.key];
-          const isSubOpen = expandedSub === cat.key;
+        {hasScores && (
+          <>
+            <span style={{ width: 1, height: 12, background: theme.colors.border, flexShrink: 0 }} />
+            <button onClick={() => toggle("scores")} style={{
+              ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
+              padding: 0, display: "inline-flex", alignItems: "center", gap: 4,
+            }}>
+              <span style={arrowStyle(openSection === "scores")}>▸</span>
+              SCORES
+              <span style={{ fontSize: 8, fontWeight: 400, color: theme.colors.textFaint }}>
+                {Object.keys(gamesByLeague).length}
+              </span>
+            </button>
+          </>
+        )}
+      </div>
 
-          return (
-            <span key={cat.key} style={{ display: "inline-flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
-              <button onClick={() => toggleCategory(cat.key)} style={{
+      {/* SOURCES dropdown */}
+      {openSection === "sources" && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 5,
+          padding: `3px ${theme.spacing.lg}px 5px`,
+          borderTop: `1px solid ${theme.colors.border}`,
+          overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
+        }}>
+          {allSources.map((s) => {
+            const on = enabledSources.has(s.name);
+            return (
+              <button key={s.key} onClick={() => toggleSource(s.name)} style={{
                 ...pillBase(theme),
-                border: on ? "1px solid rgba(255,140,0,0.3)" : `1px solid ${theme.colors.border}`,
-                background: on ? "rgba(255,140,0,0.1)" : "transparent",
-                color: on ? theme.colors.textStrong : theme.colors.textFaint,
+                border: on ? `1px solid ${s.color}50` : `1px solid ${theme.colors.border}`,
+                background: on ? s.color + "15" : "transparent",
+                color: on ? s.color : theme.colors.textFaint,
                 opacity: on ? 1 : 0.5,
               }}>
-                {cat.label}
-                {count > 0 && <span style={{ marginLeft: 3, opacity: 0.5, fontSize: 8 }}>{count}</span>}
+                {s.name}
               </button>
-              {hasSubs && on && (
-                <button onClick={(e) => { e.stopPropagation(); setExpandedSub(isSubOpen ? null : cat.key); }} style={{
-                  background: "none", border: "none", cursor: "pointer", padding: "1px 2px",
-                  fontSize: 7, color: theme.colors.textFaint,
-                  opacity: isSubOpen ? 0.9 : 0.4,
-                  transform: isSubOpen ? "rotate(90deg)" : "rotate(0deg)",
-                  transition: theme.transitions.fast,
-                }}>▸</button>
-              )}
-              {hasSubs && on && isSubOpen && CATEGORY_SUBSOURCES[cat.key].map((sub) => {
-                const subOn = !disabledSubSources?.has(sub.name);
-                return (
-                  <button key={sub.name} onClick={(e) => { e.stopPropagation(); toggleSubSource?.(sub.name); }} style={{
-                    ...pillBase(theme), fontSize: 8, padding: "1px 6px",
-                    border: subOn ? `1px solid ${sub.color}50` : `1px solid ${theme.colors.border}`,
-                    background: subOn ? sub.color + "18" : "transparent",
-                    color: subOn ? sub.color : theme.colors.textFaint,
-                    opacity: subOn ? 1 : 0.4,
+            );
+          })}
+        </div>
+      )}
+
+      {/* TOPICS dropdown */}
+      {openSection === "topics" && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 5,
+          padding: `3px ${theme.spacing.lg}px 5px`,
+          borderTop: `1px solid ${theme.colors.border}`,
+          overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
+          flexWrap: "wrap",
+        }}>
+          {CATEGORIES.map((cat) => {
+            const on = enabledCategories.has(cat.key);
+            const count = categoryCounts[cat.key] || 0;
+            const hasSubs = !!CATEGORY_SUBSOURCES[cat.key];
+            const isSubOpen = expandedSub === cat.key;
+            return (
+              <span key={cat.key} style={{ display: "inline-flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
+                <button onClick={() => toggleCategory(cat.key)} style={{
+                  ...pillBase(theme),
+                  border: on ? "1px solid rgba(255,140,0,0.3)" : `1px solid ${theme.colors.border}`,
+                  background: on ? "rgba(255,140,0,0.1)" : "transparent",
+                  color: on ? theme.colors.textStrong : theme.colors.textFaint,
+                  opacity: on ? 1 : 0.5,
+                }}>
+                  {cat.label}
+                  {count > 0 && <span style={{ marginLeft: 3, opacity: 0.5, fontSize: 8 }}>{count}</span>}
+                </button>
+                {hasSubs && on && (
+                  <button onClick={(e) => { e.stopPropagation(); setExpandedSub(isSubOpen ? null : cat.key); }} style={{
+                    background: "none", border: "none", cursor: "pointer", padding: "1px 2px",
+                    fontSize: 7, color: theme.colors.textFaint,
+                    opacity: isSubOpen ? 0.9 : 0.4,
+                    transform: isSubOpen ? "rotate(90deg)" : "rotate(0deg)",
+                    transition: theme.transitions.fast,
+                  }}>▸</button>
+                )}
+                {hasSubs && on && isSubOpen && CATEGORY_SUBSOURCES[cat.key].map((sub) => {
+                  const subOn = !disabledSubSources?.has(sub.name);
+                  return (
+                    <button key={sub.name} onClick={(e) => { e.stopPropagation(); toggleSubSource?.(sub.name); }} style={{
+                      ...pillBase(theme), fontSize: 8, padding: "1px 6px",
+                      border: subOn ? `1px solid ${sub.color}50` : `1px solid ${theme.colors.border}`,
+                      background: subOn ? sub.color + "18" : "transparent",
+                      color: subOn ? sub.color : theme.colors.textFaint,
+                      opacity: subOn ? 1 : 0.4,
+                    }}>
+                      {sub.short || sub.name}
+                    </button>
+                  );
+                })}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      {/* SCORES dropdown — league pills, click one to expand games */}
+      {openSection === "scores" && hasScores && (
+        <div style={{
+          padding: `3px ${theme.spacing.lg}px 5px`,
+          borderTop: `1px solid ${theme.colors.border}`,
+        }}>
+          <div style={{
+            display: "flex", gap: 5, flexWrap: "wrap", alignItems: "center",
+            marginBottom: expandedLeague ? 4 : 0,
+          }}>
+            {Object.entries(gamesByLeague).map(([league, games]) => {
+              const liveCount = games.filter((g) => g.isLive).length;
+              const isExp = expandedLeague === league;
+              const lc = leagueColor(league, theme.colors.textFaint);
+              return (
+                <button key={league} onClick={() => setExpandedLeague(isExp ? null : league)} style={{
+                  ...pillBase(theme), fontSize: 8,
+                  border: `1px solid ${isExp ? lc + "60" : theme.colors.border}`,
+                  background: isExp ? lc + "15" : "transparent",
+                  color: isExp ? lc : theme.colors.textMuted,
+                  display: "inline-flex", alignItems: "center", gap: 3,
+                }}>
+                  {league}
+                  {liveCount > 0 && <span style={{ fontSize: 6, color: "#4CAF50", fontWeight: 700 }}>LIVE</span>}
+                </button>
+              );
+            })}
+          </div>
+          {expandedLeague && gamesByLeague[expandedLeague] && (
+            <div style={{ display: "flex", gap: 4, flexWrap: "wrap", alignItems: "center" }}>
+              {gamesByLeague[expandedLeague].map((g) => (
+                g.type === "golf" ? (
+                  <div key={g.id} style={{
+                    fontFamily: theme.fonts.mono, fontSize: 9,
+                    display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center", width: "100%",
                   }}>
-                    {sub.short || sub.name}
-                  </button>
-                );
-              })}
-            </span>
-          );
-        })}
-      </div>
+                    <span style={{ color: theme.colors.textStrong, fontWeight: 700, fontSize: 10 }}>{g.eventName}</span>
+                    <span style={{ fontSize: 7, color: g.isLive ? "#4CAF50" : theme.colors.textGhost, fontWeight: g.isLive ? 700 : 400 }}>
+                      {g.isLive ? "LIVE" : g.isComplete ? "FINAL" : g.statusDetail}
+                    </span>
+                    {(g.leaderboard || []).map((p, i) => (
+                      <span key={i} style={{ color: i < 3 ? theme.colors.textStrong : theme.colors.textMuted, fontWeight: i < 3 ? 700 : 400 }}>
+                        {i + 1}. {p.name} ({p.score})
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span key={g.id} style={{
+                    fontFamily: theme.fonts.mono, fontSize: 9, color: theme.colors.textMuted,
+                    display: "inline-flex", alignItems: "center", gap: 3,
+                    padding: "1px 6px", background: g.isLive ? "#4CAF50" + "0C" : "transparent", borderRadius: 2,
+                  }}>
+                    <span style={{ fontWeight: g.away.winner ? 700 : 400, color: g.away.winner ? theme.colors.textStrong : undefined }}>{g.away.abbrev}</span>
+                    <span style={{ color: theme.colors.textGhost }}>{g.away.score != null ? g.away.score : ""}-{g.home.score != null ? g.home.score : ""}</span>
+                    <span style={{ fontWeight: g.home.winner ? 700 : 400, color: g.home.winner ? theme.colors.textStrong : undefined }}>{g.home.abbrev}</span>
+                    <span style={{ fontSize: 7, color: g.isLive ? "#4CAF50" : theme.colors.textGhost, fontWeight: g.isLive ? 700 : 400 }}>
+                      {g.isLive ? "LIVE" : g.isComplete ? "F" : g.statusDetail}
+                    </span>
+                  </span>
+                )
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
