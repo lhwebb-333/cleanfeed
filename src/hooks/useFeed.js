@@ -27,6 +27,7 @@ export function useFeed() {
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [degradedSources, setDegradedSources] = useState([]);
 
   // Persisted filters
   const [enabledSources, setEnabledSources] = useState(() => loadSet("cleanfeed-sources", ALL_SRC_KEYS));
@@ -208,6 +209,7 @@ export function useFeed() {
         setAllArticles(data.articles);
         setLastUpdated(new Date());
         setError(null);
+        setDegradedSources(data.degraded || []);
       } else {
         throw new Error(data.error || "Unknown error");
       }
@@ -332,5 +334,6 @@ export function useFeed() {
     hasMore,
     hoursWindow,
     setBriefMode: (hours) => setHoursWindow(hours),
+    degradedSources,
   };
 }

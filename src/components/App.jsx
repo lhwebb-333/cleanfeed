@@ -23,6 +23,7 @@ export default function App() {
     selectedState, selectState, clearState,
     searchQuery, setSearchQuery, refresh,
     loadMore, hasMore, hoursWindow, setBriefMode,
+    degradedSources,
   } = useFeed();
 
   const { pulling, pullDistance, triggered } = usePullToRefresh(refresh);
@@ -98,6 +99,19 @@ export default function App() {
         onRemoveMuted={removeMutedKeyword} onClearMuted={clearMutedKeywords}
         selectedState={selectedState} onSelectState={selectState} onClearState={clearState}
       />
+
+      {/* Source degradation banner */}
+      {degradedSources.length > 0 && (
+        <div style={{
+          maxWidth: 960, margin: "0 auto",
+          padding: `6px ${theme.spacing.lg}px`,
+          fontFamily: theme.fonts.mono, fontSize: 9,
+          color: "#FF8C00", letterSpacing: "0.03em",
+          borderBottom: `1px solid ${theme.colors.border}`,
+        }}>
+          {degradedSources.join(", ")} temporarily unavailable — other sources active
+        </div>
+      )}
 
       {/* Feed */}
       <div style={{ maxWidth: 960, margin: "0 auto", padding: `0 ${theme.spacing.lg}px` }}>

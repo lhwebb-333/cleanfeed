@@ -25,11 +25,29 @@ export default async function handler(req, res) {
       sourceFilter ? Promise.resolve([]) : fetchSupplementalFeeds(),
     ]);
 
+    // Check source health — detect Google News RSS failures
+    const sourceHealth = {};
+    const googleProxiedSources = ["reuters", "ap"]; // These depend on Google News RSS
+    for (let i = 0; i < sourceKeys.length; i++) {
+      const key = sourceKeys[i];
+      const result = sourceResults[i];
+      const count = result.status === "fulfilled" ? result.value.length : 0;
+      sourceHealth[key] = { ok: count > 0, count };
+      if (count === 0 && googleProxiedSources.includes(key)) {
+        console.warn(`[Feed] WARNING: ${key} returned 0 articles — Google News RSS may be blocked`);
+      }
+    }
+
     let articles = [
       ...sourceResults.filter((r) => r.status === "fulfilled").flatMap((r) => r.value),
       ...topicArticles,
       ...supplementalArticles,
     ];
+
+    // Track degraded sources for client-side banner
+    const degradedSources = Object.entries(sourceHealth)
+      .filter(([key, h]) => !h.ok && googleProxiedSources.includes(key))
+      .map(([key]) => SOURCES[key]?.name || key);
 
     // Dedupe exact matches + detect multi-source stories via keyword overlap
     // Step 1: Exact dedup (same headline from different feeds)
@@ -194,7 +212,12 @@ export default async function handler(req, res) {
     articles = articles.slice(0, limit);
 
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=120");
-    res.json({ ok: true, count: articles.length, articles });
+    res.json({
+      ok: true,
+      count: articles.length,
+      articles,
+      ...(degradedSources.length > 0 ? { degraded: degradedSources } : {}),
+    });
   } catch (err) {
     console.error("[CleanFeed] Feed error:", err);
     res.status(500).json({ ok: false, error: "Failed to fetch feeds" });
