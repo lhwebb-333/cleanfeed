@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { Analytics } from "@vercel/analytics/react";
 import { Header } from "./Header";
 import { FeedList } from "./FeedList";
 import { About } from "./About";
@@ -7,6 +6,7 @@ import { DataBars } from "./DataBars";
 import { TopicRibbon, FilterRibbon, TodayRibbon } from "./RibbonBar";
 import { InstallPrompt } from "./InstallPrompt";
 import { DigestSignup } from "./DigestSignup";
+import { LiveCounter } from "./LiveCounter";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
@@ -222,6 +222,7 @@ export default function App() {
         }}>
           Sources: Reuters · AP News · BBC · NPR · The Hill · PBS · CSM · Bloomberg · DW · France 24 · Ars Technica · MIT Tech Review · Nature · Phys.org · STAT News · KFF Health · FRED · SEC · BLS · Treasury · Fed{selectedState ? ` · Local ${selectedState}` : ""}
         </p>
+        <LiveCounter />
         <p style={{
           fontFamily: theme.fonts.mono, fontSize: 10, color: theme.colors.textGhost,
           letterSpacing: "0.03em", marginBottom: 14,
@@ -296,7 +297,6 @@ export default function App() {
         }
       `}</style>
       <InstallPrompt />
-      <Analytics />
     </div>
   );
 }

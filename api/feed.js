@@ -1,7 +1,19 @@
 import { fetchSource, fetchTopicFeeds, fetchSupplementalFeeds, normalizeForDedup, SOURCES } from "./_lib/shared.js";
 
+// Server-side page view counter — no cookies, no client JS, no third party
+async function countPageView() {
+  try {
+    const { Redis } = await import("@upstash/redis");
+    const redis = Redis.fromEnv();
+    const today = new Date().toISOString().split("T")[0]; // "2026-03-19"
+    await redis.incr(`views:${today}`);
+  } catch {} // Silently fail — analytics should never break the feed
+}
+
 export default async function handler(req, res) {
   try {
+    // Count this page load (fire-and-forget, don't await)
+    countPageView();
     const { source: sourceFilter, category: categoryFilter } = req.query;
     const limit = Math.min(parseInt(req.query.limit) || 300, 1000);
 

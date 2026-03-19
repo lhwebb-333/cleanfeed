@@ -135,15 +135,39 @@ export default async function handler(req, res) {
         return runHealthCheck(res);
       }
 
-      // Debug: log what we see (remove after confirming)
-      console.log(`[Subscribe] GET query: ${JSON.stringify(req.query)}, url: ${req.url}, keys: ${queryKeys}`);
-
-      // Stats endpoint
+      // Stats endpoint — subscriber count + page view analytics
       const count = await getSubscriberCount();
+      let views = {};
+      if (redis) {
+        try {
+          const today = new Date().toISOString().split("T")[0];
+          const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+          const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0];
+          const [todayViews, yesterdayViews] = await Promise.all([
+            redis.get(`views:${today}`),
+            redis.get(`views:${yesterday}`),
+          ]);
+          // Get last 7 days
+          const days = [];
+          for (let i = 0; i < 7; i++) {
+            const d = new Date(Date.now() - i * 86400000).toISOString().split("T")[0];
+            days.push(d);
+          }
+          const dayCounts = await Promise.all(days.map((d) => redis.get(`views:${d}`)));
+          const weekTotal = dayCounts.reduce((sum, v) => sum + (parseInt(v) || 0), 0);
+          views = {
+            today: parseInt(todayViews) || 0,
+            yesterday: parseInt(yesterdayViews) || 0,
+            week: weekTotal,
+            daily: Object.fromEntries(days.map((d, i) => [d, parseInt(dayCounts[i]) || 0])),
+          };
+        } catch {}
+      }
       return res.json({
         ok: true,
-        count,
+        subscribers: count,
         persistent: !!redis,
+        views,
       });
     }
 

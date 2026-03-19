@@ -421,7 +421,7 @@ export function About({ open, onClose }) {
               { label: "No data sold", detail: "We have no data to sell. We don't collect personal information." },
               { label: "Location (weather)", detail: "If you allow location access, your coordinates are sent to the National Weather Service API to fetch your local forecast. Your location is stored only in your browser's local storage — never on our servers, never shared with third parties. You can deny the prompt and weather simply won't appear." },
               { label: "Local storage only", detail: "Your preferences (theme, filters, muted keywords, selected state, weather location, F/C preference) are saved in your browser's local storage. This data never leaves your device." },
-              { label: "Vercel Analytics", detail: "We use Vercel's privacy-focused analytics to count page views. This collects no personal data, uses no cookies, and cannot identify individual visitors." },
+              { label: "Analytics", detail: "We count daily page views using a simple server-side counter. No cookies, no client-side tracking code, no third-party services. We know how many people visit — not who they are." },
             ].map((item) => (
               <div key={item.label}>
                 <span style={{
