@@ -28,6 +28,7 @@ export default async function handler(req, res) {
     const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
     let sent = 0;
     let failed = 0;
+    let lastError = null;
 
     // Send to each subscriber (Resend free tier: 100/day)
     for (const email of emails.slice(0, 100)) {
@@ -52,11 +53,13 @@ export default async function handler(req, res) {
           }),
         });
 
+        const sendBody = await sendRes.text();
         if (sendRes.ok) {
           sent++;
         } else {
-          const err = await sendRes.text();
-          console.error(`[Digest] Failed to send to ${email}: ${err}`);
+          console.error(`[Digest] Failed to send to ${email}: ${sendRes.status} ${sendBody}`);
+          // Include error in response for debugging
+          lastError = `${sendRes.status}: ${sendBody}`;
           failed++;
         }
       } catch (err) {
@@ -66,7 +69,7 @@ export default async function handler(req, res) {
     }
 
     console.log(`[Digest] Sent: ${sent}, Failed: ${failed}, Total subscribers: ${emails.length}`);
-    res.json({ ok: true, sent, failed, total: emails.length });
+    res.json({ ok: true, sent, failed, total: emails.length, ...(lastError ? { lastError } : {}) });
   } catch (err) {
     console.error("[Digest] Error:", err.message);
     res.status(500).json({ ok: false, error: "Failed to send digest" });
