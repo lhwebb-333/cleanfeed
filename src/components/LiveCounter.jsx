@@ -102,8 +102,8 @@ export function LiveCounter() {
             </div>
             {stats.subscribers > 0 && (
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <span style={{ fontFamily: theme.fonts.mono, fontSize: 9, color: theme.colors.textFaint }}>Subscribers</span>
-                <span style={{ fontFamily: theme.fonts.mono, fontSize: 11, fontWeight: 700, color: theme.colors.textStrong }}>
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: 7, color: theme.colors.textFaint }}>Subscribers</span>
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: 8, fontWeight: 700, color: theme.colors.textStrong }}>
                   {stats.subscribers.toLocaleString()}
                 </span>
               </div>
