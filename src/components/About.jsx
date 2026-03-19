@@ -1,4 +1,5 @@
 import { useTheme } from "../hooks/useTheme";
+import { DigestSignup } from "./DigestSignup";
 
 export function About({ open, onClose }) {
   const { theme } = useTheme();
@@ -748,6 +749,8 @@ export function About({ open, onClose }) {
           </a>
           .
         </p>
+
+        <DigestSignup />
 
         <p
           style={{
