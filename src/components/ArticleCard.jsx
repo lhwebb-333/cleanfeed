@@ -21,6 +21,8 @@ const SOURCE_INFO = {
   "Fed": "Federal Reserve System. U.S. central bank responsible for monetary policy.",
   "Smithsonian": "Smithsonian Magazine. Published by the Smithsonian Institution. Covers history, science, culture, and innovation.",
   "Atlas Obscura": "The definitive guide to the world's hidden wonders. Covers curious places, unexpected history, and gastronomy.",
+  "CSM": "The Christian Science Monitor. Nonprofit, secular newsroom founded 1908. Consistently rated center on media bias charts. Known for context-heavy, adjective-neutral reporting.",
+  "Bloomberg": "Bloomberg News. Data-driven financial and economic wire service. Prioritizes speed and raw data over narrative.",
 };
 
 function descriptionDuplicatesTitle(title = "", desc = "") {

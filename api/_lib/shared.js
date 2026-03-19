@@ -656,6 +656,16 @@ const SUPPLEMENTAL_FEEDS = [
   { url: "https://www.technologyreview.com/feed/", name: "MIT Tech Review", color: "#EC407A", category: "tech" },
   { url: "https://www.smithsonianmag.com/rss/latest_articles/", name: "Smithsonian", color: "#B8860B", category: "science", serendipity: true },
   { url: "https://www.atlasobscura.com/feeds/latest", name: "Atlas Obscura", color: "#C97E4A", category: "science", serendipity: true },
+  // CSM — nonprofit, center of every bias chart, dry context-heavy reporting
+  { url: "https://rss.csmonitor.com/feeds/world", name: "CSM", color: "#1565C0", category: "world" },
+  { url: "https://rss.csmonitor.com/feeds/usa", name: "CSM", color: "#1565C0", category: "world" },
+  { url: "https://rss.csmonitor.com/feeds/wam", name: "CSM", color: "#1565C0", category: "financial" },
+  { url: "https://rss.csmonitor.com/feeds/science", name: "CSM", color: "#1565C0", category: "science" },
+  { url: "https://rss.csmonitor.com/feeds/scitech", name: "CSM", color: "#1565C0", category: "tech" },
+  // Bloomberg — data-driven financial/political wire. Free tier: headlines + summaries
+  { url: "https://feeds.bloomberg.com/markets/news.rss", name: "Bloomberg", color: "#7B1FA2", category: "financial" },
+  { url: "https://feeds.bloomberg.com/technology/news.rss", name: "Bloomberg", color: "#7B1FA2", category: "tech" },
+  { url: "https://feeds.bloomberg.com/economics/news.rss", name: "Bloomberg", color: "#7B1FA2", category: "financial" },
 ];
 
 export async function fetchSupplementalFeeds() {

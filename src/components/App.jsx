@@ -220,7 +220,7 @@ export default function App() {
           fontFamily: theme.fonts.mono, fontSize: 10, color: theme.colors.textFaint,
           letterSpacing: "0.05em", marginBottom: 4,
         }}>
-          Sources: Reuters · AP News · BBC · NPR · Ars Technica · MIT Tech Review · Nature · Phys.org · STAT News · KFF Health · FRED · SEC · BLS · Treasury · Fed{selectedState ? ` · Local ${selectedState}` : ""}
+          Sources: Reuters · AP News · BBC · NPR · CSM · Bloomberg · Ars Technica · MIT Tech Review · Nature · Phys.org · STAT News · KFF Health · FRED · SEC · BLS · Treasury · Fed{selectedState ? ` · Local ${selectedState}` : ""}
         </p>
         <p style={{
           fontFamily: theme.fonts.mono, fontSize: 10, color: theme.colors.textGhost,

@@ -22,6 +22,7 @@ const SOURCE_COLORS = {
   "Phys.org": "#4FC3F7", Nature: "#E53935", "KFF Health": "#AB47BC",
   "STAT News": "#00ACC1", "Ars Technica": "#FF7043", "MIT Tech Review": "#EC407A",
   Smithsonian: "#B8860B", "Atlas Obscura": "#C97E4A",
+  CSM: "#1565C0", Bloomberg: "#7B1FA2",
   FRED: "#607D8B", SEC: "#607D8B", BLS: "#607D8B", Treasury: "#607D8B", Fed: "#607D8B",
 };
 
@@ -137,7 +138,7 @@ export default async function handler(req, res) {
   <!-- Footer -->
   <div style="height:1px;background:#333;margin:24px 0 16px;"></div>
   <p style="font-family:monospace;font-size:9px;color:#666;line-height:1.6;">
-    Sources: Reuters · AP News · BBC · NPR + specialty outlets<br>
+    Sources: Reuters · AP News · BBC · NPR · CSM · Bloomberg + specialty outlets<br>
     Chronological order · No ranking · No engagement tracking<br>
     <a href="https://thecleanfeed.app" style="color:#888;text-decoration:underline;">Open Clean Feed</a> ·
     <a href="https://thecleanfeed.app/api/reader" style="color:#888;text-decoration:underline;">Reader Mode</a> ·

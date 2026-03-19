@@ -204,6 +204,8 @@ export function About({ open, onClose }) {
             Topic-specific outlets and government data sources selected for factual, primary-source reporting.
           </p>
           {[
+            { name: "Christian Science Monitor", color: "#1565C0", desc: "Nonprofit, secular, center-rated newsroom", cat: "World" },
+            { name: "Bloomberg", color: "#7B1FA2", desc: "Data-driven financial & economic wire", cat: "Financial" },
             { name: "Ars Technica", color: "#FF7043", desc: "In-depth technology reporting", cat: "Tech" },
             { name: "MIT Tech Review", color: "#EC407A", desc: "Research-focused tech journalism", cat: "Tech" },
             { name: "Nature", color: "#E53935", desc: "Premier scientific journal", cat: "Science" },

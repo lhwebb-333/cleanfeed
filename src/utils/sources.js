@@ -25,6 +25,8 @@ export const SOURCE_COLOR_MAP = {
   "MIT Tech Review": "#EC407A",
   Smithsonian: "#B8860B",
   "Atlas Obscura": "#C97E4A",
+  CSM: "#1565C0",
+  Bloomberg: "#7B1FA2",
   FRED: "#607D8B",
   SEC: "#607D8B",
   BLS: "#607D8B",
@@ -40,6 +42,7 @@ export const CATEGORY_SUBSOURCES = {
   science: [
     { name: "Phys.org", color: SUB_COLOR },
     { name: "Nature", color: SUB_COLOR },
+    { name: "CSM", color: SUB_COLOR },
     { name: "Smithsonian", color: SUB_COLOR },
     { name: "Atlas Obscura", color: SUB_COLOR },
   ],
@@ -50,8 +53,10 @@ export const CATEGORY_SUBSOURCES = {
   tech: [
     { name: "Ars Technica", color: SUB_COLOR, short: "Ars" },
     { name: "MIT Tech Review", color: SUB_COLOR, short: "MIT" },
+    { name: "Bloomberg", color: SUB_COLOR },
   ],
   financial: [
+    { name: "Bloomberg", color: SUB_COLOR },
     { name: "FRED", color: SUB_COLOR },
     { name: "SEC", color: SUB_COLOR },
     { name: "BLS", color: SUB_COLOR },
