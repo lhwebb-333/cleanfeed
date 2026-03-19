@@ -75,9 +75,15 @@ async function fetchHistory(month, day) {
     });
     if (!res.ok) return [];
     const data = await res.json();
+    const seenYears = new Set();
     const events = (data.selected || [])
       .filter((e) => e.text && e.year)
       .sort((a, b) => b.year - a.year)
+      .filter((e) => {
+        if (seenYears.has(e.year)) return false;
+        seenYears.add(e.year);
+        return true;
+      })
       .slice(0, 5)
       .map((e) => ({
         year: e.year,

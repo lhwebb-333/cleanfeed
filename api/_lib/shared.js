@@ -152,6 +152,8 @@ const CATEGORY_KEYWORDS = {
     // Cricket
     "cricket", "wicket", "bowler", "batsman", "t20", "test match",
     "odi ", "ipl ", "ashes ", "captain steps down", "training camp",
+    // Rugby
+    "rugby", "scrum", "try scorer", "lineout", "six nations",
     // Women's sports — same sport, needs same classification
     "wsl ", "women's super league", "women's world cup",
     "lionesses", "matildas", "uswnt", "nwsl",
@@ -164,6 +166,7 @@ const CATEGORY_KEYWORDS = {
     // Common sports headline phrases
     "straight game", "straight games", "relegation",
     "clean sheet", "hat-trick", "hat trick", "penalty shootout",
+    "shootout", "overtime win", "power play",
   ],
   financial: [
     "stock", "share price", "shares fell", "shares rose", "shares drop",
@@ -185,6 +188,8 @@ const CATEGORY_KEYWORDS = {
     "market cap", "investor", "investment", "portfolio",
     "commodity", "gold price", "silver price", "copper",
     "crypto", "crypto exchange",
+    // Major companies in financial context
+    "exxon", "chevron", "bp ", "shell ", "vitol", "glencore",
     "supply chain", "cpi ", "ppi ", "economic growth",
     "bull market", "bear market", "selloff", "sell-off",
     "dow ", "index fund", "etf ", "mutual fund",

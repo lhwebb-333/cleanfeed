@@ -137,10 +137,14 @@ export default async function handler(req, res) {
       if (!items || items.length === 0) continue;
       html += `  <h2 id="${cat}">${escapeHtml(cat)}</h2>\n`;
       for (const a of items) {
-        html += `  <div class="article">
+        const descDupsTitle = a.description && a.title &&
+      a.description.toLowerCase().replace(/[^a-z0-9]/g, "").startsWith(
+        a.title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, -5)
+      );
+    html += `  <div class="article">
     <p class="meta">${escapeHtml(a.source)} · ${timeAgo(a.pubDate)}</p>
     <p class="title"><a href="${escapeHtml(a.link)}" target="_blank" rel="noopener">${escapeHtml(a.title)}</a></p>
-    ${a.description ? `<p class="desc">${escapeHtml(a.description)}</p>` : ""}
+    ${a.description && !descDupsTitle ? `<p class="desc">${escapeHtml(a.description)}</p>` : ""}
   </div>\n`;
       }
     }
