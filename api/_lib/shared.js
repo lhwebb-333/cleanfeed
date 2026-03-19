@@ -409,6 +409,18 @@ export function normalizeForDedup(title = "") {
     .slice(0, 50);
 }
 
+// Strip description if it just repeats the title (Google News RSS artifact)
+// Only blanks when desc is JUST the title (possibly with source name appended),
+// not when it starts with the title then adds new context.
+function cleanDescription(title = "", desc = "") {
+  if (!desc) return "";
+  const normT = title.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const normD = desc.toLowerCase().replace(/[^a-z0-9]/g, "");
+  // Description is essentially just the title (within 30 chars of extra like " AP News")
+  if (normT.length > 15 && normD.startsWith(normT) && normD.length < normT.length + 30) return "";
+  return desc;
+}
+
 // Strip source attribution suffix from display title
 function stripSourceSuffix(title = "") {
   return title.replace(/\s*[-\u2010-\u2015\u2212|]\s*(Reuters|AP News|Associated Press|BBC|BBC News|NPR)\s*$/, "").trim();
@@ -482,7 +494,8 @@ export async function fetchLocalFeed(stateCode) {
     for (const item of (feed.items || []).slice(0, 20)) {
       if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
       if (isTooOld(item.isoDate || item.pubDate)) continue;
-      const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+      const rawDesc = (item.contentSnippet || item.content || "").slice(0, 250);
+      const desc = cleanDescription(item.title, rawDesc);
       articles.push({
         id: item.guid || item.link,
         title: item.title,
@@ -491,7 +504,7 @@ export async function fetchLocalFeed(stateCode) {
         pubDate: item.isoDate || item.pubDate,
         source: `Local ${stateCode}`,
         color: LOCAL_COLOR,
-        category: classifyArticle(item.title, desc, "world"),
+        category: classifyArticle(item.title, rawDesc, "world"),
         scope: "local",
       });
     }
@@ -507,7 +520,8 @@ export async function fetchLocalFeed(stateCode) {
       for (const item of (feed.items || []).slice(0, 15)) {
         if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
         if (isTooOld(item.isoDate || item.pubDate)) continue;
-        const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+        const rawDesc = (item.contentSnippet || item.content || "").slice(0, 250);
+        const desc = cleanDescription(item.title, rawDesc);
         articles.push({
           id: item.guid || item.link,
           title: item.title,
@@ -575,7 +589,8 @@ export async function fetchSource(sourceKey) {
       if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
       if (isTooOld(item.isoDate || item.pubDate)) continue;
       const title = stripSourceSuffix(item.title);
-      const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+      const rawDesc = (item.contentSnippet || item.content || "").slice(0, 250);
+      const desc = cleanDescription(title, rawDesc);
       articles.push({
         id: item.guid || item.link,
         title,
@@ -584,7 +599,7 @@ export async function fetchSource(sourceKey) {
         pubDate: item.isoDate || item.pubDate,
         source: source.name,
         color: source.color,
-        category: classifyArticle(title, desc, category),
+        category: classifyArticle(title, rawDesc, category),
       });
     }
   }

@@ -30,12 +30,11 @@ const SOURCE_INFO = {
 };
 
 function descriptionDuplicatesTitle(title = "", desc = "") {
+  if (!desc || !title) return false;
   const normTitle = title.toLowerCase().replace(/[^a-z0-9]/g, "");
   const normDesc = desc.toLowerCase().replace(/[^a-z0-9]/g, "");
-  // Description is just the title (possibly with source name appended)
-  if (normDesc.startsWith(normTitle) && normDesc.length < normTitle.length + 30) return true;
-  // Description is substantially the same as the title
-  if (normTitle.length > 20 && normDesc.startsWith(normTitle.slice(0, normTitle.length - 5))) return true;
+  // Only suppress if description is essentially JUST the title (within 30 chars extra)
+  if (normTitle.length > 15 && normDesc.startsWith(normTitle) && normDesc.length < normTitle.length + 30) return true;
   return false;
 }
 
