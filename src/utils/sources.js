@@ -27,6 +27,10 @@ export const SOURCE_COLOR_MAP = {
   "Atlas Obscura": "#C97E4A",
   CSM: "#1565C0",
   Bloomberg: "#7B1FA2",
+  "The Hill": "#1E88E5",
+  PBS: "#1976D2",
+  DW: "#0097A7",
+  "France 24": "#2E7D32",
   FRED: "#607D8B",
   SEC: "#607D8B",
   BLS: "#607D8B",
@@ -39,10 +43,16 @@ export const SOURCE_COLOR_MAP = {
 const SUB_COLOR = "#FF8C00";
 
 export const CATEGORY_SUBSOURCES = {
+  world: [
+    { name: "The Hill", color: SUB_COLOR },
+    { name: "PBS", color: SUB_COLOR },
+    { name: "CSM", color: SUB_COLOR },
+    { name: "DW", color: SUB_COLOR },
+    { name: "France 24", color: SUB_COLOR, short: "FR24" },
+  ],
   science: [
     { name: "Phys.org", color: SUB_COLOR },
     { name: "Nature", color: SUB_COLOR },
-    { name: "CSM", color: SUB_COLOR },
     { name: "Smithsonian", color: SUB_COLOR },
     { name: "Atlas Obscura", color: SUB_COLOR },
   ],
@@ -57,6 +67,7 @@ export const CATEGORY_SUBSOURCES = {
   ],
   financial: [
     { name: "Bloomberg", color: SUB_COLOR },
+    { name: "The Hill", color: SUB_COLOR },
     { name: "FRED", color: SUB_COLOR },
     { name: "SEC", color: SUB_COLOR },
     { name: "BLS", color: SUB_COLOR },

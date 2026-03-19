@@ -204,7 +204,11 @@ export function About({ open, onClose }) {
             Topic-specific outlets and government data sources selected for factual, primary-source reporting.
           </p>
           {[
+            { name: "The Hill", color: "#1E88E5", desc: "US politics & policy, center-rated across all 3 bias raters", cat: "World" },
+            { name: "PBS NewsHour", color: "#1976D2", desc: "Publicly funded US broadcaster, high reliability", cat: "World" },
             { name: "Christian Science Monitor", color: "#1565C0", desc: "Nonprofit, secular, center-rated newsroom", cat: "World" },
+            { name: "Deutsche Welle", color: "#0097A7", desc: "German public broadcaster, editorially independent by law", cat: "World" },
+            { name: "France 24", color: "#2E7D32", desc: "French public broadcaster, Middle East & Africa depth", cat: "World" },
             { name: "Bloomberg", color: "#7B1FA2", desc: "Data-driven financial & economic wire", cat: "Financial" },
             { name: "Ars Technica", color: "#FF7043", desc: "In-depth technology reporting", cat: "Tech" },
             { name: "MIT Tech Review", color: "#EC407A", desc: "Research-focused tech journalism", cat: "Tech" },

@@ -23,6 +23,10 @@ const SOURCE_INFO = {
   "Atlas Obscura": "The definitive guide to the world's hidden wonders. Covers curious places, unexpected history, and gastronomy.",
   "CSM": "The Christian Science Monitor. Nonprofit, secular newsroom founded 1908. Consistently rated center on media bias charts. Known for context-heavy, adjective-neutral reporting.",
   "Bloomberg": "Bloomberg News. Data-driven financial and economic wire service. Prioritizes speed and raw data over narrative.",
+  "The Hill": "The Hill. Premier US politics and policy publication. Rated Center by Ad Fontes, AllSides, and MBFC — consensus center across all three major raters.",
+  "PBS": "PBS NewsHour. Publicly funded US broadcaster. Rated Center / High Reliability. Long-form reporting that other outlets cite.",
+  "DW": "Deutsche Welle. Germany's international broadcaster. Editorially independent by law. Non-Anglosphere perspective on world events.",
+  "France 24": "France 24. French public broadcaster (France Medias Monde). Strong coverage of Middle East, Africa, and the Americas.",
 };
 
 function descriptionDuplicatesTitle(title = "", desc = "") {

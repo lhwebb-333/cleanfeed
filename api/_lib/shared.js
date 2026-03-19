@@ -666,6 +666,28 @@ const SUPPLEMENTAL_FEEDS = [
   { url: "https://feeds.bloomberg.com/markets/news.rss", name: "Bloomberg", color: "#7B1FA2", category: "financial" },
   { url: "https://feeds.bloomberg.com/technology/news.rss", name: "Bloomberg", color: "#7B1FA2", category: "tech" },
   { url: "https://feeds.bloomberg.com/economics/news.rss", name: "Bloomberg", color: "#7B1FA2", category: "financial" },
+  // The Hill — premier US politics/policy. Center across all 3 bias raters. Fills biggest gap.
+  { url: "https://thehill.com/homenews/feed/", name: "The Hill", color: "#1E88E5", category: "world" },
+  { url: "https://thehill.com/policy/feed/", name: "The Hill", color: "#1E88E5", category: "world" },
+  { url: "https://thehill.com/policy/healthcare/feed/", name: "The Hill", color: "#1E88E5", category: "health" },
+  { url: "https://thehill.com/policy/technology/feed/", name: "The Hill", color: "#1E88E5", category: "tech" },
+  { url: "https://thehill.com/policy/energy-environment/feed/", name: "The Hill", color: "#1E88E5", category: "science" },
+  { url: "https://thehill.com/business/feed/", name: "The Hill", color: "#1E88E5", category: "financial" },
+  // PBS NewsHour — highest-reliability US public broadcaster. Free, no paywall.
+  { url: "https://www.pbs.org/newshour/feeds/rss/headlines", name: "PBS", color: "#1976D2", category: "world" },
+  { url: "https://www.pbs.org/newshour/feeds/rss/politics", name: "PBS", color: "#1976D2", category: "world" },
+  { url: "https://www.pbs.org/newshour/feeds/rss/economy", name: "PBS", color: "#1976D2", category: "financial" },
+  { url: "https://www.pbs.org/newshour/feeds/rss/health", name: "PBS", color: "#1976D2", category: "health" },
+  { url: "https://www.pbs.org/newshour/feeds/rss/science", name: "PBS", color: "#1976D2", category: "science" },
+  // Deutsche Welle — German public broadcaster, editorially independent by law. Non-Anglosphere lens.
+  { url: "https://rss.dw.com/xml/rss-en-world", name: "DW", color: "#0097A7", category: "world" },
+  { url: "https://rss.dw.com/xml/rss-en-bus", name: "DW", color: "#0097A7", category: "financial" },
+  { url: "https://rss.dw.com/xml/rss-en-science", name: "DW", color: "#0097A7", category: "science" },
+  // France 24 — French public broadcaster. Strongest on Middle East, Africa, Americas.
+  { url: "https://www.france24.com/en/rss", name: "France 24", color: "#2E7D32", category: "world" },
+  { url: "https://www.france24.com/en/americas/rss", name: "France 24", color: "#2E7D32", category: "world" },
+  { url: "https://www.france24.com/en/middle-east/rss", name: "France 24", color: "#2E7D32", category: "world" },
+  { url: "https://www.france24.com/en/health/rss", name: "France 24", color: "#2E7D32", category: "health" },
 ];
 
 export async function fetchSupplementalFeeds() {
