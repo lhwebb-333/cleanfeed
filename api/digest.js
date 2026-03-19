@@ -129,10 +129,10 @@ export default async function handler(req, res) {
     // === BUILD BRIEFING SECTIONS ===
 
     // 1. Overnight / Breaking — multi-source, last 12 hours
-    const overnight = findMultiSourceStories(articles, 12 * 60 * 60 * 1000).slice(0, 5);
+    const overnight = findMultiSourceStories(articles, 12 * 60 * 60 * 1000).slice(0, 3);
 
     // 2. Top 5 Stories — multi-source, last 24 hours
-    const top5 = findMultiSourceStories(articles, 24 * 60 * 60 * 1000).slice(0, 5);
+    const top5 = findMultiSourceStories(articles, 24 * 60 * 60 * 1000).slice(0, 3);
 
     // 3. Market snapshot
     let marketHtml = "";
@@ -227,7 +227,7 @@ export default async function handler(req, res) {
     </tr>
   </table>
 
-  ${marketHtmlLight ? `<p style="font-family:monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#FF8C00;margin:16px 0 4px;">MARKETS</p>${marketHtmlLight}` : ""}
+  ${marketHtmlLight ? sectionHeader("Markets", "#FF8C00") + marketHtmlLight : ""}
 `;
 
     // OVERNIGHT
