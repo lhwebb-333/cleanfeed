@@ -56,7 +56,7 @@ export function DataBars() {
     let c = false;
     async function load() {
       try {
-        const res = await fetch(`${API_BASE}/api/financial-indicators`);
+        const res = await fetch(`${API_BASE}/api/financial-feed?indicators=true`);
         if (!res.ok) return;
         const data = await res.json();
         if (data.ok && !c) setIndicators(data.indicators || []);

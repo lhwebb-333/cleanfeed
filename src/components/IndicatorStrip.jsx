@@ -35,7 +35,7 @@ export function IndicatorStrip() {
 
     async function fetchIndicators() {
       try {
-        const res = await fetch(`${API_BASE}/api/financial-indicators`);
+        const res = await fetch(`${API_BASE}/api/financial-feed?indicators=true`);
         if (!res.ok) return;
         const data = await res.json();
         if (data.ok && !cancelled) {
