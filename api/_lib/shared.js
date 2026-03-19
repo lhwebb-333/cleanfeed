@@ -121,6 +121,11 @@ const CATEGORY_KEYWORDS = {
     "cheltenham", "kentucky derby", "preakness", "belmont",
     // Meta
     "espn", "sports", "series win", "series loss",
+    // NOTE: "former NFL reporter" / "former NBA player" in article descriptions
+    // should NOT classify the article as sports. These are biographical mentions.
+    // The classifier already handles this because the competing category
+    // (financial/world) will have more keyword hits. But avoid adding
+    // loose person-title patterns like "nfl reporter" to this list.
     // NBA teams (removed common English words: heat, magic, thunder, jazz, nets, kings, suns)
     "celtics", "knicks", "76ers", "sixers", "raptors",
     "bulls", "cavaliers", "cavs", "pistons", "pacers", "bucks",
@@ -724,8 +729,9 @@ export async function fetchSupplementalFeeds() {
     for (const { item, name, color, category, serendipity } of result.value) {
       if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
       if (isTooOld(item.isoDate || item.pubDate)) continue;
-      const desc = (item.contentSnippet || item.content || "").slice(0, 250);
-      if (isJournalPaper(item.title, desc, name, item.link || item.guid)) continue;
+      const rawDesc = (item.contentSnippet || item.content || "").slice(0, 250);
+      if (isJournalPaper(item.title, rawDesc, name, item.link || item.guid)) continue;
+      const desc = cleanDescription(item.title, rawDesc);
       articles.push({
         id: item.guid || item.link,
         title: item.title,
@@ -734,7 +740,7 @@ export async function fetchSupplementalFeeds() {
         pubDate: item.isoDate || item.pubDate,
         source: name,
         color,
-        category: classifyArticle(item.title, desc, category, false),
+        category: classifyArticle(item.title, rawDesc, category, false),
         ...(serendipity ? { serendipity: true } : {}),
       });
     }
@@ -791,7 +797,8 @@ export async function fetchTopicFeeds() {
         if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
         if (isTooOld(item.isoDate || item.pubDate)) continue;
         const title = stripSourceSuffix(item.title);
-        const desc = (item.contentSnippet || item.content || "").slice(0, 250);
+        const rawDesc = (item.contentSnippet || item.content || "").slice(0, 250);
+        const desc = cleanDescription(title, rawDesc);
         articles.push({
           id: item.guid || item.link,
           title,
@@ -800,7 +807,7 @@ export async function fetchTopicFeeds() {
           pubDate: item.isoDate || item.pubDate,
           source: sourceInfo.name,
           color: sourceInfo.color,
-          category: classifyArticle(title, desc, category, false),
+          category: classifyArticle(title, rawDesc, category, false),
         });
       }
     } catch (err) {
