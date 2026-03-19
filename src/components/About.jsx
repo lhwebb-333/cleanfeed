@@ -357,7 +357,7 @@ export function About({ open, onClose }) {
               },
               {
                 label: "Daily digest curation",
-                detail: "The email digest selects stories mechanically: Overnight and Top Stories are chosen by how many independent sources cover the same event. Worth Reading picks the article with the longest description per category — more context from the source means more substance. No human picks favorites.",
+                detail: "The email digest is assembled by software, not a person. Overnight and Top Stories rank by source count — if 5 independent outlets cover the same event, it ranks higher than a story covered by 2. Worth Reading picks one article per category (tech, science, health, financial) by selecting whichever has the longest description from its source, since more context usually means more substance. No editor chooses what goes in. The algorithm is: count the sources, sort by that number, done.",
               },
             ].map((item) => (
               <div key={item.label}>
