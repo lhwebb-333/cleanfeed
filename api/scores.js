@@ -20,7 +20,7 @@ const LEAGUES = [
 ];
 
 const cache = new Map();
-const CACHE_TTL = 3 * 60 * 1000; // 3 min
+const CACHE_TTL = 90 * 1000; // 90s — client polls every 2 min, always gets fresh data
 
 function getCached(key) {
   const entry = cache.get(key);
