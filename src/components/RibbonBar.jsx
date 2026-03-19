@@ -556,50 +556,102 @@ export function TodayRibbon() {
             </div>
           )}
 
-          {/* Daily Digest */}
-          {data.digest?.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <span style={{
-                fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
-                color: theme.colors.textGhost, letterSpacing: "0.06em", textTransform: "uppercase",
-              }}>TODAY'S TOP STORIES</span>
-              {data.digest.map((d, i) => (
-                <div key={i} style={{
-                  display: "flex", flexDirection: "column", gap: 3,
-                }}>
-                  <a href={d.link} target="_blank" rel="noopener noreferrer"
-                    style={{
-                      fontFamily: theme.fonts.serif, fontSize: 12, lineHeight: 1.4,
-                      color: theme.colors.text, textDecoration: "none",
-                      display: "flex", alignItems: "baseline", gap: 6,
-                    }}>
-                    <span style={{
-                      fontFamily: theme.fonts.mono, fontSize: 8, color: "#FF8C00",
-                      fontWeight: 700, flexShrink: 0,
-                    }}>{d.sourceCount}+</span>
-                    <span style={{ borderBottom: `1px solid ${theme.colors.border}` }}>{d.title}</span>
-                  </a>
-                  {d.sourceLinks?.length > 1 && (
-                    <div style={{ display: "flex", gap: 6, paddingLeft: 20 }}>
-                      {d.sourceLinks.map((sl) => {
-                        const sc = SOURCE_COLOR_MAP[sl.source] || theme.colors.textMuted;
-                        return (
-                          <a key={sl.source} href={sl.link} target="_blank" rel="noopener noreferrer"
-                            style={{
-                              fontFamily: theme.fonts.mono, fontSize: 8,
-                              color: sc, textDecoration: "none",
-                              padding: "1px 5px",
-                              border: `1px solid ${sc}40`,
-                              borderRadius: 3,
-                            }}>
-                            {sl.source} →
-                          </a>
-                        );
-                      })}
+          {/* Digest + Breaking — two-column layout */}
+          {(data.digest?.length > 0 || data.breaking?.length > 0) && (
+            <div style={{ display: "flex", gap: 20 }}>
+              {/* Left: Today's Top Stories */}
+              {data.digest?.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0 }}>
+                  <span style={{
+                    fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
+                    color: theme.colors.textGhost, letterSpacing: "0.06em", textTransform: "uppercase",
+                  }}>TODAY'S TOP STORIES</span>
+                  {data.digest.map((d, i) => (
+                    <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                      <a href={d.link} target="_blank" rel="noopener noreferrer"
+                        style={{
+                          fontFamily: theme.fonts.serif, fontSize: 11, lineHeight: 1.4,
+                          color: theme.colors.text, textDecoration: "none",
+                          display: "flex", alignItems: "baseline", gap: 5,
+                        }}>
+                        <span style={{
+                          fontFamily: theme.fonts.mono, fontSize: 7, color: "#FF8C00",
+                          fontWeight: 700, flexShrink: 0,
+                        }}>{d.sourceCount}+</span>
+                        <span style={{ borderBottom: `1px solid ${theme.colors.border}` }}>{d.title}</span>
+                      </a>
+                      {d.sourceLinks?.length > 1 && (
+                        <div style={{ display: "flex", gap: 4, paddingLeft: 16, flexWrap: "wrap" }}>
+                          {d.sourceLinks.map((sl) => {
+                            const sc = SOURCE_COLOR_MAP[sl.source] || theme.colors.textMuted;
+                            return (
+                              <a key={sl.source} href={sl.link} target="_blank" rel="noopener noreferrer"
+                                style={{
+                                  fontFamily: theme.fonts.mono, fontSize: 7,
+                                  color: sc, textDecoration: "none",
+                                  padding: "1px 4px",
+                                  border: `1px solid ${sc}40`,
+                                  borderRadius: 3,
+                                }}>
+                                {sl.source} →
+                              </a>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
+              )}
+
+              {/* Right: Breaking */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0 }}>
+                <span style={{
+                  fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
+                  color: data.breaking?.length > 0 ? "#EF5350" : theme.colors.textGhost,
+                  letterSpacing: "0.06em", textTransform: "uppercase",
+                }}>BREAKING</span>
+                {data.breaking?.length > 0 ? data.breaking.map((d, i) => (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <a href={d.link} target="_blank" rel="noopener noreferrer"
+                      style={{
+                        fontFamily: theme.fonts.serif, fontSize: 11, lineHeight: 1.4,
+                        color: theme.colors.text, textDecoration: "none",
+                        display: "flex", alignItems: "baseline", gap: 5,
+                      }}>
+                      <span style={{
+                        fontFamily: theme.fonts.mono, fontSize: 7, color: "#EF5350",
+                        fontWeight: 700, flexShrink: 0,
+                      }}>{d.sourceCount}+</span>
+                      <span style={{ borderBottom: `1px solid ${theme.colors.border}` }}>{d.title}</span>
+                    </a>
+                    {d.sourceLinks?.length > 1 && (
+                      <div style={{ display: "flex", gap: 4, paddingLeft: 16, flexWrap: "wrap" }}>
+                        {d.sourceLinks.map((sl) => {
+                          const sc = SOURCE_COLOR_MAP[sl.source] || theme.colors.textMuted;
+                          return (
+                            <a key={sl.source} href={sl.link} target="_blank" rel="noopener noreferrer"
+                              style={{
+                                fontFamily: theme.fonts.mono, fontSize: 7,
+                                color: sc, textDecoration: "none",
+                                padding: "1px 4px",
+                                border: `1px solid ${sc}40`,
+                                borderRadius: 3,
+                              }}>
+                              {sl.source} →
+                            </a>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )) : (
+                  <span style={{
+                    fontFamily: theme.fonts.serif, fontSize: 11,
+                    color: theme.colors.textGhost, fontStyle: "italic",
+                  }}>No breaking stories</span>
+                )}
+              </div>
             </div>
           )}
 

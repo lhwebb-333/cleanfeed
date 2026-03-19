@@ -180,59 +180,65 @@ export default async function handler(req, res) {
     const moonPhase = getMoonPhase(now);
     const calendar = getCalendarEvents(dateStr);
 
-    // Daily digest — top multi-source stories (fetched from our own feed)
+    // Daily digest + breaking — multi-source stories across ALL sources
     let digest = [];
+    let breaking = [];
     try {
-      // Use internal feed to find multi-source stories
       const feedModule = await import("./_lib/shared.js");
       const sourceKeys = Object.keys(feedModule.SOURCES);
-      const results = await Promise.allSettled(sourceKeys.map((key) => feedModule.fetchSource(key)));
-      const allArticles = results.filter((r) => r.status === "fulfilled").flatMap((r) => r.value);
+      const [sourceResults, supplementalArticles] = await Promise.all([
+        Promise.allSettled(sourceKeys.map((key) => feedModule.fetchSource(key))),
+        feedModule.fetchSupplementalFeeds(),
+      ]);
+      const allArticles = [
+        ...sourceResults.filter((r) => r.status === "fulfilled").flatMap((r) => r.value),
+        ...supplementalArticles,
+      ];
 
-      // Find stories covered by multiple wire services
       const STOP = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","is","are","was","were","has","have","had","not","its","it","with","from","by","as","this","that","says","said","say","new","up","down","out","just","also","now"]);
       function getWords(title) {
         return title.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter((w) => w.length > 2 && !STOP.has(w));
       }
 
-      const wireServices = ["Reuters", "AP News", "BBC", "NPR"];
-      const cutoff = Date.now() - 24 * 60 * 60 * 1000; // last 24 hours only
-      const wireArticles = allArticles.filter((a) =>
-        wireServices.includes(a.source) && new Date(a.pubDate).getTime() > cutoff
-      );
+      // Use ALL sources for multi-source detection, not just wire services
+      const cutoff24h = Date.now() - 24 * 60 * 60 * 1000;
+      const cutoff3h = Date.now() - 3 * 60 * 60 * 1000;
+      const recentArticles = allArticles.filter((a) => new Date(a.pubDate).getTime() > cutoff24h);
 
-      // Track checked articles by index to avoid mutating cached objects
+      // Find multi-source stories
       const digestChecked = new Set();
+      const multiSourceStories = [];
 
-      for (let ai = 0; ai < wireArticles.length; ai++) {
-        const a = wireArticles[ai];
+      for (let ai = 0; ai < recentArticles.length; ai++) {
+        const a = recentArticles[ai];
         if (digestChecked.has(ai)) continue;
         const aWords = new Set(getWords(a.title));
         if (aWords.size < 3) continue;
         const sources = new Set([a.source]);
+        const matchedIndices = [];
 
-        for (let bi = 0; bi < wireArticles.length; bi++) {
-          if (ai === bi || digestChecked.has(bi)) continue;
-          const b = wireArticles[bi];
+        for (let bi = ai + 1; bi < recentArticles.length; bi++) {
+          if (digestChecked.has(bi)) continue;
+          const b = recentArticles[bi];
           if (sources.has(b.source)) continue;
           const bWords = getWords(b.title);
           const overlap = bWords.filter((w) => aWords.has(w)).length;
           if (overlap >= 3 && overlap / Math.min(aWords.size, bWords.length) >= 0.4) {
             sources.add(b.source);
+            matchedIndices.push(bi);
             digestChecked.add(bi);
           }
         }
 
         if (sources.size >= 2) {
-          // Collect direct links from all matching articles
           const sourceLinks = [{ source: a.source, link: a.link }];
-          for (const b of wireArticles) {
-            if (b === a) continue;
-            if (sources.has(b.source) && b.link && !sourceLinks.find((sl) => sl.source === b.source)) {
+          for (const idx of matchedIndices) {
+            const b = recentArticles[idx];
+            if (b.link && !sourceLinks.find((sl) => sl.source === b.source)) {
               sourceLinks.push({ source: b.source, link: b.link });
             }
           }
-          digest.push({
+          multiSourceStories.push({
             title: a.title,
             sources: [...sources],
             sourceCount: sources.size,
@@ -242,26 +248,37 @@ export default async function handler(req, res) {
           });
         }
       }
-      // Sort by source count first, then recency
-      digest.sort((a, b) => b.sourceCount - a.sourceCount || new Date(b.pubDate) - new Date(a.pubDate));
 
-      // Dedup digest — remove entries that are about the same story
-      const dedupedDigest = [];
-      for (const d of digest) {
-        const dWords = new Set(getWords(d.title));
-        const isDupe = dedupedDigest.some((existing) => {
-          const eWords = getWords(existing.title);
-          const overlap = eWords.filter((w) => dWords.has(w)).length;
-          return overlap >= 3 && overlap / Math.min(dWords.size, eWords.length) >= 0.4;
-        });
-        if (!isDupe) dedupedDigest.push(d);
+      // Sort by source count, then recency
+      multiSourceStories.sort((a, b) => b.sourceCount - a.sourceCount || new Date(b.pubDate) - new Date(a.pubDate));
+
+      // Dedup
+      function dedupStories(stories) {
+        const result = [];
+        for (const d of stories) {
+          const dWords = new Set(getWords(d.title));
+          const isDupe = result.some((existing) => {
+            const eWords = getWords(existing.title);
+            const overlap = eWords.filter((w) => dWords.has(w)).length;
+            return overlap >= 3 && overlap / Math.min(dWords.size, eWords.length) >= 0.4;
+          });
+          if (!isDupe) result.push(d);
+        }
+        return result;
       }
-      digest = dedupedDigest.slice(0, 5);
 
-      // If we don't have 5, pad with most recent wire headlines from last 24h
+      const allDeduped = dedupStories(multiSourceStories);
+
+      // Split: breaking (last 3h) vs digest (last 24h)
+      breaking = allDeduped
+        .filter((d) => new Date(d.pubDate).getTime() > cutoff3h)
+        .slice(0, 5);
+      digest = allDeduped.slice(0, 5);
+
+      // Pad digest if needed
       if (digest.length < 5) {
         const digestTitles = new Set(digest.map((d) => d.title));
-        const recent = wireArticles
+        const recent = recentArticles
           .filter((a, i) => !digestTitles.has(a.title) && !digestChecked.has(i))
           .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
         for (const a of recent) {
@@ -271,6 +288,7 @@ export default async function handler(req, res) {
             sources: [a.source],
             sourceCount: 1,
             pubDate: a.pubDate,
+            link: a.link,
           });
         }
       }
@@ -290,6 +308,7 @@ export default async function handler(req, res) {
       calendar,
       history,
       digest,
+      breaking,
     };
 
     setCache(cacheKey, result);
