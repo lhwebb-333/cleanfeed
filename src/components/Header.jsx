@@ -88,14 +88,16 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         display: "flex", gap: 3, alignItems: "center",
       }}>
         {[
-          { label: "?", onClick: onAbout },
-          { label: mode === "light" ? "\u2600" : "\u263E", onClick: onToggleTheme, color: mode === "light" ? "#FF8C00" : "#888" },
-          { label: "\u21BB", onClick: onRefresh, disabled: refreshing, spin: refreshing },
+          { label: "?", onClick: onAbout, title: "About" },
+          { label: "\u2261", onClick: () => window.open("/api/reader", "_blank"), title: "Reader mode" },
+          { label: mode === "light" ? "\u2600" : "\u263E", onClick: onToggleTheme, color: mode === "light" ? "#FF8C00" : "#888", title: "Toggle theme" },
+          { label: "\u21BB", onClick: onRefresh, disabled: refreshing, spin: refreshing, title: "Refresh" },
         ].map((btn, i) => (
           <button
             key={i}
             onClick={btn.onClick}
             disabled={btn.disabled}
+            title={btn.title}
             style={{
               background: theme.colors.bg,
               border: `1px solid ${theme.colors.border}`,

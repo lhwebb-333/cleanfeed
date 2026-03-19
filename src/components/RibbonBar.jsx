@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { SOURCES, CATEGORIES, CATEGORY_SUBSOURCES, ALL_SUBSOURCE_NAMES, getSourceColor, SOURCE_COLOR_MAP } from "../utils/sources";
 import { resolveState, US_STATES, LOCAL_COLOR } from "../utils/stateSources";
@@ -316,7 +316,18 @@ export function FilterRibbon({
   selectedState, onSelectState, onClearState,
 }) {
   const { theme } = useTheme();
-  const [open, setOpen] = useState(false);
+  const [userToggled, setUserToggled] = useState(null); // null = auto, true/false = manual
+  const prevKeywordCount = useRef(mutedKeywords.length);
+  // Reset manual override when keyword count changes (user toggled preset from feed header)
+  useEffect(() => {
+    if (mutedKeywords.length !== prevKeywordCount.current) {
+      setUserToggled(null);
+      prevKeywordCount.current = mutedKeywords.length;
+    }
+  }, [mutedKeywords.length]);
+  // Auto-open when filters are active, respect manual toggle
+  const hasActiveFilters = mutedKeywords.length > 0 || !!selectedState;
+  const open = userToggled !== null ? userToggled : hasActiveFilters;
   const [muteInput, setMuteInput] = useState("");
   const [stateInput, setStateInput] = useState("");
 
@@ -335,7 +346,7 @@ export function FilterRibbon({
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
       {/* Collapsed bar */}
-      <button className="ribbon-label" onClick={() => setOpen(!open)} style={{
+      <button className="ribbon-label" onClick={() => setUserToggled(!open)} style={{
         ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
         display: "flex", alignItems: "center", gap: 6, width: "100%",
         padding: `3px ${theme.spacing.lg}px`, textAlign: "left", minHeight: 26,
