@@ -6,6 +6,7 @@ import { About } from "./About";
 import { DataBars } from "./DataBars";
 import { TopicRibbon, FilterRibbon, TodayRibbon } from "./RibbonBar";
 import { InstallPrompt } from "./InstallPrompt";
+import { DigestSignup } from "./DigestSignup";
 import { useFeed } from "../hooks/useFeed";
 import { usePullToRefresh } from "../hooks/usePullToRefresh";
 import { useTheme } from "../hooks/useTheme";
@@ -104,8 +105,9 @@ export default function App() {
           <div
             ref={feedRef}
             style={{
-              display: "flex", alignItems: "center", gap: 10,
+              display: "flex", alignItems: "center", gap: 6,
               padding: `${theme.spacing.sm}px 0`,
+              flexWrap: "wrap",
             }}
           >
             <span style={{
@@ -126,7 +128,47 @@ export default function App() {
               </button>
             )}
             {!searchQuery && (
-              <div style={{ display: "flex", gap: 4, marginLeft: "auto" }}>
+              <div style={{ display: "flex", gap: 4, marginLeft: "auto", alignItems: "center" }}>
+                {/* Quick filter presets — always visible */}
+                {(() => {
+                  const politicsWords = ["trump", "biden", "election", "democrat", "republican", "congress", "senate", "partisan", "gop", "liberal", "conservative"];
+                  const familyWords = ["killed", "murder", "shooting", "stabbing", "assault", "rape", "abuse", "gunman", "massacre", "execution", "torture", "fentanyl", "overdose", "suicide", "bomb", "bombing", "terrorist", "hostage", "graphic", "explicit", "violence"];
+                  const politicsOn = mutedKeywords.some((kw) => politicsWords.includes(kw));
+                  const familyOn = mutedKeywords.some((kw) => familyWords.includes(kw));
+                  return (
+                    <>
+                      <button onClick={() => {
+                        if (politicsOn) politicsWords.forEach((kw) => removeMutedKeyword(kw));
+                        else politicsWords.forEach((kw) => addMutedKeyword(kw));
+                      }} style={{
+                        fontFamily: theme.fonts.mono, fontSize: 7, padding: "2px 6px",
+                        background: politicsOn ? "rgba(239,83,80,0.08)" : "transparent",
+                        border: `1px solid ${politicsOn ? "rgba(239,83,80,0.3)" : theme.colors.border}`,
+                        borderRadius: theme.radii.sm,
+                        color: politicsOn ? "#EF5350" : theme.colors.textGhost,
+                        cursor: "pointer", letterSpacing: "0.04em",
+                        transition: theme.transitions.fast,
+                      }}>
+                        {politicsOn ? "POLITICS \u2715" : "MUTE POLITICS"}
+                      </button>
+                      <button onClick={() => {
+                        if (familyOn) familyWords.forEach((kw) => removeMutedKeyword(kw));
+                        else familyWords.forEach((kw) => addMutedKeyword(kw));
+                      }} style={{
+                        fontFamily: theme.fonts.mono, fontSize: 7, padding: "2px 6px",
+                        background: familyOn ? "rgba(76,175,80,0.08)" : "transparent",
+                        border: `1px solid ${familyOn ? "rgba(76,175,80,0.3)" : theme.colors.border}`,
+                        borderRadius: theme.radii.sm,
+                        color: familyOn ? "#4CAF50" : theme.colors.textGhost,
+                        cursor: "pointer", letterSpacing: "0.04em",
+                        transition: theme.transitions.fast,
+                      }}>
+                        {familyOn ? "FAMILY \u2715" : "FAMILY MODE"}
+                      </button>
+                    </>
+                  );
+                })()}
+                <span style={{ width: 1, height: 10, background: theme.colors.border }} />
                 {[12, 24].map((h) => (
                   <button key={h} onClick={() => setBriefMode(h)} style={{
                     fontFamily: theme.fonts.mono, fontSize: 8, padding: "2px 6px",
@@ -184,8 +226,15 @@ export default function App() {
           fontFamily: theme.fonts.mono, fontSize: 10, color: theme.colors.textGhost,
           letterSpacing: "0.03em", marginBottom: 14,
         }}>
-          Auto-refreshes every 5 min · Opinion content filtered out
+          Auto-refreshes every 5 min · Opinion content filtered out ·{" "}
+          <a href="/api/reader" target="_blank" rel="noopener noreferrer"
+            style={{ color: theme.colors.textFaint, textDecoration: "underline", textUnderlineOffset: 2 }}>
+            Reader mode
+          </a>
         </p>
+        {/* Daily digest signup */}
+        <DigestSignup />
+
         <p style={{
           fontFamily: theme.fonts.serif, fontSize: 12, color: theme.colors.textFaint,
           lineHeight: 1.5, marginBottom: 12,

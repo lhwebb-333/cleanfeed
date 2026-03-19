@@ -159,9 +159,25 @@ export default async function handler(req, res) {
       articles = articles.filter((a) => a.category === categoryFilter);
     }
 
-    // Chronological — newest first. No interleaving, no caps.
+    // Chronological — newest first.
     // The feed's promise is "the world, as it happened, in the order it happened."
     articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+    // Source balance — prevent any single source from dominating a category.
+    // This addresses the BBC skew (direct RSS = faster/more articles than Google News proxied sources).
+    // Cap: no source gets more than 40% of any category's articles.
+    if (!categoryFilter || categoryFilter === "all") {
+      const catSourceCounts = {}; // "world|BBC" → count
+      const catTotals = {};       // "world" → count
+      articles = articles.filter((a) => {
+        const key = `${a.category}|${a.source}`;
+        catSourceCounts[key] = (catSourceCounts[key] || 0) + 1;
+        catTotals[a.category] = (catTotals[a.category] || 0) + 1;
+        // Allow first 10 from any source unconditionally, then cap at 40%
+        if (catSourceCounts[key] <= 10) return true;
+        return catSourceCounts[key] / catTotals[a.category] <= 0.4;
+      });
+    }
 
     articles = articles.slice(0, limit);
 

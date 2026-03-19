@@ -292,12 +292,99 @@ export function About({ open, onClose }) {
               fontSize: 13,
               lineHeight: 1.6,
               color: theme.colors.textMuted,
+              marginBottom: 10,
             }}
           >
             Powered by RSS — an open standard that news organizations use to
-            distribute their headlines. We fetch public feeds, filter out
-            opinion and editorial content, and display what's left in
-            chronological order. No accounts required.
+            distribute their headlines. We fetch public feeds and display
+            what's left in chronological order. No accounts required.
+          </p>
+        </div>
+
+        <div style={{
+          marginBottom: 20,
+          padding: 16,
+          background: theme.colors.bg,
+          border: `1px solid ${theme.colors.border}`,
+          borderRadius: theme.radii.md,
+        }}>
+          <p
+            style={{
+              fontFamily: theme.fonts.mono,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: theme.colors.textFaint,
+              textTransform: "uppercase",
+              marginBottom: 10,
+            }}
+          >
+            What We Edit (and why)
+          </p>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: theme.colors.textMuted,
+              marginBottom: 12,
+            }}
+          >
+            Clean Feed has no ranking algorithm — no system that decides which stories
+            you should see first or which deserve more attention. Every article appears
+            in the order it was published. But we do apply three mechanical filters,
+            and you should know exactly what they are:
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              {
+                label: "Opinion filter",
+                detail: "We remove editorials, op-eds, commentary, podcasts, and newsletters. Clean Feed shows what happened, not what someone thinks about it. This filter uses keyword matching — it's not perfect, but it errs on the side of removal.",
+              },
+              {
+                label: "Duplicate removal",
+                detail: "When the same story is reported by multiple sources, we group them and show the earliest version with links to all others. This prevents the same headline from appearing four times. You can click \"Compare All\" to read every version.",
+              },
+              {
+                label: "Category sorting",
+                detail: "Each article is tagged (World, Sports, Tech, etc.) using keyword matching so you can filter by topic. This is imperfect — a story about an oil company might land in the wrong bucket. We're improving it constantly, but we'd rather be transparent about the limitation than pretend it doesn't exist.",
+              },
+            ].map((item) => (
+              <div key={item.label}>
+                <span style={{
+                  fontFamily: theme.fonts.mono,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: theme.colors.textMuted,
+                  letterSpacing: "0.03em",
+                }}>
+                  {item.label}
+                </span>
+                <p style={{
+                  fontFamily: theme.fonts.serif,
+                  fontSize: 12,
+                  lineHeight: 1.5,
+                  color: theme.colors.textFaint,
+                  margin: "2px 0 0",
+                }}>
+                  {item.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+          <p
+            style={{
+              fontFamily: theme.fonts.serif,
+              fontSize: 12,
+              lineHeight: 1.5,
+              color: theme.colors.textFaint,
+              marginTop: 12,
+              fontStyle: "italic",
+            }}
+          >
+            That's it. No engagement optimization. No personalization. No boosting.
+            No suppression. The order is always chronological. What you see is what
+            everyone sees.
           </p>
         </div>
 
