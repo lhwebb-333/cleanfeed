@@ -1,30 +1,75 @@
 // Email digest subscription — stores email for daily delivery
 // Privacy: email stored only for delivery, never shared, one-click unsubscribe
-// Storage: Vercel KV (free tier) — swap to any KV/DB later
+// Storage: Upstash Redis (free tier: 10K commands/day, 256MB)
 
-// For MVP without Vercel KV, use a simple JSON approach
-// TODO: Migrate to Vercel KV when ready: import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
+import crypto from "crypto";
 
-const subscribers = new Map(); // In-memory for now — persists across warm invocations only
-// In production, replace with Vercel KV or similar persistent store
+// Initialize Redis — uses UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN
+// from Vercel environment variables (auto-added when you connect the database)
+let redis;
+try {
+  redis = Redis.fromEnv();
+} catch {
+  console.warn("[Subscribe] Upstash not configured — falling back to in-memory (data will not persist)");
+  redis = null;
+}
+
+// In-memory fallback for local dev / before Upstash is connected
+const memoryFallback = new Map();
+
+async function getSubscriber(email) {
+  if (redis) {
+    return redis.get(`sub:${email}`);
+  }
+  return memoryFallback.get(email) || null;
+}
+
+async function setSubscriber(email, data) {
+  if (redis) {
+    // Store subscriber data + add to the subscriber set for enumeration
+    await redis.set(`sub:${email}`, data);
+    await redis.sadd("subscribers", email);
+  } else {
+    memoryFallback.set(email, data);
+  }
+}
+
+async function deleteSubscriber(email) {
+  if (redis) {
+    await redis.del(`sub:${email}`);
+    await redis.srem("subscribers", email);
+  } else {
+    memoryFallback.delete(email);
+  }
+}
+
+async function getSubscriberCount() {
+  if (redis) {
+    return redis.scard("subscribers");
+  }
+  return memoryFallback.size;
+}
+
+async function getAllSubscribers() {
+  if (redis) {
+    const emails = await redis.smembers("subscribers");
+    return emails || [];
+  }
+  return [...memoryFallback.keys()];
+}
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function generateUnsubToken(email) {
-  // Simple hash — replace with crypto.randomUUID() + stored token for production
-  let hash = 0;
-  for (let i = 0; i < email.length; i++) {
-    hash = ((hash << 5) - hash + email.charCodeAt(i)) | 0;
-  }
-  return Math.abs(hash).toString(36);
+  return crypto.createHash("sha256").update(email + (process.env.UNSUB_SALT || "cleanfeed")).digest("hex").slice(0, 16);
 }
 
 export default async function handler(req, res) {
-  // CORS for the frontend
   res.setHeader("Access-Control-Allow-Origin", "https://thecleanfeed.app");
-  res.setHeader("Access-Control-Allow-Methods", "POST, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
@@ -42,23 +87,24 @@ export default async function handler(req, res) {
       const normalized = email.trim().toLowerCase();
 
       // Check if already subscribed
-      if (subscribers.has(normalized)) {
+      const existing = await getSubscriber(normalized);
+      if (existing) {
         return res.json({ ok: true, message: "Already subscribed" });
       }
 
       const token = generateUnsubToken(normalized);
-      subscribers.set(normalized, {
+      await setSubscriber(normalized, {
         email: normalized,
         subscribedAt: new Date().toISOString(),
         unsubToken: token,
       });
 
-      console.log(`[Subscribe] New subscriber: ${normalized} (total: ${subscribers.size})`);
+      const count = await getSubscriberCount();
+      console.log(`[Subscribe] New: ${normalized} (total: ${count})`);
 
       return res.json({
         ok: true,
         message: "Subscribed. You'll receive the daily digest at 7:00 AM ET.",
-        unsubscribeUrl: `https://thecleanfeed.app/api/subscribe?unsub=${token}&email=${encodeURIComponent(normalized)}`,
       });
     }
 
@@ -67,9 +113,10 @@ export default async function handler(req, res) {
       const { unsub, email } = req.query;
       if (unsub && email) {
         const normalized = email.trim().toLowerCase();
-        const sub = subscribers.get(normalized);
-        if (sub && sub.unsubToken === unsub) {
-          subscribers.delete(normalized);
+        const expectedToken = generateUnsubToken(normalized);
+
+        if (unsub === expectedToken) {
+          await deleteSubscriber(normalized);
           console.log(`[Subscribe] Unsubscribed: ${normalized}`);
           res.setHeader("Content-Type", "text/html; charset=utf-8");
           return res.send(`<!DOCTYPE html><html><body style="font-family:Georgia,serif;max-width:400px;margin:60px auto;text-align:center;color:#ddd;background:#0d0d0d;padding:20px;">
@@ -82,11 +129,12 @@ export default async function handler(req, res) {
         return res.status(400).send("Invalid unsubscribe link");
       }
 
-      // Stats (for Luke)
+      // Stats endpoint
+      const count = await getSubscriberCount();
       return res.json({
         ok: true,
-        count: subscribers.size,
-        note: "In-memory store — resets on cold start. Migrate to Vercel KV for persistence.",
+        count,
+        persistent: !!redis,
       });
     }
 
@@ -96,3 +144,6 @@ export default async function handler(req, res) {
     res.status(500).json({ ok: false, error: "Subscription failed" });
   }
 }
+
+// Export for use by the digest cron job
+export { getAllSubscribers, getSubscriber, generateUnsubToken };
