@@ -147,25 +147,35 @@ export function crossReference(type, indicators) {
   return parts.join(" ");
 }
 
-// Known FOMC meeting dates for 2026 (public schedule)
-const FOMC_DATES_2026 = [
-  "2026-01-27", "2026-01-28",
-  "2026-03-17", "2026-03-18",
-  "2026-05-05", "2026-05-06",
-  "2026-06-16", "2026-06-17",
-  "2026-07-28", "2026-07-29",
-  "2026-09-15", "2026-09-16",
-  "2026-10-27", "2026-10-28",
-  "2026-12-08", "2026-12-09",
-];
+// FOMC meeting dates — update annually
+// Source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+const FOMC_DATES_BY_YEAR = {
+  2026: [
+    "2026-01-27", "2026-01-28",
+    "2026-03-17", "2026-03-18",
+    "2026-05-05", "2026-05-06",
+    "2026-06-16", "2026-06-17",
+    "2026-07-28", "2026-07-29",
+    "2026-09-15", "2026-09-16",
+    "2026-10-27", "2026-10-28",
+    "2026-12-08", "2026-12-09",
+  ],
+  // TODO: Add 2027 dates when released by the Fed
+};
+
+function getFOMCDates() {
+  const year = new Date().getFullYear();
+  return FOMC_DATES_BY_YEAR[year] || [];
+}
 
 export function calendarContext(releaseDate) {
   const release = new Date(releaseDate);
   const parts = [];
+  const fomcDates = getFOMCDates();
 
   // Check if an FOMC meeting is within 14 days
-  for (let i = 0; i < FOMC_DATES_2026.length; i += 2) {
-    const meetingStart = new Date(FOMC_DATES_2026[i]);
+  for (let i = 0; i < fomcDates.length; i += 2) {
+    const meetingStart = new Date(fomcDates[i]);
     const daysUntil = Math.floor((meetingStart - release) / (1000 * 60 * 60 * 24));
     if (daysUntil > 0 && daysUntil <= 14) {
       const dateStr = meetingStart.toLocaleString("en-US", { month: "long", day: "numeric" });

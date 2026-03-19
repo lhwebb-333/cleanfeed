@@ -17,30 +17,26 @@ export const SOURCES = {
   reuters: {
     name: "Reuters",
     feeds: [
-      { url: "https://news.google.com/rss/search?q=when:5d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      // REMOVED: broad keyword sports feed (site:reuters.com+NBA+OR+NFL+...) — no section filter
-      // meant ANY reuters.com article mentioning those keywords got feedCategory="sports",
-      // poisoning classification for financial/tech articles. Section feed above is sufficient.
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/business+OR+site:reuters.com/markets&ceid=US:en&hl=en-US&gl=US", category: "financial" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+science+OR+climate+OR+space&ceid=US:en&hl=en-US&gl=US", category: "science" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+health+OR+vaccine+OR+disease+OR+FDA&ceid=US:en&hl=en-US&gl=US", category: "health" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/lifestyle&ceid=US:en&hl=en-US&gl=US", category: "entertainment" },
+      { url: "https://news.google.com/rss/search?q=when:2d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com/business+OR+site:reuters.com/markets&ceid=US:en&hl=en-US&gl=US", category: "financial" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com+science+OR+climate+OR+space&ceid=US:en&hl=en-US&gl=US", category: "science" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com+health+OR+vaccine+OR+disease+OR+FDA&ceid=US:en&hl=en-US&gl=US", category: "health" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com/lifestyle&ceid=US:en&hl=en-US&gl=US", category: "entertainment" },
     ],
     color: "#FF8C00",
   },
   ap: {
     name: "AP News",
     feeds: [
-      { url: "https://news.google.com/rss/search?q=when:5d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
-      // REMOVED: broad keyword sports feed — same issue as Reuters above
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/business&ceid=US:en&hl=en-US&gl=US", category: "financial" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/science&ceid=US:en&hl=en-US&gl=US", category: "science" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+health+OR+medical+OR+CDC+OR+FDA&ceid=US:en&hl=en-US&gl=US", category: "health" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/entertainment&ceid=US:en&hl=en-US&gl=US", category: "entertainment" },
+      { url: "https://news.google.com/rss/search?q=when:2d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com/business&ceid=US:en&hl=en-US&gl=US", category: "financial" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com/science&ceid=US:en&hl=en-US&gl=US", category: "science" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com+health+OR+medical+OR+CDC+OR+FDA&ceid=US:en&hl=en-US&gl=US", category: "health" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com/entertainment&ceid=US:en&hl=en-US&gl=US", category: "entertainment" },
     ],
     color: "#4A90D9",
   },
@@ -335,6 +331,12 @@ function classifyArticle(title = "", description = "", feedCategory = "world", t
   // If it were truly sports/tech/etc, at least one keyword would match.
   if (bestScore === 0) return "world";
 
+  // If caller says don't trust the feed tag (e.g. supplemental sources with fixed categories),
+  // let keyword scoring decide with a lower bar
+  if (!trustFeed) {
+    return bestCat;
+  }
+
   // Specialized feed category must score at least 1 on its own keywords
   // to keep its feed tag — otherwise the best keyword match wins.
   // This prevents "plane crash in Iraq" from staying as "sports"
@@ -345,6 +347,12 @@ function classifyArticle(title = "", description = "", feedCategory = "world", t
 
   // Feed category wins if it ties or beats the best keyword score
   if ((scores[feedCategory] || 0) >= bestScore) return feedCategory;
+
+  // If another category beats the feed category by 2+, reclassify.
+  // This catches e.g. an FDA health article on a tech source.
+  if (bestScore - (scores[feedCategory] || 0) >= 2) {
+    return bestCat;
+  }
 
   // For "world" feed articles, require a clear margin (2+) to reclassify.
   // A single keyword match is too weak — "space" alone shouldn't pull
@@ -359,9 +367,19 @@ function classifyArticle(title = "", description = "", feedCategory = "world", t
 // Common Spanish words that don't appear in English news headlines
 const SPANISH_INDICATORS = ["recortes", "clínicas", "impuesto", "alertan", "sobre una", "asociada", "mortal", "según", "también", "después", "complicación", "gobierno", "salud", "médicos", "hospitales"];
 
+// Google News landing pages / index pages that aren't actual articles
+const LANDING_PAGE_PATTERNS = [
+  /\| today's latest stories$/i,
+  /\| latest news & updates$/i,
+  /\| top stories$/i,
+  /^latest .+ news$/i,
+];
+
 function isOpinion(title = "", description = "") {
   const text = `${title} ${description}`.toLowerCase();
   if (OPINION_FILTERS.some((f) => text.includes(f))) return true;
+  // Filter Google News landing/index pages
+  if (LANDING_PAGE_PATTERNS.some((p) => p.test(title.trim()))) return true;
   // Filter non-English articles (Spanish from KFF, etc.)
   const spanishHits = SPANISH_INDICATORS.filter((w) => text.includes(w)).length;
   if (spanishHits >= 2) return true;
@@ -445,11 +463,12 @@ export async function fetchLocalFeed(stateCode) {
   const articles = [];
 
   // AP state proxy
-  const apUrl = `https://news.google.com/rss/search?q=when:5d+"${encodeURIComponent(stateName)}"+site:apnews.com&ceid=US:en&hl=en-US&gl=US`;
+  const apUrl = `https://news.google.com/rss/search?q=when:2d+"${encodeURIComponent(stateName)}"+site:apnews.com&ceid=US:en&hl=en-US&gl=US`;
   try {
     const feed = await parser.parseURL(apUrl);
     for (const item of (feed.items || []).slice(0, 20)) {
       if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      if (isTooOld(item.isoDate || item.pubDate)) continue;
       const desc = (item.contentSnippet || item.content || "").slice(0, 250);
       articles.push({
         id: item.guid || item.link,
@@ -474,6 +493,7 @@ export async function fetchLocalFeed(stateCode) {
       const feed = await parser.parseURL(src.rss);
       for (const item of (feed.items || []).slice(0, 15)) {
         if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+        if (isTooOld(item.isoDate || item.pubDate)) continue;
         const desc = (item.contentSnippet || item.content || "").slice(0, 250);
         articles.push({
           id: item.guid || item.link,
@@ -509,6 +529,14 @@ export async function fetchLocalFeed(stateCode) {
   return sorted;
 }
 
+// Max article age — anything older than this is stale and excluded
+const MAX_ARTICLE_AGE_MS = 48 * 60 * 60 * 1000; // 48 hours
+
+function isTooOld(pubDate) {
+  if (!pubDate) return false;
+  return Date.now() - new Date(pubDate).getTime() > MAX_ARTICLE_AGE_MS;
+}
+
 export async function fetchSource(sourceKey) {
   const cached = getCached(sourceKey);
   if (cached) return cached;
@@ -532,6 +560,7 @@ export async function fetchSource(sourceKey) {
     const { feed, category } = result.value;
     for (const item of feed.items || []) {
       if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      if (isTooOld(item.isoDate || item.pubDate)) continue;
       const title = stripSourceSuffix(item.title);
       const desc = (item.contentSnippet || item.content || "").slice(0, 250);
       articles.push({
@@ -634,6 +663,7 @@ export async function fetchSupplementalFeeds() {
     if (result.status !== "fulfilled") continue;
     for (const { item, name, color, category, serendipity } of result.value) {
       if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      if (isTooOld(item.isoDate || item.pubDate)) continue;
       const desc = (item.contentSnippet || item.content || "").slice(0, 250);
       if (isJournalPaper(item.title, desc, name, item.link || item.guid)) continue;
       articles.push({
@@ -644,7 +674,7 @@ export async function fetchSupplementalFeeds() {
         pubDate: item.isoDate || item.pubDate,
         source: name,
         color,
-        category,
+        category: classifyArticle(item.title, desc, category, false),
         ...(serendipity ? { serendipity: true } : {}),
       });
     }
@@ -699,6 +729,7 @@ export async function fetchTopicFeeds() {
         const sourceInfo = matchApprovedSource(item);
         if (!sourceInfo) continue;
         if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+        if (isTooOld(item.isoDate || item.pubDate)) continue;
         const title = stripSourceSuffix(item.title);
         const desc = (item.contentSnippet || item.content || "").slice(0, 250);
         articles.push({

@@ -2,9 +2,6 @@ User-agent: *
 Allow: /
 Allow: /api/feed
 Allow: /api/local-feed
-
-Disallow: /api/health
-Disallow: /api/sources
-Disallow: /api/categories
+Allow: /api/reader
 
 Sitemap: https://thecleanfeed.app/sitemap.xml

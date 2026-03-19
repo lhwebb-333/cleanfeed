@@ -24,26 +24,26 @@ const SOURCES = {
   reuters: {
     name: "Reuters",
     feeds: [
-      { url: "https://news.google.com/rss/search?q=when:5d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:2d+allinurl:reuters.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
       // REMOVED: broad keyword sports feed — no section filter, poisoned classification
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/business+OR+site:reuters.com/markets&ceid=US:en&hl=en-US&gl=US", category: "financial" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+science+OR+climate+OR+space&ceid=US:en&hl=en-US&gl=US", category: "science" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:reuters.com+health+OR+vaccine+OR+disease+OR+FDA&ceid=US:en&hl=en-US&gl=US", category: "health" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com/business+OR+site:reuters.com/markets&ceid=US:en&hl=en-US&gl=US", category: "financial" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com+science+OR+climate+OR+space&ceid=US:en&hl=en-US&gl=US", category: "science" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:reuters.com+health+OR+vaccine+OR+disease+OR+FDA&ceid=US:en&hl=en-US&gl=US", category: "health" },
     ],
     color: "#FF8C00",
   },
   ap: {
     name: "AP News",
     feeds: [
-      { url: "https://news.google.com/rss/search?q=when:5d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
+      { url: "https://news.google.com/rss/search?q=when:2d+allinurl:apnews.com&ceid=US:en&hl=en-US&gl=US", category: "world" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com/sports&ceid=US:en&hl=en-US&gl=US", category: "sports" },
       // REMOVED: broad keyword sports feed — same issue as Reuters above
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/business&ceid=US:en&hl=en-US&gl=US", category: "financial" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com/science&ceid=US:en&hl=en-US&gl=US", category: "science" },
-      { url: "https://news.google.com/rss/search?q=when:5d+site:apnews.com+health+OR+medical+OR+CDC+OR+FDA&ceid=US:en&hl=en-US&gl=US", category: "health" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com/business&ceid=US:en&hl=en-US&gl=US", category: "financial" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com/technology&ceid=US:en&hl=en-US&gl=US", category: "tech" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com/science&ceid=US:en&hl=en-US&gl=US", category: "science" },
+      { url: "https://news.google.com/rss/search?q=when:2d+site:apnews.com+health+OR+medical+OR+CDC+OR+FDA&ceid=US:en&hl=en-US&gl=US", category: "health" },
     ],
     color: "#4A90D9",
   },
@@ -705,7 +705,7 @@ async function fetchLocalFeed(stateCode) {
   const articles = [];
 
   // AP state proxy
-  const apUrl = `https://news.google.com/rss/search?q=when:5d+"${encodeURIComponent(stateName)}"+site:apnews.com&ceid=US:en&hl=en-US&gl=US`;
+  const apUrl = `https://news.google.com/rss/search?q=when:2d+"${encodeURIComponent(stateName)}"+site:apnews.com&ceid=US:en&hl=en-US&gl=US`;
   try {
     const feed = await parser.parseURL(apUrl);
     for (const item of (feed.items || []).slice(0, 20)) {

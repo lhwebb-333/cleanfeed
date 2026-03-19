@@ -1,11 +1,14 @@
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "./hooks/useTheme";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./components/App";
 
 createRoot(document.getElementById("root")).render(
-  <ThemeProvider>
-    <App />
-  </ThemeProvider>
+  <ErrorBoundary>
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  </ErrorBoundary>
 );
 
 if ("serviceWorker" in navigator) {

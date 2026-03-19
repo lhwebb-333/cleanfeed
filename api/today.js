@@ -103,13 +103,27 @@ const HOLIDAYS = {
   "12-31": "New Year's Eve",
 };
 
-// FOMC meeting dates 2026
-const FOMC_2026 = [
-  "2026-01-27", "2026-01-28", "2026-03-17", "2026-03-18",
-  "2026-05-05", "2026-05-06", "2026-06-16", "2026-06-17",
-  "2026-07-28", "2026-07-29", "2026-09-15", "2026-09-16",
-  "2026-10-27", "2026-10-28", "2026-12-08", "2026-12-09",
-];
+// FOMC meeting dates — update annually
+// Source: https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm
+const FOMC_DATES = {
+  2026: [
+    "2026-01-27", "2026-01-28", "2026-03-17", "2026-03-18",
+    "2026-05-05", "2026-05-06", "2026-06-16", "2026-06-17",
+    "2026-07-28", "2026-07-29", "2026-09-15", "2026-09-16",
+    "2026-10-27", "2026-10-28", "2026-12-08", "2026-12-09",
+  ],
+  // TODO: Add 2027 dates when released by the Fed (typically mid-year prior)
+};
+
+function getFOMCDates() {
+  const year = new Date().getFullYear();
+  const dates = FOMC_DATES[year];
+  if (!dates) {
+    console.warn(`[Today] No FOMC dates for ${year} — update FOMC_DATES in today.js`);
+    return [];
+  }
+  return dates;
+}
 
 function getCalendarEvents(dateStr) {
   const events = [];
@@ -119,12 +133,12 @@ function getCalendarEvents(dateStr) {
   if (HOLIDAYS[mmdd]) events.push({ type: "holiday", text: HOLIDAYS[mmdd] });
 
   // FOMC
-  if (FOMC_2026.includes(dateStr)) {
+  const fomcDates = getFOMCDates();
+  if (fomcDates.includes(dateStr)) {
     events.push({ type: "fomc", text: "FOMC meeting today" });
   } else {
-    // Check if FOMC is tomorrow or within 2 days
     const today = new Date(dateStr);
-    for (const fomcDate of FOMC_2026) {
+    for (const fomcDate of fomcDates) {
       const diff = Math.floor((new Date(fomcDate) - today) / (1000 * 60 * 60 * 24));
       if (diff === 1) {
         events.push({ type: "fomc", text: "FOMC meets tomorrow" });
@@ -181,19 +195,25 @@ export default async function handler(req, res) {
         wireServices.includes(a.source) && new Date(a.pubDate).getTime() > cutoff
       );
 
-      for (const a of wireArticles) {
-        if (a._digestChecked) continue;
+      // Track checked articles by index to avoid mutating cached objects
+      const digestChecked = new Set();
+
+      for (let ai = 0; ai < wireArticles.length; ai++) {
+        const a = wireArticles[ai];
+        if (digestChecked.has(ai)) continue;
         const aWords = new Set(getWords(a.title));
         if (aWords.size < 3) continue;
         const sources = new Set([a.source]);
 
-        for (const b of wireArticles) {
-          if (a === b || sources.has(b.source)) continue;
+        for (let bi = 0; bi < wireArticles.length; bi++) {
+          if (ai === bi || digestChecked.has(bi)) continue;
+          const b = wireArticles[bi];
+          if (sources.has(b.source)) continue;
           const bWords = getWords(b.title);
           const overlap = bWords.filter((w) => aWords.has(w)).length;
           if (overlap >= 3 && overlap / Math.min(aWords.size, bWords.length) >= 0.4) {
             sources.add(b.source);
-            b._digestChecked = true;
+            digestChecked.add(bi);
           }
         }
 
@@ -236,7 +256,7 @@ export default async function handler(req, res) {
       if (digest.length < 5) {
         const digestTitles = new Set(digest.map((d) => d.title));
         const recent = wireArticles
-          .filter((a) => !digestTitles.has(a.title) && !a._digestChecked)
+          .filter((a, i) => !digestTitles.has(a.title) && !digestChecked.has(i))
           .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
         for (const a of recent) {
           if (digest.length >= 5) break;

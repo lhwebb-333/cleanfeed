@@ -64,7 +64,7 @@ export default async function handler(req, res) {
         const overlap = bWords.filter((w) => aWords.has(w)).length;
         const overlapRatio = overlap / Math.min(aWords.size, bWords.length);
 
-        if (overlapRatio >= 0.4 && overlap >= 3) {
+        if (overlapRatio >= 0.35 && overlap >= 3) {
           cluster.sources.add(b.source);
           cluster.dupeIndices.add(j);
           clustered.add(j);
@@ -99,7 +99,7 @@ export default async function handler(req, res) {
     articles = articles.filter((_, idx) => !dupeIndices.has(idx));
 
     // Detect running stories — cluster articles about the same specific story
-    const STOP2 = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","is","are","was","were","has","have","had","not","its","it","with","from","by","as","this","that","says","said","say","new","up","down","out","just","also","now","after","how","why","what","who","more","been","could","would","about","into","over","than","them","they","their","these","other","first","last","most","some","make","like","will","back","take","people","trump","biden","administration","government","president"]);
+    const STOP2 = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","is","are","was","were","has","have","had","not","its","it","with","from","by","as","this","that","says","said","say","new","up","down","out","just","also","now","after","how","why","what","who","more","been","could","would","about","into","over","than","them","they","their","these","other","first","last","most","some","make","like","will","back","take","people","trump","biden","administration","government","president","news","today","todays","latest","stories","updates","report","reports","according","amid","here","many","much","still","even","every","getting","going","know","look","well","show","shows","week","year","years","time","says","told","tells","world","state","states","country","reuters","associated","press"]);
     function storyWords(title) {
       return [...new Set(title.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/)
         .filter((w) => w.length > 3 && !STOP2.has(w)))];
