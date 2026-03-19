@@ -317,13 +317,16 @@ export function FilterRibbon({
 }) {
   const { theme } = useTheme();
   const [open, setOpen] = useState(false);
-  const prevKeywordCount = useRef(mutedKeywords.length);
+  const prevKeywordCount = useRef(null); // null = hasn't mounted yet
 
-  // React to keyword changes from feed header preset buttons:
-  // - Keywords added (0→N or N→N+M): open the ribbon to show pills
-  // - Keywords removed back to 0: collapse the ribbon
-  // - No change: leave as-is
+  // React to keyword changes from feed header preset buttons.
+  // Skip the initial mount (localStorage load) — only respond to user actions.
   useEffect(() => {
+    if (prevKeywordCount.current === null) {
+      // First render — record initial state, don't open
+      prevKeywordCount.current = mutedKeywords.length;
+      return;
+    }
     const prev = prevKeywordCount.current;
     const curr = mutedKeywords.length;
     if (curr > prev) {
