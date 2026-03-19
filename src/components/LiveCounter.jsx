@@ -33,10 +33,10 @@ export function LiveCounter() {
           background: theme.colors.bg,
           border: `1px solid ${theme.colors.border}`,
           color: theme.colors.textMuted,
-          fontSize: 9,
+          fontSize: 8,
           cursor: "pointer",
-          height: 22,
-          padding: "0 6px",
+          height: 18,
+          padding: "0 5px",
           borderRadius: theme.radii.sm,
           fontFamily: theme.fonts.mono,
           display: "flex",
@@ -46,12 +46,12 @@ export function LiveCounter() {
         }}
       >
         <span style={{
-          width: 5, height: 5, borderRadius: "50%",
+          width: 4, height: 4, borderRadius: "50%",
           background: "#4CAF50",
           animation: "pulse 2s ease infinite",
           flexShrink: 0,
         }} />
-        <span style={{ fontSize: 8, letterSpacing: "0.03em" }}>
+        <span style={{ fontSize: 7, letterSpacing: "0.03em" }}>
           {(stats.views.today || 0).toLocaleString()}
         </span>
       </button>
