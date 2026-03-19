@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useTheme } from "../hooks/useTheme";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
-const S = 7; // uniform font size for everything
+const S = 6; // uniform font size for everything
 
 export function LiveCounter() {
   const { theme } = useTheme();
@@ -41,8 +41,8 @@ export function LiveCounter() {
           border: `1px solid ${theme.colors.border}`,
           color: theme.colors.textMuted,
           cursor: "pointer",
-          height: 16,
-          padding: "0 4px",
+          height: 14,
+          padding: "0 3px",
           borderRadius: theme.radii.sm,
           fontFamily: theme.fonts.mono,
           fontSize: S,
@@ -65,7 +65,7 @@ export function LiveCounter() {
           background: theme.colors.surface,
           border: `1px solid ${theme.colors.border}`,
           borderRadius: theme.radii.sm,
-          padding: "4px 6px",
+          padding: "3px 5px",
           boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
           zIndex: 60,
           fontFamily: theme.fonts.mono,
