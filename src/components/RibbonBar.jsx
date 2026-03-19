@@ -18,7 +18,7 @@ export function SourceRibbon({
 }) {
   const { theme } = useTheme();
   const localName = selectedState ? `Local ${selectedState}` : null;
-  const primarySources = SOURCES.filter((s) => !SUB_SET.has(s.name));
+  const primarySources = SOURCES;
   const allSources = localName
     ? [...primarySources, { key: "local", name: localName, color: getSourceColor(localName) }]
     : primarySources;
@@ -66,7 +66,7 @@ export function TopicRibbon({
   const [scores, setScores] = useState(null);
 
   const localName = selectedState ? `Local ${selectedState}` : null;
-  const primarySources = SOURCES.filter((s) => !SUB_SET.has(s.name));
+  const primarySources = SOURCES;
   const allSources = localName
     ? [...primarySources, { key: "local", name: localName, color: getSourceColor(localName) }]
     : primarySources;
@@ -564,7 +564,7 @@ export function TodayRibbon() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0 }}>
                   <span style={{
                     fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
-                    color: theme.colors.textGhost, letterSpacing: "0.06em", textTransform: "uppercase",
+                    color: "#FF8C00", letterSpacing: "0.06em", textTransform: "uppercase",
                   }}>TODAY'S TOP STORIES</span>
                   {data.digest.map((d, i) => (
                     <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
