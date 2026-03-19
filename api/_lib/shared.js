@@ -414,16 +414,11 @@ export function normalizeForDedup(title = "") {
     .slice(0, 50);
 }
 
-// Strip description if it just repeats the title (Google News RSS artifact)
-// Only blanks when desc is JUST the title (possibly with source name appended),
-// not when it starts with the title then adds new context.
-function cleanDescription(title = "", desc = "") {
-  if (!desc) return "";
-  const normT = title.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const normD = desc.toLowerCase().replace(/[^a-z0-9]/g, "");
-  // Description is essentially just the title (within 30 chars of extra like " AP News")
-  if (normT.length > 15 && normD.startsWith(normT) && normD.length < normT.length + 30) return "";
-  return desc;
+// Keep descriptions as-is from RSS. Client-side ArticleCard handles
+// suppressing display when description duplicates the title visually.
+// Server keeps all descriptions so the classifier has full text to work with.
+function cleanDescription(title, desc) {
+  return desc || "";
 }
 
 // Strip source attribution suffix from display title
