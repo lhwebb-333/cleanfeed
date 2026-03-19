@@ -58,45 +58,45 @@ export function LiveCounter() {
 
       {open && (
         <div style={{
-          position: "absolute", top: "calc(100% + 6px)", left: 0,
+          position: "absolute", top: "calc(100% + 4px)", left: 0,
           background: theme.colors.surface,
           border: `1px solid ${theme.colors.border}`,
-          borderRadius: theme.radii.md,
-          padding: "8px 10px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-          minWidth: 120,
+          borderRadius: theme.radii.sm,
+          padding: "5px 8px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+          minWidth: 95,
           zIndex: 60,
         }}>
           <p style={{
-            fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
+            fontFamily: theme.fonts.mono, fontSize: 6, fontWeight: 700,
             color: theme.colors.textMuted, letterSpacing: "0.06em",
-            marginBottom: 6, textTransform: "uppercase",
-            display: "flex", alignItems: "center", gap: 5,
+            marginBottom: 4, textTransform: "uppercase",
+            display: "flex", alignItems: "center", gap: 3,
           }}>
             <span style={{
-              width: 5, height: 5, borderRadius: "50%",
+              width: 3, height: 3, borderRadius: "50%",
               background: "#4CAF50", flexShrink: 0,
             }} />
             Live
           </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {[
               { label: "Today", value: stats.views.today },
               { label: "Yesterday", value: stats.views.yesterday },
             ].map((row) => (
               <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <span style={{ fontFamily: theme.fonts.mono, fontSize: 8, color: theme.colors.textFaint }}>{row.label}</span>
-                <span style={{ fontFamily: theme.fonts.mono, fontSize: 10, fontWeight: 700, color: theme.colors.textStrong }}>
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: 7, color: theme.colors.textFaint }}>{row.label}</span>
+                <span style={{ fontFamily: theme.fonts.mono, fontSize: 8, fontWeight: 700, color: theme.colors.textStrong }}>
                   {(row.value || 0).toLocaleString()}
                 </span>
               </div>
             ))}
             <div style={{
               display: "flex", justifyContent: "space-between", alignItems: "baseline",
-              borderTop: `1px solid ${theme.colors.border}`, paddingTop: 4,
+              borderTop: `1px solid ${theme.colors.border}`, paddingTop: 2,
             }}>
-              <span style={{ fontFamily: theme.fonts.mono, fontSize: 8, color: theme.colors.textFaint }}>This week</span>
-              <span style={{ fontFamily: theme.fonts.mono, fontSize: 10, fontWeight: 700, color: theme.colors.textStrong }}>
+              <span style={{ fontFamily: theme.fonts.mono, fontSize: 7, color: theme.colors.textFaint }}>This week</span>
+              <span style={{ fontFamily: theme.fonts.mono, fontSize: 8, fontWeight: 700, color: theme.colors.textStrong }}>
                 {(stats.views.week || 0).toLocaleString()}
               </span>
             </div>
@@ -110,10 +110,10 @@ export function LiveCounter() {
             )}
           </div>
           <p style={{
-            fontFamily: theme.fonts.mono, fontSize: 6, color: theme.colors.textGhost,
-            marginTop: 6, lineHeight: 1.4,
+            fontFamily: theme.fonts.mono, fontSize: 5, color: theme.colors.textGhost,
+            marginTop: 4, lineHeight: 1.3,
           }}>
-            No cookies. No tracking. Just a counter.
+            No cookies. Just a counter.
           </p>
         </div>
       )}
