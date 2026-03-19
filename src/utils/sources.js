@@ -1,13 +1,17 @@
 export const SOURCES = [
+  // Wire services
   { key: "reuters", name: "Reuters", color: "#FF8C00" },
   { key: "ap", name: "AP News", color: "#4A90D9" },
   { key: "bbc", name: "BBC", color: "#C1272D" },
   { key: "npr", name: "NPR", color: "#5BBD72" },
-  { key: "fred", name: "FRED", color: "#607D8B" },
-  { key: "sec", name: "SEC", color: "#607D8B" },
-  { key: "bls", name: "BLS", color: "#607D8B" },
-  { key: "treasury", name: "Treasury", color: "#607D8B" },
-  { key: "fed", name: "Fed", color: "#607D8B" },
+  // Center-rated editorial
+  { key: "thehill", name: "The Hill", color: "#1E88E5" },
+  { key: "pbs", name: "PBS", color: "#1976D2" },
+  { key: "csm", name: "CSM", color: "#1565C0" },
+  { key: "bloomberg", name: "Bloomberg", color: "#7B1FA2" },
+  // International public broadcasters
+  { key: "dw", name: "DW", color: "#0097A7" },
+  { key: "france24", name: "France 24", color: "#2E7D32" },
 ];
 
 export const LOCAL_COLOR = "#9b59b6";
