@@ -355,6 +355,10 @@ export function About({ open, onClose }) {
                 label: "Category sorting",
                 detail: "Each article is tagged (World, Sports, Tech, etc.) using keyword matching so you can filter by topic. This is imperfect — a story about an oil company might land in the wrong bucket. We're improving it constantly, but we'd rather be transparent about the limitation than pretend it doesn't exist.",
               },
+              {
+                label: "Daily digest curation",
+                detail: "The email digest selects stories mechanically: Overnight and Top Stories are chosen by how many independent sources cover the same event. Worth Reading picks the article with the longest description per category — more context from the source means more substance. No human picks favorites.",
+              },
             ].map((item) => (
               <div key={item.label}>
                 <span style={{

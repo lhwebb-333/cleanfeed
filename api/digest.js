@@ -131,8 +131,11 @@ export default async function handler(req, res) {
     // 1. Overnight / Breaking — multi-source, last 12 hours
     const overnight = findMultiSourceStories(articles, 12 * 60 * 60 * 1000).slice(0, 3);
 
-    // 2. Top 5 Stories — multi-source, last 24 hours
-    const top5 = findMultiSourceStories(articles, 24 * 60 * 60 * 1000).slice(0, 3);
+    // 2. Top Stories — multi-source, last 24 hours, excluding overnight dupes
+    const overnightTitles = new Set(overnight.map(s => normalizeForDedup(s.title)));
+    const top5 = findMultiSourceStories(articles, 24 * 60 * 60 * 1000)
+      .filter(s => !overnightTitles.has(normalizeForDedup(s.title)))
+      .slice(0, 3);
 
     // 3. Market snapshot
     let marketHtml = "";
@@ -182,10 +185,13 @@ export default async function handler(req, res) {
       }
     }
 
-    // 5. Worth Reading — 1 best article per specialty category
+    // 5. Worth Reading — 1 most substantive article per specialty category
+    // Selected by description length (longest = most context from the source)
     const worthReading = [];
     for (const cat of ["financial", "tech", "science", "health"]) {
-      const catArticles = articles.filter(a => a.category === cat && a.description?.length > 50);
+      const catArticles = articles
+        .filter(a => a.category === cat && a.description?.length > 50)
+        .sort((a, b) => (b.description?.length || 0) - (a.description?.length || 0));
       if (catArticles.length > 0) {
         worthReading.push({ ...catArticles[0], _cat: cat });
       }
