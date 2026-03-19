@@ -81,13 +81,13 @@ function findMultiSourceStories(articles, cutoffMs) {
 
 function articleHtml(a, accent) {
   const color = SOURCE_COLORS[a.source] || "#888";
-  return `<div style="margin-bottom:12px;">
+  return `<div style="margin-bottom:14px;">
     <p style="font-family:monospace;font-size:9px;margin:0 0 2px;">
       <span style="color:${color};font-weight:700;">${escapeHtml(a.source)}</span>
-      <span style="color:#666;margin-left:6px;">${timeAgo(a.pubDate)}</span>
+      <span style="color:#999;margin-left:6px;">${timeAgo(a.pubDate)}</span>
       ${a.sourceCount ? `<span style="color:${accent || '#FF8C00'};margin-left:6px;font-weight:700;">${a.sourceCount}+ sources</span>` : ""}
     </p>
-    <a href="${escapeHtml(a.link)}" style="color:#eee;text-decoration:none;font-size:15px;line-height:1.4;font-weight:500;font-family:Georgia,serif;">
+    <a href="${escapeHtml(a.link)}" style="color:#111;text-decoration:none;font-size:15px;line-height:1.45;font-weight:500;font-family:Georgia,serif;">
       ${escapeHtml(a.title)}
     </a>
     ${a.sourceLinks?.length > 1 ? `<p style="margin:4px 0 0;">${a.sourceLinks.map(sl =>
@@ -97,7 +97,7 @@ function articleHtml(a, accent) {
 }
 
 function sectionHeader(title, color) {
-  return `<p style="font-family:monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${color || '#666'};margin:24px 0 10px;border-bottom:1px solid #222;padding-bottom:4px;">${escapeHtml(title)}</p>`;
+  return `<p style="font-family:monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${color || '#999'};margin:24px 0 10px;border-bottom:1px solid #eee;padding-bottom:4px;">${escapeHtml(title)}</p>`;
 }
 
 export default async function handler(req, res) {
@@ -195,35 +195,45 @@ export default async function handler(req, res) {
     const now = new Date();
     const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
+    // Rebuild market HTML for light mode + smaller
+    let marketHtmlLight = "";
+    try {
+      const mRes2 = await fetch("https://thecleanfeed.app/api/markets");
+      const mData2 = await mRes2.json();
+      if (mData2.ok && mData2.indices?.length > 0) {
+        const mkts = mData2.indices.slice(0, 7).map(idx => {
+          const arrow = idx.direction === "up" ? "\u25B2" : idx.direction === "down" ? "\u25BC" : "";
+          const color = idx.direction === "up" ? "#2E7D32" : idx.direction === "down" ? "#C62828" : "#888";
+          return `<span style="margin-right:12px;"><span style="color:#888;font-size:9px;">${idx.short}</span> <span style="color:#222;font-weight:700;font-size:10px;">${idx.price >= 1000 ? idx.price.toLocaleString("en-US", {maximumFractionDigits:0}) : idx.price.toFixed(2)}</span><span style="color:${color};font-size:9px;"> ${arrow}${Math.abs(idx.changePct || 0).toFixed(1)}%</span></span>`;
+        }).join("");
+        const state = mData2.marketState === "REGULAR" ? "OPEN" : mData2.marketState === "PRE" ? "PRE-MKT" : mData2.marketState === "POST" ? "AFTER-HRS" : "CLOSED";
+        marketHtmlLight = `<div style="font-family:monospace;font-size:10px;line-height:2;padding:6px 0;border-bottom:1px solid #ddd;">${mkts}<span style="color:#aaa;font-size:8px;">${state}</span></div>`;
+      }
+    } catch {}
+
     let html = `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width"></head>
-<body style="margin:0;padding:0;background:#0d0d0d;color:#d4d4d4;font-family:Georgia,'Times New Roman',serif;">
+<body style="margin:0;padding:0;background:#ffffff;color:#2a2a2a;font-family:Georgia,'Times New Roman',serif;">
 <div style="max-width:560px;margin:0 auto;padding:24px 16px;">
 
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
     <tr>
-      <td style="font-family:monospace;font-size:13px;font-weight:700;letter-spacing:0.2em;color:#eee;">CLEAN FEED</td>
-      <td style="text-align:right;font-family:monospace;font-size:10px;color:#888;">${escapeHtml(dateStr)}</td>
+      <td style="font-family:monospace;font-size:13px;font-weight:700;letter-spacing:0.2em;color:#111;">CLEAN FEED</td>
+      <td style="text-align:right;font-family:monospace;font-size:10px;color:#999;">${escapeHtml(dateStr)}</td>
     </tr>
     <tr>
-      <td colspan="2" style="font-family:Georgia,serif;font-size:13px;color:#888;font-style:italic;padding-top:2px;">Your morning briefing.</td>
+      <td colspan="2" style="font-family:Georgia,serif;font-size:13px;color:#999;font-style:italic;padding-top:2px;">Your morning briefing.</td>
     </tr>
   </table>
 
-  <div style="height:1px;background:#333;margin-bottom:20px;"></div>
+  ${marketHtmlLight}
 `;
 
     // OVERNIGHT
     if (overnight.length > 0) {
-      html += sectionHeader("Overnight", "#EF5350");
-      for (const s of overnight) html += articleHtml(s, "#EF5350");
-    }
-
-    // MARKETS
-    if (marketHtml) {
-      html += sectionHeader("Markets", "#FF8C00");
-      html += marketHtml;
+      html += sectionHeader("Overnight", "#C62828");
+      for (const s of overnight) html += articleHtml(s, "#C62828");
     }
 
     // TOP STORIES
@@ -238,7 +248,7 @@ export default async function handler(req, res) {
       for (const s of runningStories.slice(0, 3)) {
         const color = SOURCE_COLORS[s.source] || "#888";
         html += `<div style="margin-bottom:8px;">
-          <a href="${escapeHtml(s.link)}" style="font-family:Georgia,serif;font-size:13px;color:#ddd;text-decoration:none;line-height:1.4;">
+          <a href="${escapeHtml(s.link)}" style="font-family:Georgia,serif;font-size:13px;color:#222;text-decoration:none;line-height:1.4;">
             ${escapeHtml(s.title)}
           </a>
           <span style="font-family:monospace;font-size:8px;color:#9C27B0;margin-left:6px;">${s.count} articles · ${s.days} days</span>
@@ -258,32 +268,32 @@ export default async function handler(req, res) {
             <span style="color:#444;margin:0 4px;">·</span>
             <span style="color:#4CAF50;">${catLabel}</span>
           </p>
-          <a href="${escapeHtml(a.link)}" style="color:#ddd;text-decoration:none;font-size:14px;line-height:1.4;">
+          <a href="${escapeHtml(a.link)}" style="color:#222;text-decoration:none;font-size:14px;line-height:1.4;">
             ${escapeHtml(a.title)}
           </a>
-          ${a.description ? `<p style="font-size:12px;color:#888;line-height:1.4;margin:3px 0 0;">${escapeHtml(a.description.slice(0, 150))}${a.description.length > 150 ? "..." : ""}</p>` : ""}
+          ${a.description ? `<p style="font-size:12px;color:#777;line-height:1.4;margin:3px 0 0;">${escapeHtml(a.description.slice(0, 150))}${a.description.length > 150 ? "..." : ""}</p>` : ""}
         </div>`;
       }
     }
 
     // QUICK LINKS — sports, weather, full feed
     html += sectionHeader("At a Glance", "#888");
-    html += `<div style="font-family:monospace;font-size:11px;line-height:2.2;">
-      <a href="https://thecleanfeed.app" style="color:#ddd;text-decoration:none;border:1px solid #333;border-radius:3px;padding:3px 10px;margin-right:8px;">Sports Scores</a>
-      <a href="https://thecleanfeed.app" style="color:#ddd;text-decoration:none;border:1px solid #333;border-radius:3px;padding:3px 10px;margin-right:8px;">Weather</a>
-      <a href="https://thecleanfeed.app" style="color:#ddd;text-decoration:none;border:1px solid #333;border-radius:3px;padding:3px 10px;">Full Feed</a>
+    html += `<div style="font-family:monospace;font-size:10px;line-height:2.2;">
+      <a href="https://thecleanfeed.app" style="color:#333;text-decoration:none;border:1px solid #ddd;border-radius:3px;padding:3px 10px;margin-right:6px;">Live Scores</a>
+      <a href="https://thecleanfeed.app" style="color:#333;text-decoration:none;border:1px solid #ddd;border-radius:3px;padding:3px 10px;margin-right:6px;">Local Weather</a>
+      <a href="https://thecleanfeed.app" style="color:#333;text-decoration:none;border:1px solid #ddd;border-radius:3px;padding:3px 10px;">Full Feed</a>
     </div>
-    <p style="font-family:monospace;font-size:8px;color:#555;margin-top:6px;">Sports scores and local weather update live on the site.</p>`;
+    <p style="font-family:monospace;font-size:8px;color:#aaa;margin-top:6px;">Scores and weather update live on the site.</p>`;
 
     // FOOTER
     html += `
-  <div style="height:1px;background:#333;margin:24px 0 16px;"></div>
-  <p style="font-family:monospace;font-size:9px;color:#666;line-height:1.6;">
-    ${articles.length} stories from 23 sources · <a href="https://thecleanfeed.app" style="color:#888;text-decoration:underline;">Read full feed</a> ·
-    <a href="https://thecleanfeed.app/api/reader" style="color:#888;text-decoration:underline;">Reader mode</a> ·
-    <a href="%%UNSUB_URL%%" style="color:#888;text-decoration:underline;">Unsubscribe</a>
+  <div style="height:1px;background:#eee;margin:24px 0 16px;"></div>
+  <p style="font-family:monospace;font-size:9px;color:#999;line-height:1.6;">
+    ${articles.length} stories from 23 sources · <a href="https://thecleanfeed.app" style="color:#666;text-decoration:underline;">Read full feed</a> ·
+    <a href="https://thecleanfeed.app/api/reader" style="color:#666;text-decoration:underline;">Reader mode</a> ·
+    <a href="%%UNSUB_URL%%" style="color:#666;text-decoration:underline;">Unsubscribe</a>
   </p>
-  <p style="font-family:Georgia,serif;font-size:11px;color:#555;font-style:italic;margin-top:12px;">
+  <p style="font-family:Georgia,serif;font-size:11px;color:#aaa;font-style:italic;margin-top:12px;">
     This email contains no tracking pixels and no click tracking.<br>
     We don't know if you opened it. That's the point.
   </p>
