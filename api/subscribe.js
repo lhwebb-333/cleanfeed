@@ -130,7 +130,8 @@ export default async function handler(req, res) {
       }
 
       // Health check mode — called by Vercel Cron every 5 min
-      if (req.query.health === "true") {
+      const url = new URL(req.url, `https://${req.headers.host}`);
+      if (url.searchParams.get("health") === "true" || req.query?.health === "true") {
         return runHealthCheck(res);
       }
 
