@@ -12,12 +12,16 @@ function loadSet(key, fallback) {
   try {
     const saved = localStorage.getItem(key);
     if (saved) return new Set(JSON.parse(saved));
-  } catch {}
+  } catch {
+    // Ignore localStorage errors
+  }
   return new Set(fallback);
 }
 
 function saveSet(key, set) {
-  try { localStorage.setItem(key, JSON.stringify([...set])); } catch {}
+  try { localStorage.setItem(key, JSON.stringify([...set])); } catch {
+    // Ignore localStorage errors
+  }
 }
 
 export function useFeed() {
@@ -49,7 +53,10 @@ export function useFeed() {
     try {
       const saved = localStorage.getItem("cleanfeed-muted");
       return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
+    } catch {
+      // Ignore localStorage errors
+      return [];
+    }
   });
 
   // State-level local news
@@ -68,7 +75,9 @@ export function useFeed() {
     setMutedKeywords((prev) => {
       if (prev.includes(trimmed)) return prev;
       const next = [...prev, trimmed];
-      try { localStorage.setItem("cleanfeed-muted", JSON.stringify(next)); } catch {}
+      try { localStorage.setItem("cleanfeed-muted", JSON.stringify(next)); } catch {
+        // Ignore localStorage errors
+      }
       return next;
     });
   }, []);
@@ -76,14 +85,18 @@ export function useFeed() {
   const removeMutedKeyword = useCallback((word) => {
     setMutedKeywords((prev) => {
       const next = prev.filter((w) => w !== word);
-      try { localStorage.setItem("cleanfeed-muted", JSON.stringify(next)); } catch {}
+      try { localStorage.setItem("cleanfeed-muted", JSON.stringify(next)); } catch {
+        // Ignore localStorage errors
+      }
       return next;
     });
   }, []);
 
   const clearMutedKeywords = useCallback(() => {
     setMutedKeywords([]);
-    try { localStorage.removeItem("cleanfeed-muted"); } catch {}
+    try { localStorage.removeItem("cleanfeed-muted"); } catch {
+      // Ignore localStorage errors
+    }
   }, []);
 
   const toggleSource = useCallback((name) => {
