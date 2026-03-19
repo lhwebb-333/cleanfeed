@@ -58,7 +58,7 @@ export function LiveCounter() {
 
       {open && (
         <div style={{
-          position: "absolute", top: "calc(100% + 6px)", right: 0,
+          position: "absolute", top: "calc(100% + 6px)", left: 0,
           background: theme.colors.surface,
           border: `1px solid ${theme.colors.border}`,
           borderRadius: theme.radii.md,

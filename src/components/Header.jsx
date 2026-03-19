@@ -83,12 +83,16 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         borderBottom: `1px solid ${theme.colors.border}`,
       }}
     >
+      {/* Live counter — fixed top-left */}
+      <div style={{ position: "fixed", top: 8, left: 12, zIndex: 50 }}>
+        <LiveCounter />
+      </div>
+
       {/* Utility buttons — fixed top-right corner */}
       <div style={{
         position: "fixed", top: 8, right: 12, zIndex: 50,
         display: "flex", gap: 3, alignItems: "center",
       }}>
-        <LiveCounter />
         {[
           { label: "?", onClick: onAbout, title: "About" },
           { label: "\u2261", onClick: () => window.open("/api/reader", "_blank"), title: "Reader mode" },
