@@ -222,7 +222,6 @@ export default function App() {
         }}>
           Sources: Reuters · AP News · BBC · NPR · The Hill · PBS · CSM · Bloomberg · DW · France 24 · Ars Technica · MIT Tech Review · Nature · Phys.org · STAT News · KFF Health · FRED · SEC · BLS · Treasury · Fed{selectedState ? ` · Local ${selectedState}` : ""}
         </p>
-        <LiveCounter />
         <p style={{
           fontFamily: theme.fonts.mono, fontSize: 10, color: theme.colors.textGhost,
           letterSpacing: "0.03em", marginBottom: 14,

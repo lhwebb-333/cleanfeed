@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTheme } from "../hooks/useTheme";
 import { timeAgo } from "../utils/time";
+import { LiveCounter } from "./LiveCounter";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 const LOC_KEY = "cleanfeed-weather-loc";
@@ -87,6 +88,7 @@ export function Header({ lastUpdated, refreshing, onRefresh, mode, onToggleTheme
         position: "fixed", top: 8, right: 12, zIndex: 50,
         display: "flex", gap: 3, alignItems: "center",
       }}>
+        <LiveCounter />
         {[
           { label: "?", onClick: onAbout, title: "About" },
           { label: "\u2261", onClick: () => window.open("/api/reader", "_blank"), title: "Reader mode" },
