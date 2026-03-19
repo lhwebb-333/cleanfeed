@@ -129,6 +129,11 @@ export default async function handler(req, res) {
         return res.status(400).send("Invalid unsubscribe link");
       }
 
+      // Health check mode — called by Vercel Cron every 5 min
+      if (req.query.health === "true") {
+        return runHealthCheck(res);
+      }
+
       // Stats endpoint
       const count = await getSubscriberCount();
       return res.json({
@@ -143,6 +148,57 @@ export default async function handler(req, res) {
     console.error("[Subscribe] Error:", err.message);
     res.status(500).json({ ok: false, error: "Subscription failed" });
   }
+}
+
+// Health check — verifies all critical feeds are working
+// Pings healthchecks.io on success, /fail on degraded
+const HC_PING = "https://hc-ping.com/c701a064-53bd-44d0-b6a4-96ee4ace9552";
+
+async function runHealthCheck(res) {
+  const { fetchSource, SOURCES } = await import("./_lib/shared.js");
+  const start = Date.now();
+  const checks = [];
+  const failures = [];
+
+  for (const key of Object.keys(SOURCES)) {
+    try {
+      const articles = await fetchSource(key);
+      checks.push({ source: key, ok: articles.length > 0, count: articles.length });
+      if (articles.length === 0) failures.push(`${key}: 0 articles`);
+    } catch (err) {
+      checks.push({ source: key, ok: false, error: err.message });
+      failures.push(`${key}: ${err.message}`);
+    }
+  }
+
+  try {
+    const marketsRes = await fetch("https://thecleanfeed.app/api/markets");
+    const markets = await marketsRes.json();
+    checks.push({ source: "markets", ok: markets.ok, count: markets.indices?.length || 0 });
+    if (!markets.ok) failures.push("markets: not ok");
+  } catch (err) {
+    checks.push({ source: "markets", ok: false, error: err.message });
+    failures.push(`markets: ${err.message}`);
+  }
+
+  const duration = Date.now() - start;
+  const allOk = failures.length === 0;
+
+  try {
+    if (allOk) {
+      await fetch(HC_PING);
+    } else {
+      await fetch(`${HC_PING}/fail`, {
+        method: "POST",
+        body: failures.join("\n"),
+        headers: { "Content-Type": "text/plain" },
+      });
+    }
+  } catch {}
+
+  console.log(`[Health] ${allOk ? "healthy" : "degraded"} — ${duration}ms, failures: ${failures.length}`);
+  res.setHeader("Cache-Control", "no-store");
+  return res.json({ ok: allOk, status: allOk ? "healthy" : "degraded", duration: `${duration}ms`, failures, checks });
 }
 
 // Export for use by the digest cron job
