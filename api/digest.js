@@ -97,7 +97,7 @@ function articleHtml(a, accent) {
 }
 
 function sectionHeader(title, color) {
-  return `<p style="font-family:monospace;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${color || '#999'};margin:24px 0 10px;border-bottom:1px solid #eee;padding-bottom:4px;">${escapeHtml(title)}</p>`;
+  return `<p style="font-family:monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${color || '#999'};margin:24px 0 10px;border-bottom:1px solid #eee;padding-bottom:4px;">${escapeHtml(title)}</p>`;
 }
 
 export default async function handler(req, res) {
@@ -227,7 +227,7 @@ export default async function handler(req, res) {
     </tr>
   </table>
 
-  ${marketHtmlLight}
+  ${marketHtmlLight ? `<p style="font-family:monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#FF8C00;margin:16px 0 4px;">MARKETS</p>${marketHtmlLight}` : ""}
 `;
 
     // OVERNIGHT
