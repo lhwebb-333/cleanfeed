@@ -129,9 +129,8 @@ export default async function handler(req, res) {
         return res.status(400).send("Invalid unsubscribe link");
       }
 
-      // Health check mode — called by Vercel Cron every 5 min
-      // Vercel cron sets this header automatically
-      if (req.headers["x-vercel-cron"] || req.headers["user-agent"]?.includes("vercel-cron")) {
+      // Health check mode — append ?health to trigger
+      if ("health" in (req.query || {})) {
         return runHealthCheck(res);
       }
 
