@@ -129,10 +129,14 @@ export default async function handler(req, res) {
         return res.status(400).send("Invalid unsubscribe link");
       }
 
-      // Health check mode — append ?health to trigger
-      if ("health" in (req.query || {})) {
+      // Health check mode — /api/subscribe?health
+      const queryKeys = Object.keys(req.query || {});
+      if (queryKeys.includes("health")) {
         return runHealthCheck(res);
       }
+
+      // Debug: log what we see (remove after confirming)
+      console.log(`[Subscribe] GET query: ${JSON.stringify(req.query)}, url: ${req.url}, keys: ${queryKeys}`);
 
       // Stats endpoint
       const count = await getSubscriberCount();
