@@ -130,7 +130,8 @@ export default async function handler(req, res) {
       }
 
       // Health check mode — called by Vercel Cron every 5 min
-      if (req.url?.includes("health")) {
+      // Vercel cron sets this header automatically
+      if (req.headers["x-vercel-cron"] || req.headers["user-agent"]?.includes("vercel-cron")) {
         return runHealthCheck(res);
       }
 
