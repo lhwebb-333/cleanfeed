@@ -115,7 +115,7 @@ export default function App() {
               color: searchQuery ? theme.colors.textMuted : theme.colors.textFaint,
               letterSpacing: "0.05em",
             }}>
-              {searchQuery ? `${articles.length} results for "${searchQuery}"` : hoursWindow <= 12 ? "Brief" : "Today's feed"}
+              {searchQuery ? `${articles.length} results for "${searchQuery}"` : hoursWindow <= 3 ? "Recent" : hoursWindow <= 12 ? "Brief" : "Today's feed"}
             </span>
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} style={{
@@ -169,7 +169,7 @@ export default function App() {
                   );
                 })()}
                 <span style={{ width: 1, height: 10, background: theme.colors.border }} />
-                {[12, 24].map((h) => (
+                {[3, 12, 24].map((h) => (
                   <button key={h} onClick={() => setBriefMode(h)} style={{
                     fontFamily: theme.fonts.mono, fontSize: 8, padding: "2px 6px",
                     background: hoursWindow === h ? "rgba(255,140,0,0.1)" : "transparent",
@@ -178,7 +178,7 @@ export default function App() {
                     color: hoursWindow === h ? theme.colors.textStrong : theme.colors.textFaint,
                     cursor: "pointer", letterSpacing: "0.04em",
                   }}>
-                    {h === 12 ? "BRIEF" : "24H"}
+                    {h === 3 ? "3H" : h === 12 ? "12H" : "24H"}
                   </button>
                 ))}
               </div>

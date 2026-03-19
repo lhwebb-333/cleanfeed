@@ -316,18 +316,23 @@ export function FilterRibbon({
   selectedState, onSelectState, onClearState,
 }) {
   const { theme } = useTheme();
-  const [userToggled, setUserToggled] = useState(null); // null = auto, true/false = manual
+  const [open, setOpen] = useState(false);
   const prevKeywordCount = useRef(mutedKeywords.length);
-  // Reset manual override when keyword count changes (user toggled preset from feed header)
+
+  // React to keyword changes from feed header preset buttons:
+  // - Keywords added (0→N or N→N+M): open the ribbon to show pills
+  // - Keywords removed back to 0: collapse the ribbon
+  // - No change: leave as-is
   useEffect(() => {
-    if (mutedKeywords.length !== prevKeywordCount.current) {
-      setUserToggled(null);
-      prevKeywordCount.current = mutedKeywords.length;
+    const prev = prevKeywordCount.current;
+    const curr = mutedKeywords.length;
+    if (curr > prev) {
+      setOpen(true);  // keywords added — show the pills
+    } else if (curr === 0 && prev > 0) {
+      setOpen(false); // all keywords removed — collapse
     }
+    prevKeywordCount.current = curr;
   }, [mutedKeywords.length]);
-  // Auto-open when filters are active, respect manual toggle
-  const hasActiveFilters = mutedKeywords.length > 0 || !!selectedState;
-  const open = userToggled !== null ? userToggled : hasActiveFilters;
   const [muteInput, setMuteInput] = useState("");
   const [stateInput, setStateInput] = useState("");
 
@@ -346,7 +351,7 @@ export function FilterRibbon({
       borderBottom: `1px solid ${theme.colors.border}`,
     }}>
       {/* Collapsed bar */}
-      <button className="ribbon-label" onClick={() => setUserToggled(!open)} style={{
+      <button className="ribbon-label" onClick={() => setOpen(!open)} style={{
         ...lblStyle(theme), background: "none", border: "none", cursor: "pointer",
         display: "flex", alignItems: "center", gap: 6, width: "100%",
         padding: `3px ${theme.spacing.lg}px`, textAlign: "left", minHeight: 26,
