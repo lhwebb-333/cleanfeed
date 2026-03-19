@@ -149,13 +149,21 @@ const CATEGORY_KEYWORDS = {
     "man city", "manchester city", "aston villa", "newcastle united",
     "west ham", "everton", "wolves", "wolverhampton", "crystal palace",
     "nottingham forest", "bournemouth", "fulham", "leicester",
+    // Cricket
+    "cricket", "wicket", "bowler", "batsman", "t20", "test match",
+    "odi ", "ipl ", "ashes ", "captain steps down", "training camp",
+    // Women's sports — same sport, needs same classification
+    "wsl ", "women's super league", "women's world cup",
+    "lionesses", "matildas", "uswnt", "nwsl",
+    // Athlete-specific phrases
+    "steps down as captain", "retires from", "returns from injury",
+    "called up to squad", "training camp",
+    // Leagues & federations
+    "la liga", " serie a", "bundesliga", "ligue 1",
+    "eredivisie", "fifa ", "uefa ", "icc ",
     // Common sports headline phrases
-    "straight game", "straight games",
-    // REMOVED: "match" (ambiguous — "match expectations"), "points" (financial/political),
-    // "game " ("game-changing"), "beats "/"beat the " ("beats estimates"),
-    // "scored "/"scores " ("scores of people"), "league" standalone ("league of nations"),
-    // "transfer" standalone ("money transfer"), "pitch" ("pitch deck"),
-    // "overtime" ("working overtime")
+    "straight game", "straight games", "relegation",
+    "clean sheet", "hat-trick", "hat trick", "penalty shootout",
   ],
   financial: [
     "stock", "share price", "shares fell", "shares rose", "shares drop",

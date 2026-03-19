@@ -72,6 +72,10 @@ export function TopicRibbon({
     : primarySources;
 
   const activeSourceCount = allSources.filter((s) => enabledSources.has(s.name)).length;
+  // Count active sub-sources too (specialty outlets shown in topic dropdowns)
+  const activeSubSourceCount = ALL_SUBSOURCE_NAMES.filter((n) => !disabledSubSources?.has(n)).length;
+  const totalActiveSourceCount = activeSourceCount + activeSubSourceCount;
+  const totalSourceCount = allSources.length + ALL_SUBSOURCE_NAMES.length;
   const activeTopicCount = CATEGORIES.filter((c) => enabledCategories.has(c.key)).length;
 
   // Fetch scores
@@ -125,7 +129,7 @@ export function TopicRibbon({
           <span style={arrowStyle(openSection === "sources")}>▸</span>
           SOURCES
           <span className="ribbon-count" style={{ fontSize: 9, fontWeight: 400, color: theme.colors.textFaint }}>
-            {activeSourceCount}/{allSources.length}
+            {totalActiveSourceCount}/{totalSourceCount}
           </span>
         </button>
 

@@ -76,8 +76,8 @@ export function InstallPrompt() {
             color: theme.colors.textMuted, lineHeight: 1.4,
           }}>
             {isIOS()
-              ? "Tap the share button \u23CE then \"Add to Home Screen\""
-              : "Tap \u22EE menu \u2192 \"Install app\" or \"Add to Home Screen\""
+              ? "Tap the share button \u23CE then \u201CAdd to Home Screen\u201D"
+              : "Tap \u22EE menu \u2192 \u201CInstall app\u201D or \u201CAdd to Home Screen\u201D"
             }
           </p>
         )}
@@ -87,7 +87,7 @@ export function InstallPrompt() {
         cursor: "pointer", fontSize: 16, padding: "4px", lineHeight: 1,
         flexShrink: 0,
       }}>
-        \u00D7
+        {"\u00D7"}
       </button>
     </div>
   );

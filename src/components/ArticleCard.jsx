@@ -23,6 +23,16 @@ const SOURCE_INFO = {
   "Atlas Obscura": "The definitive guide to the world's hidden wonders. Covers curious places, unexpected history, and gastronomy.",
 };
 
+function descriptionDuplicatesTitle(title = "", desc = "") {
+  const normTitle = title.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const normDesc = desc.toLowerCase().replace(/[^a-z0-9]/g, "");
+  // Description is just the title (possibly with source name appended)
+  if (normDesc.startsWith(normTitle) && normDesc.length < normTitle.length + 30) return true;
+  // Description is substantially the same as the title
+  if (normTitle.length > 20 && normDesc.startsWith(normTitle.slice(0, normTitle.length - 5))) return true;
+  return false;
+}
+
 export function ArticleCard({ article }) {
   const { theme } = useTheme();
   const [hovered, setHovered] = useState(false);
@@ -141,7 +151,7 @@ export function ArticleCard({ article }) {
         {article.title}
       </h2>
 
-      {article.description && (
+      {article.description && !descriptionDuplicatesTitle(article.title, article.description) && (
         <p
           style={{
             fontFamily: theme.fonts.serif,
