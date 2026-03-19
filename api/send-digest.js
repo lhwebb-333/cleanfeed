@@ -46,7 +46,7 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             // Use Resend's default sender until domain is verified
             // Change back to: "Clean Feed <digest@thecleanfeed.app>" once DNS propagates
-            from: "Clean Feed <onboarding@resend.dev>",
+            from: "onboarding@resend.dev",
             to: email,
             subject: `Clean Feed — ${today}`,
             html,
