@@ -243,8 +243,8 @@ export function useFeed() {
     return merged;
   }, [allArticles, localArticles, financialArticles]);
 
-  // Time window — default 24h, "load more" extends
-  const [hoursWindow, setHoursWindow] = useState(24);
+  // Time window — default 3h (quick check-in), user can expand
+  const [hoursWindow, setHoursWindow] = useState(3);
 
   const loadMore = useCallback(() => {
     setHoursWindow((prev) => prev + 24);
