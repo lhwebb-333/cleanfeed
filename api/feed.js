@@ -1,19 +1,28 @@
 import { fetchSource, fetchTopicFeeds, fetchSupplementalFeeds, normalizeForDedup, SOURCES } from "./_lib/shared.js";
 
-// Server-side page view counter — no cookies, no client JS, no third party
-async function countPageView() {
+// Server-side unique visitor counter — no cookies, no client JS, no third party
+// Counts once per IP per day using a Redis set. IP is not stored — only used
+// to check if this visitor was already counted today, then discarded.
+async function countPageView(req) {
   try {
     const { Redis } = await import("@upstash/redis");
     const redis = Redis.fromEnv();
-    const today = new Date().toISOString().split("T")[0]; // "2026-03-19"
-    await redis.incr(`views:${today}`);
-  } catch {} // Silently fail — analytics should never break the feed
+    const today = new Date().toISOString().split("T")[0];
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket?.remoteAddress || "unknown";
+    // Hash the IP so we never store it in readable form
+    const { createHash } = await import("crypto");
+    const hash = createHash("sha256").update(ip + today).digest("hex").slice(0, 12);
+    const isNew = await redis.sadd(`visitors:${today}`, hash);
+    if (isNew) await redis.incr(`views:${today}`);
+    // Expire the visitor set after 48h to save memory
+    await redis.expire(`visitors:${today}`, 172800);
+  } catch {}
 }
 
 export default async function handler(req, res) {
   try {
-    // Count this page load (fire-and-forget, don't await)
-    countPageView();
+    // Count unique visitor (fire-and-forget, don't await)
+    countPageView(req);
     const { source: sourceFilter, category: categoryFilter } = req.query;
     const limit = Math.min(parseInt(req.query.limit) || 300, 1000);
 
