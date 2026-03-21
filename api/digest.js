@@ -127,15 +127,27 @@ export default async function handler(req, res) {
     articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
     // === BUILD BRIEFING SECTIONS ===
+    // Global dedup — no article appears in more than one section
+    const usedTitles = new Set();
+    function isUsed(title) {
+      const norm = title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 80);
+      return usedTitles.has(norm);
+    }
+    function markUsed(items) {
+      for (const s of items) {
+        usedTitles.add(s.title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 80));
+      }
+    }
 
     // 1. Overnight / Breaking — multi-source, last 12 hours
     const overnight = findMultiSourceStories(articles, 12 * 60 * 60 * 1000).slice(0, 3);
+    markUsed(overnight);
 
-    // 2. Top Stories — multi-source, last 24 hours, excluding overnight dupes
-    const overnightTitles = new Set(overnight.map(s => normalizeForDedup(s.title)));
+    // 2. Top Stories — multi-source, last 24 hours, excluding used
     const top5 = findMultiSourceStories(articles, 24 * 60 * 60 * 1000)
-      .filter(s => !overnightTitles.has(normalizeForDedup(s.title)))
+      .filter(s => !isUsed(s.title))
       .slice(0, 3);
+    markUsed(top5);
 
     // 3. Market snapshot
     let marketHtml = "";
@@ -185,15 +197,20 @@ export default async function handler(req, res) {
       }
     }
 
+    // Filter running stories against used titles
+    const filteredRunning = runningStories.filter(s => !isUsed(s.title)).slice(0, 3);
+    markUsed(filteredRunning);
+
     // 5. Worth Reading — 1 most substantive article per specialty category
-    // Selected by description length (longest = most context from the source)
+    // Excludes anything already in Overnight, Top Stories, or Developing
     const worthReading = [];
     for (const cat of ["financial", "tech", "science", "health"]) {
       const catArticles = articles
-        .filter(a => a.category === cat && a.description?.length > 50)
+        .filter(a => a.category === cat && a.description?.length > 50 && !isUsed(a.title))
         .sort((a, b) => (b.description?.length || 0) - (a.description?.length || 0));
       if (catArticles.length > 0) {
         worthReading.push({ ...catArticles[0], _cat: cat });
+        markUsed([catArticles[0]]);
       }
     }
 
@@ -249,9 +266,9 @@ export default async function handler(req, res) {
     }
 
     // RUNNING STORIES
-    if (runningStories.length > 0) {
+    if (filteredRunning.length > 0) {
       html += sectionHeader("Developing", "#9C27B0");
-      for (const s of runningStories.slice(0, 3)) {
+      for (const s of filteredRunning) {
         const color = SOURCE_COLORS[s.source] || "#888";
         html += `<div style="margin-bottom:8px;">
           <a href="${escapeHtml(s.link)}" style="font-family:Georgia,serif;font-size:13px;color:#222;text-decoration:none;line-height:1.4;">
