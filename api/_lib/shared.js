@@ -414,11 +414,16 @@ export function normalizeForDedup(title = "") {
     .slice(0, 50);
 }
 
-// Keep descriptions as-is from RSS. Client-side ArticleCard handles
-// suppressing display when description duplicates the title visually.
-// Server keeps all descriptions so the classifier has full text to work with.
-function cleanDescription(title, desc) {
-  return desc || "";
+// Strip descriptions that are just the title repeated (Google News artifact).
+// Returns empty string for duplicates — cleaner data for all consumers.
+// Classifier gets rawDesc separately for categorization.
+function cleanDescription(title = "", desc = "") {
+  if (!desc) return "";
+  const nt = title.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const nd = desc.toLowerCase().replace(/[^a-z0-9]/g, "");
+  // Only strip if desc is essentially the title with maybe a source name appended
+  if (nt.length > 15 && nd.startsWith(nt) && nd.length < nt.length + 30) return "";
+  return desc;
 }
 
 // Strip source attribution suffix from display title
@@ -616,49 +621,11 @@ export async function fetchSource(sourceKey) {
     return true;
   });
 
-  // Fetch real descriptions for articles where RSS only gave us the headline.
-  // Google News links need redirect resolution first — they're proxy URLs.
-  function descIsDup(a) {
-    if (!a.description || a.description.length < 10) return true;
-    const nt = a.title.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const nd = a.description.toLowerCase().replace(/[^a-z0-9]/g, "");
-    return nd.startsWith(nt) && nd.length < nt.length + 30;
-  }
-
-  async function resolveAndFetchDesc(a) {
-    try {
-      let url = a.link;
-      // Resolve Google News redirect to actual article URL
-      if (url.includes("news.google.com")) {
-        const headRes = await fetch(url, {
-          method: "HEAD",
-          redirect: "follow",
-          headers: { "User-Agent": "Mozilla/5.0" },
-          signal: AbortSignal.timeout(5000),
-        });
-        url = headRes.url || url;
-        // Also update the article link to the real URL
-        if (!url.includes("news.google.com")) a.link = url;
-      }
-      const r = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; CleanFeed/1.0)" },
-        redirect: "follow",
-        signal: AbortSignal.timeout(5000),
-      });
-      if (!r.ok) return;
-      const html = await r.text();
-      const match = html.match(/<meta\s+(?:name|property)=["'](?:description|og:description)["']\s+content=["']([^"']+)["']/i)
-        || html.match(/<meta\s+content=["']([^"']+)["']\s+(?:name|property)=["'](?:description|og:description)["']/i);
-      if (match?.[1] && match[1].length > 20) {
-        a.description = match[1].slice(0, 250);
-      }
-    } catch {}
-  }
-
-  const needRealDesc = deduped.filter(a => descIsDup(a) && a.link);
-  if (needRealDesc.length > 0) {
-    await Promise.allSettled(needRealDesc.slice(0, 15).map(resolveAndFetchDesc));
-  }
+  // Google News RSS provides no real descriptions for AP/Reuters — only the
+  // headline repeated. Server-side resolution of Google News redirect URLs
+  // is not possible (protobuf-encoded, requires JS execution).
+  // Client-side ArticleCard handles this by suppressing duplicate descriptions
+  // and rendering headline-only articles cleanly.
 
   setCache(sourceKey, deduped);
   return deduped;
