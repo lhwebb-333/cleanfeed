@@ -414,15 +414,16 @@ export function normalizeForDedup(title = "") {
     .slice(0, 50);
 }
 
-// Strip descriptions that are just the title repeated (Google News artifact).
-// Returns empty string for duplicates — cleaner data for all consumers.
-// Classifier gets rawDesc separately for categorization.
+// Check if description adds real content beyond the title.
+// Google News snippets are often the full headline + source name — keep those
+// that extend meaningfully, strip only exact duplicates.
 function cleanDescription(title = "", desc = "") {
   if (!desc) return "";
-  const nt = title.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const nd = desc.toLowerCase().replace(/[^a-z0-9]/g, "");
-  // Only strip if desc is essentially the title with maybe a source name appended
-  if (nt.length > 15 && nd.startsWith(nt) && nd.length < nt.length + 30) return "";
+  // Strip if they're character-for-character identical
+  if (desc.trim() === title.trim()) return "";
+  // Strip known source suffixes that don't add content
+  const stripped = desc.replace(/\s+(Reuters|AP News|BBC|NPR|Bloomberg)\s*$/, "").trim();
+  if (stripped === title.trim()) return "";
   return desc;
 }
 
