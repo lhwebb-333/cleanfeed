@@ -110,6 +110,7 @@ export default async function handler(req, res) {
       font-family: monospace; font-size: 10px; padding: 4px 10px;
       background: none; border: 1px solid #ddd; border-radius: 3px;
       cursor: pointer; color: #888; float: right; margin-top: -20px;
+      line-height: 1; display: inline-block; box-sizing: border-box;
     }
     @media (prefers-color-scheme: dark) {
       body:not(.light) { background: #111; color: #ddd; }
@@ -126,7 +127,7 @@ export default async function handler(req, res) {
 </head>
 <body>
   <h1>CLEAN FEED</h1>
-  <a href="https://thecleanfeed.app" class="toggle" style="margin-right:6px;text-decoration:none;">Full Site</a>
+  <a href="https://thecleanfeed.app" class="toggle" style="margin-right:4px;text-decoration:none;display:inline-block;">Full Site</a>
   <button class="toggle" onclick="document.body.classList.toggle('dark');document.body.classList.toggle('light');">Light / Dark</button>
   <p class="tagline">No algorithms. No rage. Just news.</p>
   <p class="date">${escapeHtml(now)} — Reader Mode</p>
