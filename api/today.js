@@ -269,20 +269,20 @@ export default async function handler(req, res) {
 
       const allDeduped = dedupStories(multiSourceStories);
 
-      // Split: breaking (last 3h) vs digest (last 24h)
+      // Split: breaking (last 6h) vs digest (last 24h) — 3 each
       breaking = allDeduped
         .filter((d) => new Date(d.pubDate).getTime() > cutoff6h)
-        .slice(0, 5);
-      digest = allDeduped.slice(0, 5);
+        .slice(0, 3);
+      digest = allDeduped.slice(0, 3);
 
       // Pad digest if needed
-      if (digest.length < 5) {
+      if (digest.length < 3) {
         const digestTitles = new Set(digest.map((d) => d.title));
         const recent = recentArticles
           .filter((a, i) => !digestTitles.has(a.title) && !digestChecked.has(i))
           .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
         for (const a of recent) {
-          if (digest.length >= 5) break;
+          if (digest.length >= 3) break;
           digest.push({
             title: a.title,
             sources: [a.source],
