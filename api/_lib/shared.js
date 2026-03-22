@@ -391,6 +391,8 @@ const LANDING_PAGE_PATTERNS = [
   /\| latest news & updates$/i,
   /\| top stories$/i,
   /^latest .+ news$/i,
+  /\| stock price/i,
+  /\| share price/i,
 ];
 
 function isOpinion(title = "", description = "") {
