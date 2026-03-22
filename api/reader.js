@@ -126,6 +126,7 @@ export default async function handler(req, res) {
 </head>
 <body>
   <h1>CLEAN FEED</h1>
+  <a href="https://thecleanfeed.app" class="toggle" style="margin-right:6px;text-decoration:none;">Full Site</a>
   <button class="toggle" onclick="document.body.classList.toggle('dark');document.body.classList.toggle('light');">Light / Dark</button>
   <p class="tagline">No algorithms. No rage. Just news.</p>
   <p class="date">${escapeHtml(now)} — Reader Mode</p>
