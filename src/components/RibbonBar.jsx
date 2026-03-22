@@ -566,7 +566,7 @@ export function TodayRibbon() {
                     fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
                     color: "#FF8C00", letterSpacing: "0.06em", textTransform: "uppercase",
                   }}>TODAY'S TOP STORIES</span>
-                  {data.digest.map((d, i) => (
+                  {data.digest.slice(0, 3).map((d, i) => (
                     <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <a href={d.link} target="_blank" rel="noopener noreferrer"
                         style={{
@@ -611,7 +611,7 @@ export function TodayRibbon() {
                   color: data.breaking?.length > 0 ? "#EF5350" : "#FF8C00",
                   letterSpacing: "0.06em", textTransform: "uppercase",
                 }}>{data.breaking?.length > 0 ? "BREAKING" : "LATEST"}</span>
-                {(data.breaking?.length > 0 ? data.breaking : data.digest?.slice(0, 1))?.map((d, i) => (
+                {(data.breaking?.length > 0 ? data.breaking.slice(0, 3) : data.digest?.slice(0, 3))?.map((d, i) => (
                   <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                     <a href={d.link} target="_blank" rel="noopener noreferrer"
                       style={{
