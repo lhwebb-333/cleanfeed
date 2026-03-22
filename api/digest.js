@@ -271,10 +271,10 @@ export default async function handler(req, res) {
       for (const s of filteredRunning) {
         const color = SOURCE_COLORS[s.source] || "#888";
         html += `<div style="margin-bottom:8px;">
-          <a href="${escapeHtml(s.link)}" style="font-family:Georgia,serif;font-size:13px;color:#222;text-decoration:none;line-height:1.4;">
+          <a href="${escapeHtml(s.link)}" style="font-family:Georgia,serif;font-size:15px;color:#222;text-decoration:none;line-height:1.4;font-weight:500;">
             ${escapeHtml(s.title)}
           </a>
-          <span style="font-family:monospace;font-size:8px;color:#9C27B0;margin-left:6px;">${s.count} articles · ${s.days} days</span>
+          <span style="font-family:monospace;font-size:9px;color:#9C27B0;margin-left:6px;">${s.count} articles · ${s.days} days</span>
         </div>`;
       }
     }
@@ -286,12 +286,12 @@ export default async function handler(req, res) {
         const catLabel = a._cat.charAt(0).toUpperCase() + a._cat.slice(1);
         const color = SOURCE_COLORS[a.source] || "#888";
         html += `<div style="margin-bottom:12px;">
-          <p style="font-family:monospace;font-size:8px;margin:0 0 2px;">
+          <p style="font-family:monospace;font-size:9px;margin:0 0 2px;">
             <span style="color:${color};font-weight:700;">${escapeHtml(a.source)}</span>
             <span style="color:#444;margin:0 4px;">·</span>
             <span style="color:#4CAF50;">${catLabel}</span>
           </p>
-          <a href="${escapeHtml(a.link)}" style="color:#222;text-decoration:none;font-size:14px;line-height:1.4;">
+          <a href="${escapeHtml(a.link)}" style="color:#222;text-decoration:none;font-size:15px;line-height:1.4;font-weight:500;font-family:Georgia,serif;">
             ${escapeHtml(a.title)}
           </a>
           ${a.description ? `<p style="font-size:12px;color:#777;line-height:1.4;margin:3px 0 0;">${escapeHtml(a.description.slice(0, 150))}${a.description.length > 150 ? "..." : ""}</p>` : ""}
