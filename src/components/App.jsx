@@ -302,9 +302,10 @@ export default function App() {
         a { text-decoration: none; color: inherit; }
         .source-filter-row::-webkit-scrollbar { display: none; }
         @media (max-width: 700px) {
-          .ribbon-label { font-size: 9px !important; padding: 5px 0 !important; }
+          .ribbon-label { font-size: 9px !important; padding: 5px 0 5px 12px !important; }
           .ribbon-label span { font-size: 8px !important; }
           .ribbon-count { font-size: 9px !important; }
+          .ribbon-dropdown { padding-left: 12px !important; }
           .ribbon-dropdown button { font-size: 9px !important; padding: 3px 8px !important; }
           .ribbon-dropdown span { font-size: 8px !important; }
         }
