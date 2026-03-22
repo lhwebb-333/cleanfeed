@@ -202,7 +202,7 @@ export default async function handler(req, res) {
 
       // Use ALL sources for multi-source detection, not just wire services
       const cutoff24h = Date.now() - 24 * 60 * 60 * 1000;
-      const cutoff3h = Date.now() - 3 * 60 * 60 * 1000;
+      const cutoff6h = Date.now() - 6 * 60 * 60 * 1000;
       const recentArticles = allArticles.filter((a) => new Date(a.pubDate).getTime() > cutoff24h);
 
       // Find multi-source stories
@@ -271,7 +271,7 @@ export default async function handler(req, res) {
 
       // Split: breaking (last 3h) vs digest (last 24h)
       breaking = allDeduped
-        .filter((d) => new Date(d.pubDate).getTime() > cutoff3h)
+        .filter((d) => new Date(d.pubDate).getTime() > cutoff6h)
         .slice(0, 5);
       digest = allDeduped.slice(0, 5);
 
