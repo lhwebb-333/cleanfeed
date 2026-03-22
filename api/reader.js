@@ -127,8 +127,10 @@ export default async function handler(req, res) {
 </head>
 <body>
   <h1>CLEAN FEED</h1>
-  <a href="https://thecleanfeed.app" class="toggle" style="margin-right:4px;text-decoration:none;display:inline-block;">Full Site</a>
-  <button class="toggle" onclick="document.body.classList.toggle('dark');document.body.classList.toggle('light');">Light / Dark</button>
+  <div style="float:right;margin-top:-20px;display:flex;gap:4px;">
+    <a href="https://thecleanfeed.app" style="font-family:monospace;font-size:10px;padding:4px 10px;background:none;border:1px solid #ddd;border-radius:3px;color:#888;text-decoration:none;cursor:pointer;">Full Site</a>
+    <button class="toggle" style="float:none;margin-top:0;" onclick="document.body.classList.toggle('dark');document.body.classList.toggle('light');">Light / Dark</button>
+  </div>
   <p class="tagline">No algorithms. No rage. Just news.</p>
   <p class="date">${escapeHtml(now)} — Reader Mode</p>
   <p class="meta" style="margin-bottom:16px">${catOrder.filter(c => categories[c]?.length > 0).map(c => `<a href="#${c}" style="color:inherit;text-decoration:underline;text-underline-offset:2px">${c}</a>`).join(" · ")}</p>
