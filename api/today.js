@@ -275,6 +275,25 @@ export default async function handler(req, res) {
         .slice(0, 3);
       digest = allDeduped.slice(0, 3);
 
+      // Pad breaking with recent articles if fewer than 3 multi-source stories
+      if (breaking.length < 3) {
+        const breakingTitles = new Set(breaking.map((d) => d.title));
+        const digestTitles = new Set(digest.map((d) => d.title));
+        const recentForBreaking = recentArticles
+          .filter((a) => !breakingTitles.has(a.title) && !digestTitles.has(a.title) && new Date(a.pubDate).getTime() > cutoff6h)
+          .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+        for (const a of recentForBreaking) {
+          if (breaking.length >= 3) break;
+          breaking.push({
+            title: a.title,
+            sources: [a.source],
+            sourceCount: 1,
+            pubDate: a.pubDate,
+            link: a.link,
+          });
+        }
+      }
+
       // Pad digest if needed
       if (digest.length < 3) {
         const digestTitles = new Set(digest.map((d) => d.title));
