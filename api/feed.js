@@ -220,7 +220,7 @@ export default async function handler(req, res) {
 
     articles = articles.slice(0, limit);
 
-    res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=120");
+    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
     res.json({
       ok: true,
       count: articles.length,

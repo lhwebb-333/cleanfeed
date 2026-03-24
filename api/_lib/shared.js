@@ -11,7 +11,7 @@ const parser = new Parser({
 
 // In-memory cache (persists across warm invocations on Vercel)
 const cache = new Map();
-const CACHE_TTL = 300 * 1000; // 5 min
+const CACHE_TTL = 600 * 1000; // 10 min — reduces cold starts with 69 RSS feeds
 
 export const SOURCES = {
   reuters: {
