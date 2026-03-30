@@ -1,5 +1,9 @@
 import { fetchSource, fetchTopicFeeds, fetchSupplementalFeeds, normalizeForDedup, SOURCES } from "./_lib/shared.js";
 
+// In-memory cache — survives across warm Vercel invocations, saves CPU on repeat requests
+const cache = { data: null, params: null, ts: 0 };
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
 // Server-side unique visitor counter — no cookies, no client JS, no third party
 // Counts once per IP per day using a Redis set. IP is not stored — only used
 // to check if this visitor was already counted today, then discarded.
@@ -25,6 +29,13 @@ export default async function handler(req, res) {
     countPageView(req);
     const { source: sourceFilter, category: categoryFilter } = req.query;
     const limit = Math.min(parseInt(req.query.limit) || 300, 1000);
+
+    // Check in-memory cache (keyed on source+category+limit)
+    const cacheKey = `${sourceFilter || ""}|${categoryFilter || ""}|${limit}`;
+    if (cache.data && cache.params === cacheKey && Date.now() - cache.ts < CACHE_TTL) {
+      res.setHeader("Cache-Control", "s-maxage=900, stale-while-revalidate=1800");
+      return res.json(cache.data);
+    }
 
     const sourceKeys = sourceFilter ? [sourceFilter] : Object.keys(SOURCES);
 
@@ -220,13 +231,20 @@ export default async function handler(req, res) {
 
     articles = articles.slice(0, limit);
 
-    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
-    res.json({
+    const response = {
       ok: true,
       count: articles.length,
       articles,
       ...(degradedSources.length > 0 ? { degraded: degradedSources } : {}),
-    });
+    };
+
+    // Store in memory cache
+    cache.data = response;
+    cache.params = cacheKey;
+    cache.ts = Date.now();
+
+    res.setHeader("Cache-Control", "s-maxage=900, stale-while-revalidate=1800");
+    res.json(response);
   } catch (err) {
     console.error("[CleanFeed] Feed error:", err);
     res.status(500).json({ ok: false, error: "Failed to fetch feeds" });

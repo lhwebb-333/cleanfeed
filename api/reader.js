@@ -3,6 +3,10 @@
 
 import { fetchSource, fetchTopicFeeds, fetchSupplementalFeeds, normalizeForDedup, SOURCES } from "./_lib/shared.js";
 
+// In-memory cache — survives across warm Vercel invocations
+const cache = { html: null, ts: 0 };
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
 function escapeHtml(str) {
   return (str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
@@ -19,6 +23,13 @@ function timeAgo(dateStr) {
 
 export default async function handler(req, res) {
   try {
+    // Check in-memory cache
+    if (cache.html && Date.now() - cache.ts < CACHE_TTL) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "s-maxage=900, stale-while-revalidate=1800");
+      return res.send(cache.html);
+    }
+
     const sourceKeys = Object.keys(SOURCES);
     const [sourceResults, topicArticles, supplementalArticles] = await Promise.all([
       Promise.allSettled(sourceKeys.map((key) => fetchSource(key))),
@@ -161,8 +172,12 @@ export default async function handler(req, res) {
 </body>
 </html>`;
 
+    // Store in memory cache
+    cache.html = html;
+    cache.ts = Date.now();
+
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+    res.setHeader("Cache-Control", "s-maxage=900, stale-while-revalidate=1800");
     res.send(html);
   } catch (err) {
     console.error("[Reader] Error:", err.message);

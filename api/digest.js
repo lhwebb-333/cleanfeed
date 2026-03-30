@@ -4,6 +4,10 @@
 
 import { fetchSource, fetchTopicFeeds, fetchSupplementalFeeds, normalizeForDedup, SOURCES } from "./_lib/shared.js";
 
+// In-memory cache — survives across warm Vercel invocations
+const cache = { data: null, ts: 0 };
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
 function escapeHtml(str) {
   return (str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
@@ -102,6 +106,17 @@ function sectionHeader(title, color) {
 
 export default async function handler(req, res) {
   try {
+    // Check in-memory cache
+    const format = req.query.format || "html";
+    if (cache.data && Date.now() - cache.ts < CACHE_TTL) {
+      if (format === "json") {
+        return res.json(cache.data.json);
+      }
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.setHeader("Cache-Control", "s-maxage=900, stale-while-revalidate=1800");
+      return res.send(cache.data.html);
+    }
+
     const sourceKeys = Object.keys(SOURCES);
     const [sourceResults, topicArticles, supplementalArticles] = await Promise.all([
       Promise.allSettled(sourceKeys.map(key => fetchSource(key))),
@@ -324,12 +339,18 @@ export default async function handler(req, res) {
 </body>
 </html>`;
 
-    const format = req.query.format || "html";
+    // Store in memory cache
+    cache.data = {
+      html,
+      json: { ok: true, articleCount: articles.length, html },
+    };
+    cache.ts = Date.now();
+
     if (format === "json") {
-      res.json({ ok: true, articleCount: articles.length, html });
+      res.json(cache.data.json);
     } else {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+      res.setHeader("Cache-Control", "s-maxage=900, stale-while-revalidate=1800");
       res.send(html);
     }
   } catch (err) {
