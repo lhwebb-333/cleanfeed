@@ -32,6 +32,7 @@
     { "source": "/:path(.*)", "has": [{ "type": "host", "value": "www.thecleanfeed.app" }], "destination": "https://thecleanfeed.app/:path", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/about", "destination": "/api/about" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
