@@ -143,14 +143,21 @@ export default async function handler(req, res) {
 
     // === BUILD BRIEFING SECTIONS ===
     // Global dedup — no article appears in more than one section
-    const usedTitles = new Set();
+    // Uses keyword overlap (same logic as findMultiSourceStories) so that
+    // "Trump announces tariffs on China" and "US imposes fresh tariffs on Chinese imports"
+    // are recognized as the same story across sections.
+    const usedStories = []; // array of keyword sets from used stories
     function isUsed(title) {
-      const norm = title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 80);
-      return usedTitles.has(norm);
+      const words = getWords(title);
+      if (words.length < 3) return false;
+      return usedStories.some(usedWords => {
+        const overlap = words.filter(w => usedWords.has(w)).length;
+        return overlap >= 3 && overlap / Math.min(usedWords.size, words.length) >= 0.35;
+      });
     }
     function markUsed(items) {
       for (const s of items) {
-        usedTitles.add(s.title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 80));
+        usedStories.push(new Set(getWords(s.title)));
       }
     }
 
