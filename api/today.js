@@ -269,11 +269,14 @@ export default async function handler(req, res) {
 
       const allDeduped = dedupStories(multiSourceStories);
 
-      // Split: breaking (last 6h) vs digest (last 24h) — 3 each
+      // Split: breaking (last 6h) vs digest (rest) — 3 each, no overlap
       breaking = allDeduped
         .filter((d) => new Date(d.pubDate).getTime() > cutoff6h)
         .slice(0, 3);
-      digest = allDeduped.slice(0, 3);
+      const breakingTitleSet = new Set(breaking.map((d) => d.title));
+      digest = allDeduped
+        .filter((d) => !breakingTitleSet.has(d.title))
+        .slice(0, 3);
 
       // Pad breaking with recent articles if fewer than 3 multi-source stories
       if (breaking.length < 3) {

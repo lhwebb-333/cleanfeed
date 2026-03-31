@@ -604,14 +604,15 @@ export function TodayRibbon() {
                 </div>
               )}
 
-              {/* Right: Breaking */}
+              {/* Right: Breaking — only shown when there are breaking stories */}
+              {data.breaking?.length > 0 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1, minWidth: 0 }}>
                 <span style={{
                   fontFamily: theme.fonts.mono, fontSize: 7, fontWeight: 700,
-                  color: data.breaking?.length > 0 ? "#EF5350" : "#FF8C00",
+                  color: "#EF5350",
                   letterSpacing: "0.06em", textTransform: "uppercase",
-                }}>{data.breaking?.length > 0 ? "BREAKING" : "LATEST"}</span>
-                {(data.breaking?.length > 0 ? data.breaking.slice(0, 3) : data.digest?.slice(0, 3))?.map((d, i) => (
+                }}>BREAKING</span>
+                {data.breaking.slice(0, 3).map((d, i) => (
                   <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                     <a href={d.link} target="_blank" rel="noopener noreferrer"
                       style={{
@@ -647,6 +648,7 @@ export function TodayRibbon() {
                   </div>
                 ))}
               </div>
+              )}
             </div>
           )}
 
