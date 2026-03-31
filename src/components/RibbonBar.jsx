@@ -76,7 +76,7 @@ export function TopicRibbon({
   const activeSubSourceCount = ALL_SUBSOURCE_NAMES.filter((n) => !disabledSubSources?.has(n)).length;
   const totalActiveSourceCount = activeSourceCount + activeSubSourceCount;
   const totalSourceCount = allSources.length + ALL_SUBSOURCE_NAMES.length;
-  const activeTopicCount = CATEGORIES.filter((c) => enabledCategories.has(c.key)).length;
+  const activeTopicCount = enabledCategories === null ? CATEGORIES.length : CATEGORIES.filter((c) => enabledCategories.has(c.key)).length;
 
   // Fetch scores
   useEffect(() => {
@@ -197,7 +197,7 @@ export function TopicRibbon({
           overflowX: "auto", scrollbarWidth: "none", WebkitOverflowScrolling: "touch",
         }}>
           {CATEGORIES.map((cat) => {
-            const on = enabledCategories.has(cat.key);
+            const on = enabledCategories !== null && enabledCategories.has(cat.key);
             const count = categoryCounts[cat.key] || 0;
             const hasSubs = !!CATEGORY_SUBSOURCES[cat.key];
             const isSubOpen = expandedSub === cat.key;

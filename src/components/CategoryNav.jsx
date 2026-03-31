@@ -13,7 +13,7 @@ export function CategoryNav({
   horizontal,
 }) {
   const { theme } = useTheme();
-  const allOn = enabledCategories.size === CATEGORIES.length;
+  const allOn = enabledCategories === null;
   const [expandedCat, setExpandedCat] = useState(null);
 
   const renderSubPills = (catKey) => {
@@ -67,7 +67,7 @@ export function CategoryNav({
         }}
       >
         {CATEGORIES.map((cat) => {
-          const on = enabledCategories.has(cat.key);
+          const on = enabledCategories !== null && enabledCategories.has(cat.key);
           const count = categoryCounts[cat.key] || 0;
           const hasSubs = !!CATEGORY_SUBSOURCES[cat.key];
           const isExpanded = expandedCat === cat.key;
@@ -105,8 +105,8 @@ export function CategoryNav({
                   <span style={{ marginLeft: 4, opacity: 0.5, fontSize: 9 }}>{count}</span>
                 )}
               </button>
-              {/* Small expand arrow — only if category is on and has subs */}
-              {hasSubs && on && (
+              {/* Small expand arrow — only if category is active and has subs */}
+              {hasSubs && (on || enabledCategories === null) && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -129,7 +129,7 @@ export function CategoryNav({
                 </button>
               )}
               {/* Sub-source pills — only when explicitly expanded */}
-              {hasSubs && on && isExpanded && renderSubPills(cat.key)}
+              {hasSubs && (on || enabledCategories === null) && isExpanded && renderSubPills(cat.key)}
             </div>
           );
         })}
@@ -187,7 +187,7 @@ export function CategoryNav({
       </div>
 
       {CATEGORIES.map((cat) => {
-        const on = enabledCategories.has(cat.key);
+        const on = enabledCategories !== null && enabledCategories.has(cat.key);
         const count = categoryCounts[cat.key] || 0;
         const hasSubs = !!CATEGORY_SUBSOURCES[cat.key];
 

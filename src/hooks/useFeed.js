@@ -31,7 +31,20 @@ export function useFeed() {
 
   // Persisted filters
   const [enabledSources, setEnabledSources] = useState(() => loadSet("cleanfeed-sources", ALL_SRC_KEYS));
-  const [enabledCategories, setEnabledCategories] = useState(() => loadSet("cleanfeed-categories", ALL_CAT_KEYS));
+  // null = "unfiltered" (all showing, nothing highlighted). A Set = explicit selection.
+  // Returning users with saved prefs load their Set; fresh users get null.
+  const [enabledCategories, setEnabledCategories] = useState(() => {
+    try {
+      const saved = localStorage.getItem("cleanfeed-categories");
+      if (saved) {
+        const arr = JSON.parse(saved);
+        // If they had all categories saved, treat as unfiltered
+        if (arr.length === ALL_CAT_KEYS.length) return null;
+        return new Set(arr);
+      }
+    } catch {}
+    return null;
+  });
   // Sub-source toggles (disabled set — empty means all on)
   const [disabledSubSources, setDisabledSubSources] = useState(() => loadSet("cleanfeed-disabled-subsources", []));
 
@@ -110,6 +123,18 @@ export function useFeed() {
 
   const toggleCategory = useCallback((key) => {
     setEnabledCategories((prev) => {
+      // Unfiltered (null) — first click selects ONLY this topic
+      if (prev === null) {
+        const next = new Set([key]);
+        saveSet("cleanfeed-categories", next);
+        return next;
+      }
+      // Only one selected and clicking it — back to unfiltered
+      if (prev.size === 1 && prev.has(key)) {
+        localStorage.removeItem("cleanfeed-categories");
+        return null;
+      }
+      // Normal toggle
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
       else next.add(key);
@@ -119,9 +144,8 @@ export function useFeed() {
   }, []);
 
   const enableAllCats = useCallback(() => {
-    const all = new Set(ALL_CAT_KEYS);
-    setEnabledCategories(all);
-    saveSet("cleanfeed-categories", all);
+    setEnabledCategories(null);
+    localStorage.removeItem("cleanfeed-categories");
   }, []);
 
   const disableAllCats = useCallback(() => {
@@ -263,7 +287,7 @@ export function useFeed() {
       } else {
         if (!enabledSources.has(a.source)) return false;
       }
-      if (!enabledCategories.has(a.category)) return false;
+      if (enabledCategories !== null && !enabledCategories.has(a.category)) return false;
       if (mutedKeywords.length > 0) {
         const text = `${a.title} ${a.description}`.toLowerCase();
         if (mutedKeywords.some((kw) => text.includes(kw))) return false;
