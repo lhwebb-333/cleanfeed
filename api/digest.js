@@ -32,7 +32,9 @@ const SOURCE_COLORS = {
 
 const STOP = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","is","are","was","were","has","have","had","not","its","it","with","from","by","as","this","that","says","said","say","new","up","down","out","just","also","now"]);
 function getWords(title) {
-  return title.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(w => w.length > 2 && !STOP.has(w));
+  return title.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/)
+    .map(w => w.replace(/s$/, "")) // strip trailing s (possessives + basic plurals)
+    .filter(w => w.length > 2 && !STOP.has(w));
 }
 
 function findMultiSourceStories(articles, cutoffMs) {
@@ -75,7 +77,7 @@ function findMultiSourceStories(articles, cutoffMs) {
     const isDupe = deduped.some(e => {
       const eWords = getWords(e.title);
       const overlap = eWords.filter(w => sWords.has(w)).length;
-      return overlap >= 3 && overlap / Math.min(sWords.size, eWords.length) >= 0.4;
+      return overlap >= 3 && overlap / Math.min(sWords.size, eWords.length) >= 0.3;
     });
     if (!isDupe) deduped.push(s);
   }
