@@ -144,17 +144,16 @@ export default async function handler(req, res) {
     articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
     // === BUILD BRIEFING SECTIONS ===
-    // Global dedup — no article appears in more than one section
-    // Uses keyword overlap (same logic as findMultiSourceStories) so that
-    // "Trump announces tariffs on China" and "US imposes fresh tariffs on Chinese imports"
-    // are recognized as the same story across sections.
-    const usedStories = []; // array of keyword sets from used stories
-    function isUsed(title) {
+    // Diversity filter — picks stories that don't overlap with already-picked stories.
+    // 2+ shared keywords = same topic, skip it. This catches related stories that use
+    // different wording (e.g. "Iran bombs tanker" and "Trump seizes Hormuz").
+    const usedStories = []; // keyword sets from all used stories across all sections
+    function overlapsUsed(title) {
       const words = getWords(title);
-      if (words.length < 3) return false;
+      if (words.length < 2) return false;
       return usedStories.some(usedWords => {
         const overlap = words.filter(w => usedWords.has(w)).length;
-        return overlap >= 3 && overlap / Math.min(usedWords.size, words.length) >= 0.35;
+        return overlap >= 2;
       });
     }
     function markUsed(items) {
@@ -162,17 +161,22 @@ export default async function handler(req, res) {
         usedStories.push(new Set(getWords(s.title)));
       }
     }
+    // Pick N diverse stories from a ranked list, skipping any that overlap with used stories
+    function pickDiverse(candidates, n) {
+      const picked = [];
+      for (const s of candidates) {
+        if (picked.length >= n) break;
+        if (overlapsUsed(s.title)) continue;
+        picked.push(s);
+        usedStories.push(new Set(getWords(s.title)));
+      }
+      return picked;
+    }
 
-    // 1 + 2. Find all multi-source stories once, then split with cross-section dedup.
-    // Same event can appear as separate clusters with different headlines
-    // (e.g. "Israel approves death penalty..." and "EU condemns death penalty law...").
+    // 1 + 2. Find all multi-source stories once, then pick diverse sets for each section.
     const allMultiSource = findMultiSourceStories(articles, 24 * 60 * 60 * 1000);
-    const overnight = allMultiSource.slice(0, 3);
-    markUsed(overnight);
-    const top5 = allMultiSource.slice(3)
-      .filter(s => !isUsed(s.title))
-      .slice(0, 3);
-    markUsed(top5);
+    const overnight = pickDiverse(allMultiSource, 3);
+    const top5 = pickDiverse(allMultiSource, 3);
 
     // 3. Market snapshot
     let marketHtml = "";
@@ -223,7 +227,7 @@ export default async function handler(req, res) {
     }
 
     // Filter running stories against used titles
-    const filteredRunning = runningStories.filter(s => !isUsed(s.title)).slice(0, 3);
+    const filteredRunning = runningStories.filter(s => !overlapsUsed(s.title)).slice(0, 3);
     markUsed(filteredRunning);
 
     // 5. Worth Reading — 1 most substantive article per specialty category
@@ -231,7 +235,7 @@ export default async function handler(req, res) {
     const worthReading = [];
     for (const cat of ["financial", "tech", "science", "health"]) {
       const catArticles = articles
-        .filter(a => a.category === cat && a.description?.length > 50 && !isUsed(a.title))
+        .filter(a => a.category === cat && a.description?.length > 50 && !overlapsUsed(a.title))
         .sort((a, b) => (b.description?.length || 0) - (a.description?.length || 0));
       if (catArticles.length > 0) {
         worthReading.push({ ...catArticles[0], _cat: cat });
