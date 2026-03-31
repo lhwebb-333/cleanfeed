@@ -144,16 +144,14 @@ export default async function handler(req, res) {
     articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
 
     // === BUILD BRIEFING SECTIONS ===
-    // Diversity filter — picks stories that don't overlap with already-picked stories.
-    // 2+ shared keywords = same topic, skip it. This catches related stories that use
-    // different wording (e.g. "Iran bombs tanker" and "Trump seizes Hormuz").
-    const usedStories = []; // keyword sets from all used stories across all sections
+    // Cross-section dedup — 3+ shared stemmed keywords at 30% ratio = same story.
+    const usedStories = [];
     function overlapsUsed(title) {
       const words = getWords(title);
-      if (words.length < 2) return false;
+      if (words.length < 3) return false;
       return usedStories.some(usedWords => {
         const overlap = words.filter(w => usedWords.has(w)).length;
-        return overlap >= 2;
+        return overlap >= 3 && overlap / Math.min(usedWords.size, words.length) >= 0.3;
       });
     }
     function markUsed(items) {
@@ -161,22 +159,15 @@ export default async function handler(req, res) {
         usedStories.push(new Set(getWords(s.title)));
       }
     }
-    // Pick N diverse stories from a ranked list, skipping any that overlap with used stories
-    function pickDiverse(candidates, n) {
-      const picked = [];
-      for (const s of candidates) {
-        if (picked.length >= n) break;
-        if (overlapsUsed(s.title)) continue;
-        picked.push(s);
-        usedStories.push(new Set(getWords(s.title)));
-      }
-      return picked;
-    }
 
-    // 1 + 2. Find all multi-source stories once, then pick diverse sets for each section.
+    // Find all multi-source stories once, split with cross-section dedup.
     const allMultiSource = findMultiSourceStories(articles, 24 * 60 * 60 * 1000);
-    const overnight = pickDiverse(allMultiSource, 3);
-    const top5 = pickDiverse(allMultiSource, 3);
+    const overnight = allMultiSource.slice(0, 3);
+    markUsed(overnight);
+    const top5 = allMultiSource.slice(3)
+      .filter(s => !overlapsUsed(s.title))
+      .slice(0, 3);
+    markUsed(top5);
 
     // 3. Market snapshot
     let marketHtml = "";
