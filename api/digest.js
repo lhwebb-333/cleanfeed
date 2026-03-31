@@ -161,12 +161,15 @@ export default async function handler(req, res) {
       }
     }
 
-    // 1 + 2. Find all multi-source stories once, split into Overnight and Top Stories.
-    // Running the same function twice with overlapping windows (12h/24h) produced duplicates.
+    // 1 + 2. Find all multi-source stories once, then split with cross-section dedup.
+    // Same event can appear as separate clusters with different headlines
+    // (e.g. "Israel approves death penalty..." and "EU condemns death penalty law...").
     const allMultiSource = findMultiSourceStories(articles, 24 * 60 * 60 * 1000);
     const overnight = allMultiSource.slice(0, 3);
     markUsed(overnight);
-    const top5 = allMultiSource.slice(3, 6);
+    const top5 = allMultiSource.slice(3)
+      .filter(s => !isUsed(s.title))
+      .slice(0, 3);
     markUsed(top5);
 
     // 3. Market snapshot
