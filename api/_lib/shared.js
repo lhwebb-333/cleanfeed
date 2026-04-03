@@ -450,6 +450,72 @@ function setCache(key, data) {
   cache.set(key, { data, timestamp: Date.now() });
 }
 
+// Scrape og:description for articles missing descriptions.
+// Fetches just enough HTML to find meta tags, caches results for 2 hours.
+const descCache = new Map();
+const DESC_CACHE_TTL = 2 * 60 * 60 * 1000;
+
+async function scrapeDescription(url) {
+  if (!url) return "";
+  const cached = descCache.get(url);
+  if (cached && Date.now() - cached.ts < DESC_CACHE_TTL) return cached.desc;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { "User-Agent": "CleanFeed/1.0 (RSS Reader)" },
+    });
+    clearTimeout(timeout);
+    // Read just the first 15KB — meta tags are always in <head>
+    const reader = res.body.getReader();
+    let html = "";
+    while (html.length < 15000) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      html += new TextDecoder().decode(value);
+    }
+    reader.cancel();
+
+    // Extract og:description or meta description
+    const ogMatch = html.match(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i)
+      || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:description["']/i);
+    const metaMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i)
+      || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']description["']/i);
+
+    const desc = (ogMatch?.[1] || metaMatch?.[1] || "")
+      .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+      .slice(0, 300).trim();
+
+    descCache.set(url, { desc, ts: Date.now() });
+    return desc;
+  } catch {
+    descCache.set(url, { desc: "", ts: Date.now() });
+    return "";
+  }
+}
+
+// Enrich articles that are missing descriptions — batch with concurrency limit
+export async function enrichDescriptions(articles, limit = 30) {
+  const needsEnrich = articles.filter(a => !a.description && a.link).slice(0, limit);
+  if (needsEnrich.length === 0) return;
+
+  // Fetch in batches of 10 to avoid hammering
+  for (let i = 0; i < needsEnrich.length; i += 10) {
+    const batch = needsEnrich.slice(i, i + 10);
+    const results = await Promise.allSettled(
+      batch.map(a => scrapeDescription(a.link))
+    );
+    for (let j = 0; j < batch.length; j++) {
+      if (results[j].status === "fulfilled" && results[j].value) {
+        batch[j].description = results[j].value;
+      }
+    }
+  }
+}
+
 // State-level local news config (mirrored from src/utils/stateSources.js for backend)
 const US_STATES = {
   AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California",

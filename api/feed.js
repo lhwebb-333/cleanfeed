@@ -1,4 +1,4 @@
-import { fetchSource, fetchTopicFeeds, fetchSupplementalFeeds, normalizeForDedup, SOURCES } from "./_lib/shared.js";
+import { fetchSource, fetchTopicFeeds, fetchSupplementalFeeds, normalizeForDedup, enrichDescriptions, SOURCES } from "./_lib/shared.js";
 
 // In-memory cache — survives across warm Vercel invocations, saves CPU on repeat requests
 const cache = { data: null, params: null, ts: 0 };
@@ -230,6 +230,9 @@ export default async function handler(req, res) {
     }
 
     articles = articles.slice(0, limit);
+
+    // Scrape og:description for articles missing synopses (cached 2hr, batched)
+    await enrichDescriptions(articles);
 
     const response = {
       ok: true,
