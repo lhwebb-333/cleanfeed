@@ -395,9 +395,14 @@ const LANDING_PAGE_PATTERNS = [
   /\| share price/i,
 ];
 
-function isOpinion(title = "", description = "") {
+function isOpinion(title = "", description = "", link = "") {
   const text = `${title} ${description}`.toLowerCase();
   if (OPINION_FILTERS.some((f) => text.includes(f))) return true;
+  // URL-based opinion detection (The Hill /opinion/, etc.)
+  if (link) {
+    const url = link.toLowerCase();
+    if (url.includes("/opinion/") || url.includes("/op-ed/") || url.includes("/columns/")) return true;
+  }
   // Filter Google News landing/index pages
   if (LANDING_PAGE_PATTERNS.some((p) => p.test(title.trim()))) return true;
   // Filter non-English articles (Spanish from KFF, etc.)
@@ -500,7 +505,7 @@ export async function fetchLocalFeed(stateCode) {
   try {
     const feed = await parser.parseURL(apUrl);
     for (const item of (feed.items || []).slice(0, 20)) {
-      if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      if (isOpinion(item.title, item.contentSnippet || item.content, item.link)) continue;
       if (isTooOld(item.isoDate || item.pubDate)) continue;
       const rawDesc = (item.contentSnippet || item.content || "").slice(0, 250);
       const desc = cleanDescription(item.title, rawDesc);
@@ -526,7 +531,7 @@ export async function fetchLocalFeed(stateCode) {
     try {
       const feed = await parser.parseURL(src.rss);
       for (const item of (feed.items || []).slice(0, 15)) {
-        if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+        if (isOpinion(item.title, item.contentSnippet || item.content, item.link)) continue;
         if (isTooOld(item.isoDate || item.pubDate)) continue;
         const rawDesc = (item.contentSnippet || item.content || "").slice(0, 250);
         const desc = cleanDescription(item.title, rawDesc);
@@ -594,7 +599,7 @@ export async function fetchSource(sourceKey) {
     }
     const { feed, category } = result.value;
     for (const item of feed.items || []) {
-      if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      if (isOpinion(item.title, item.contentSnippet || item.content, item.link)) continue;
       if (isTooOld(item.isoDate || item.pubDate)) continue;
       const title = stripSourceSuffix(item.title);
       const rawDesc = (item.contentSnippet || item.content || "").slice(0, 250);
@@ -736,7 +741,7 @@ export async function fetchSupplementalFeeds() {
   for (const result of results) {
     if (result.status !== "fulfilled") continue;
     for (const { item, name, color, category, serendipity } of result.value) {
-      if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+      if (isOpinion(item.title, item.contentSnippet || item.content, item.link)) continue;
       if (isTooOld(item.isoDate || item.pubDate)) continue;
       const rawDesc = (item.contentSnippet || item.content || "").slice(0, 250);
       if (isJournalPaper(item.title, rawDesc, name, item.link || item.guid)) continue;
@@ -803,7 +808,7 @@ export async function fetchTopicFeeds() {
       for (const item of feed.items || []) {
         const sourceInfo = matchApprovedSource(item);
         if (!sourceInfo) continue;
-        if (isOpinion(item.title, item.contentSnippet || item.content)) continue;
+        if (isOpinion(item.title, item.contentSnippet || item.content, item.link)) continue;
         if (isTooOld(item.isoDate || item.pubDate)) continue;
         const title = stripSourceSuffix(item.title);
         const rawDesc = (item.contentSnippet || item.content || "").slice(0, 250);
